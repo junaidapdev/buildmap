@@ -99,3 +99,13 @@
 **Alternatives considered:** Hosting a custom backend with the frontend or selecting an SPA platform before deployment planning.
 
 **Reversibility:** Easy.
+
+## 2026-05-25 - Frontend Toolchain Baseline
+
+**Decision:** Scaffold `buildmap-frontend` with Node.js `>=20.19.0`, React 19, Vite 8, TypeScript 6, ESLint 9 flat configuration, and Tailwind CSS 3.4; install `class-variance-authority` and `@radix-ui/react-slot` only as dependencies of the required shadcn/ui Button.
+
+**Reason:** The installed current frontend tooling supports the Vite SPA architecture, while Tailwind CSS 3.4 retains the `tailwind.config.ts`, PostCSS, and slate CSS-variable shadcn setup specified for this chunk. The Button cannot compile without its variant and slot dependencies.
+
+**Alternatives considered:** Tailwind CSS 4 with its changed setup, legacy ESLint configuration, or a hand-built button that would not validate the shadcn integration.
+
+**Reversibility:** Easy.
