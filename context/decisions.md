@@ -109,3 +109,91 @@
 **Alternatives considered:** Tailwind CSS 4 with its changed setup, legacy ESLint configuration, or a hand-built button that would not validate the shadcn integration.
 
 **Reversibility:** Easy.
+
+## 2026-05-26 - Default AI Provider Mapping
+
+**Decision:** Map `idea_clarification`, `agent_prompt_generation`, and `issue_to_spec` to OpenAI
+`gpt-4o-mini`; map document, architecture, chunk, feature-specification, context-file, and
+knowledge-extraction generations to Anthropic Claude Sonnet. The sole feature-facing entry point
+is `backend/_shared/ai/index.ts` through `generate(type, input, outputSchema)`.
+
+**Reason:** Short structured generations favor speed and cost, while longer planning documents
+benefit from the long-form provider default. Centralized mapping allows a provider swap by editing
+one config entry rather than feature code.
+
+**Alternatives considered:** One provider for every generation type or direct provider calls from
+individual feature functions.
+
+**Reversibility:** Easy.
+
+## 2026-05-26 - Claude Sonnet Model Identifier Update
+
+**Decision:** Use `claude-sonnet-4-6` for Anthropic-mapped generation types and diagnostic calls
+instead of the feature spec's listed `claude-sonnet-4-5`.
+
+**Reason:** At implementation time, Anthropic's official current models documentation lists
+Claude Sonnet 4.6 as the current Sonnet API model identifier. Chunk 02 requires the current stable
+equivalent when a listed default is superseded.
+
+**Alternatives considered:** Retaining the older `claude-sonnet-4-5` identifier.
+
+**Reversibility:** Easy.
+
+## 2026-05-26 - Provider Deno Adapters Use HTTP APIs
+
+**Decision:** Implement both provider adapters with `fetch` against the official OpenAI Chat
+Completions API and Anthropic Messages API rather than importing provider SDKs in served Edge
+Functions.
+
+**Reason:** The official Anthropic TypeScript SDK documents Node.js runtime support but does not
+claim Deno support. The official OpenAI Deno package type-checks under local Deno, but runtime
+verification showed that Supabase Edge Runtime could not load its transitive type graph. Small
+typed HTTP adapters use the documented APIs without runtime-incompatible package resolution and
+validate provider response boundaries with Zod.
+
+**Alternatives considered:** Importing the Anthropic Node-targeted TypeScript SDK or the OpenAI
+Deno/JSR package inside Supabase Edge Functions.
+
+**Reversibility:** Easy.
+
+## 2026-05-26 - Production CORS Requires Explicit Origins
+
+**Decision:** Allow wildcard CORS origins only for local development; backend startup rejects
+`ALLOWED_ORIGINS=*` in production, and Chunk 31 must configure explicit deployed SPA origins.
+
+**Reason:** Development needs simple local access, while wildcard origins are too permissive for
+a deployed API boundary.
+
+**Alternatives considered:** Wildcard CORS in every environment or hardcoding an undeclared
+deployment URL before the hosting decision is made.
+
+**Reversibility:** Easy.
+
+## 2026-05-26 - Isolated Local Supabase Ports
+
+**Decision:** Configure the buildmap local Supabase stack on ports `55320` through `55329`, with
+the API endpoint at `http://127.0.0.1:55321`, instead of the CLI default `5432x` range.
+
+**Reason:** A separate existing local Supabase project already occupies the default database port.
+An isolated range allows both projects to run without stopping or changing unrelated work.
+
+**Alternatives considered:** Stop the unrelated local project or require manual port changes for
+each development session.
+
+**Reversibility:** Easy.
+
+## 2026-05-26 - Per-Function Deno Configuration
+
+**Decision:** Keep the root backend `deno.json` and `import_map.json` for repository-wide
+validation and compatibility, and add a small `deno.json` beside each served function for its
+runtime dependency aliases.
+
+**Reason:** Current Supabase documentation recommends per-function `deno.json` configuration and
+classifies global import maps as legacy. Local Edge Runtime boot confirmed that the root mapped
+aliases were not applied to custom `backend/functions/` entrypoints without function-local
+configuration.
+
+**Alternatives considered:** Replace aliases with repeated direct URL imports or relocate functions
+under `backend/supabase/functions/`, which would violate the locked repository layout.
+
+**Reversibility:** Easy.
