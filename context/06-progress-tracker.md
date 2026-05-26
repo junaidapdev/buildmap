@@ -2,9 +2,7 @@
 
 ## Current Phase
 
-Phase 0 — Foundation & Standards (Complete)
-
-Phase 1 begins with Chunk 04 — Database Schema & RLS.
+Phase 1 — Database & Authentication
 
 ## Completed Chunks
 
@@ -12,6 +10,7 @@ Phase 1 begins with Chunk 04 — Database Schema & RLS.
 - [x] Chunk 01 — Frontend Scaffold
 - [x] Chunk 02 — Backend Scaffold
 - [x] Chunk 03 — Code Standards & AI Workflow Rules
+- [x] Chunk 04 — Database Schema & Row-Level Security
 
 ## In Progress
 
@@ -19,7 +18,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 04 — Database Schema & RLS
+- [ ] Chunk 05 — Supabase Auth Integration on the Frontend
 
 ## Blocked
 
@@ -27,8 +26,8 @@ None.
 
 ## Recent Decisions
 
-See `decisions.md`. Standards follow the verified typed HTTP provider adapters while the stale
-SDK wording in `02-architecture.md` remains flagged for an architecture-owned correction.
+See `decisions.md`. The MVP schema uses UUID ownership, hard-delete content cascades with
+retained/detached usage logs, text `CHECK` constraints, and same-project relation hardening.
 
 ## Known Issues
 
@@ -45,8 +44,11 @@ SDK wording in `02-architecture.md` remains flagged for an architecture-owned co
 
 - Standards and workflow rules are documented. Read `03-code-standards.md` and
   `04-ai-workflow-rules.md` carefully — they govern every chunk from here on.
-- Phase 0 is complete; Phase 1 begins with Chunk 04 (database schema and RLS).
+- Phase 0 is complete. Schema and RLS are in place. Phase 1 continues with Chunk 05 (Supabase
+  Auth integration on the frontend).
+- The `handle_new_auth_user` trigger means the frontend does NOT need to insert into
+  `public.users` after sign-up — Supabase does it automatically. Verify this in Chunk 05.
 - Architecture is locked. Read `02-architecture.md` and the SDK/HTTP-adapter known issue before
-  starting Chunk 04.
+  implementing further backend integrations.
 - Do not deviate from the stack without updating `decisions.md` first.
 - Backend infra is in place. AI abstraction is wired but unused — first real consumer is Chunk 09. Provider mapping is set; revisit if costs or quality require swaps.

@@ -1,1 +1,2 @@
-
+-- No seed data for MVP. Local testing uses the auth UI to create users.
+-- Production never runs seed.sql.
