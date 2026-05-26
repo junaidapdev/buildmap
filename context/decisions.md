@@ -197,3 +197,20 @@ configuration.
 under `backend/supabase/functions/`, which would violate the locked repository layout.
 
 **Reversibility:** Easy.
+
+## 2026-05-26 - Standards Follow Verified Provider Adapter Implementation
+
+**Decision:** Document the verified Chunk 02 provider implementation as typed HTTP adapters in
+the Chunk 03 standards and workflow guidance. Leave the older SDK wording in
+`context/02-architecture.md` unchanged during this documentation-owned chunk and flag it for an
+approved architecture correction.
+
+**Reason:** Chunk 02 runtime validation established that direct documented HTTP adapters operate in
+the Supabase Edge runtime, while the OpenAI SDK path failed at runtime and the Anthropic SDK did
+not document Deno support. Chunk 03 must describe existing practice without silently modifying the
+canonical architecture document outside its scope.
+
+**Alternatives considered:** Repeat the stale SDK wording in new standards, or modify
+`context/02-architecture.md` outside the active chunk's ownership.
+
+**Reversibility:** Easy.
