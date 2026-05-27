@@ -15,6 +15,7 @@ import { SignInPage } from '@/features/auth/SignInPage';
 import { SignUpPage } from '@/features/auth/SignUpPage';
 import { useAuth } from '@/features/auth/useAuth';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
+import { BriefPage } from '@/features/projects/brief/BriefPage';
 import { ClarifyPage } from '@/features/projects/clarify/ClarifyPage';
 import { NewProjectPage } from '@/features/projects/new/NewProjectPage';
 import { HomePage } from '@/pages/HomePage';
@@ -107,6 +108,14 @@ function AppRoutes() {
         element={
           <ProtectedShell>
             <ClarifyPage />
+          </ProtectedShell>
+        }
+      />
+      <Route
+        path={ROUTES.PROJECT_BRIEF(':id')}
+        element={
+          <ProtectedShell>
+            <BriefPage />
           </ProtectedShell>
         }
       />

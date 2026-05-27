@@ -405,6 +405,11 @@ verify_jwt = false
 entrypoint = "../functions/generate-clarifying-questions/index.ts"
 import_map = "../functions/generate-clarifying-questions/deno.json"
 
+[functions.generate-project-brief]
+verify_jwt = false
+entrypoint = "../functions/generate-project-brief/index.ts"
+import_map = "../functions/generate-project-brief/deno.json"
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 

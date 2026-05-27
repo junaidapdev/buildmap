@@ -16,6 +16,7 @@ Phase 2 — Project Workspace (In Progress)
 - [x] Chunk 07 — Dashboard Project List
 - [x] Chunk 08 — New Project Basic Details
 - [x] Chunk 09 — Idea Clarifier
+- [x] Chunk 10 — Project Brief Generator
 
 ## In Progress
 
@@ -23,7 +24,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 10 — Project Brief Generation
+- [ ] Chunk 11 — Project Workspace Layout
 
 ## Blocked
 
@@ -31,9 +32,11 @@ None.
 
 ## Recent Decisions
 
-See `decisions.md`. The first AI feature now calls a JWT-authenticated Edge Function through the
-shared client helper, validates generated clarifying questions at both boundaries, and keeps answers
-ephemeral for the next flow step.
+See `decisions.md`. The project brief is the first persistent AI artifact: generated through an Edge
+Function and stored as dual `content` (markdown) plus `content_json` (structured) in
+`project_documents`, upserted with a version bump on regeneration, and approved through a
+transactional `security invoker` stored procedure called directly from the SPA. All generation types
+temporarily use OpenAI per a product-owner override of the Anthropic long-form default.
 
 ## Known Issues
 
@@ -54,8 +57,13 @@ ephemeral for the next flow step.
   owning feature chunks supply real data.
 - The dedicated `/projects/{id}/clarify` route now replaces the creation-flow placeholder with the
   AI clarification experience.
-- The `/projects/:id/*` shell stub currently handles `/projects/{id}/brief` after clarification;
-  Chunk 10 replaces that placeholder with brief generation.
+- The dedicated `/projects/{id}/brief` route now renders the brief generator; the `/projects/:id/*`
+  shell stub still backs the remaining project subpages until Chunk 11.
+- Regenerating a brief runs without the original clarification answers, which are ephemeral, so it
+  rebuilds from the project's basic details only. Persisting answers is a possible follow-up.
+- Chunk 10's database and AI paths (migration apply, Edge Function behavior, stored-procedure
+  approval, and the end-to-end brief flow) are verified here only by static gates; exercising them
+  needs a live Supabase project and an `OPENAI_API_KEY` Edge Function secret.
 
 ## Notes for Next Agent
 
@@ -78,13 +86,17 @@ ephemeral for the next flow step.
   `/projects/{id}/clarify`, which is Chunk 09's responsibility.
 - The shared `@shared/schemas/project.ts` Zod schema is established as the canonical pattern for
   frontend-to-backend shared resource validation schemas.
-- The new-project persistence model is a project row at step 1, clarification answers in component
-  state in Chunk 09, and a persisted brief document at the end of Chunk 10.
+- The new-project persistence model is a project row at step 1, clarification answers held in
+  component/route state in Chunk 09, and a persisted `project_brief` document written in Chunk 10.
 - The first AI feature is live. Its canonical pattern is an authenticated Edge Function using
   `generate(...)`, the frontend `callEdgeFunction` helper, explicit pending/error/success UI, and
   Zod-validated input and output boundaries.
-- Clarification answers arrive at `/projects/{id}/brief` in `location.state`; Chunk 10 should
-  consume that ephemeral handoff and persist the generated brief as a `project_documents` row.
+- The brief is the first persistent AI artifact. Pattern: structured + markdown dual storage in
+  `project_documents`, upsert on regeneration with a version bump, and a transactional stored
+  procedure (`approve_project_brief`) for state advancement, called directly from the SPA via
+  `supabase.rpc`. PRD generation in Chunk 13/14 follows the same pattern but adds per-section
+  regenerate. Project status now advances through approvals; the next stage is `'ready_to_build'`,
+  owned by Chunk 18 (chunk generator).
 - The generation metadata hook is marked `TODO(chunk-27)`; usage-log insertion remains owned by
   Chunk 27.
 - The project-mode sidebar stub at `/projects/:id/*` is temporary until Chunk 11, which also
