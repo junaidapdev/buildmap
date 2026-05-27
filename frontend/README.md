@@ -53,6 +53,18 @@ additional frontend environment variable is needed for Google sign-in.
 
 Password recovery is intentionally deferred beyond the current authentication chunk.
 
+## App Shell and Navigation
+
+Every authenticated page renders inside `src/components/layout/AppShell.tsx`, which provides the
+persistent header, responsive sidebar, user menu, loading boundary, and consistent content
+container. Pages that need a narrower reading layout can pass `containerClassName` to
+`AppShell`.
+
+Sidebar destinations are configured in `src/components/layout/nav-config.ts`. Pending
+destinations are intentionally visible but inert and explain their activation chunk in a
+tooltip. When a feature route is implemented, remove its `pendingChunk` field to activate its
+navigation item.
+
 ## Scripts
 
 ```bash

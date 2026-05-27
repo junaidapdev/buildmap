@@ -11,6 +11,10 @@ export const ERROR_MESSAGES = {
   EMAIL_ALREADY_REGISTERED: 'An account with this email already exists.',
   EMAIL_NOT_CONFIRMED: 'Confirm your email before signing in.',
   WEAK_PASSWORD: 'Choose a stronger password and try again.',
+  RENDER_FAILURE_TITLE: 'Something went wrong.',
+  RENDER_FAILURE: 'An unexpected error occurred. You can try again, or reload the page.',
+  PAGE_NOT_FOUND_TITLE: 'Page not found.',
+  PAGE_NOT_FOUND: "We couldn't find the page you were looking for.",
 } as const;
 
 export type ErrorMessageKey = keyof typeof ERROR_MESSAGES;

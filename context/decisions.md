@@ -321,3 +321,46 @@ dependency surface within the approved scope.
 package that the feature spec did not authorize.
 
 **Reversibility:** Easy.
+
+## 2026-05-27 - Responsive Shell Navigation and Pending Destinations
+
+**Decision:** Compose authenticated pages inside `AppShell`, persist desktop sidebar collapse in
+`localStorage` under `buildmap.sidebar.collapsed`, and use the shadcn/ui `Sheet` component for
+the mobile navigation drawer. Navigation entries for future chunks are rendered from
+`nav-config.ts` as inert, keyboard-focusable buttons with an activation-chunk tooltip.
+
+**Reason:** One responsive chrome component keeps later authenticated features consistent, while
+visible pending destinations communicate the planned workspace without allowing navigation into
+unfinished features. The storage key uses the current product name rather than reintroducing the
+retired name contained in the original prompt.
+
+**Alternatives considered:** Per-page chrome, a non-persistent collapse toggle, hidden future
+destinations, or preserving the retired-name storage key.
+
+**Reversibility:** Easy.
+
+## 2026-05-27 - Render Error Boundary Diagnostic Limit
+
+**Decision:** Add a global React error boundary whose user-facing fallback offers recovery and
+whose logger payload contains only `error.message` and `error.stack`.
+
+**Reason:** Rendering failures need a dependable recovery surface, but full error objects can
+carry application context that should not be emitted through client logging.
+
+**Alternatives considered:** Relying on a blank crashed render tree or logging complete caught
+error objects.
+
+**Reversibility:** Easy.
+
+## 2026-05-27 - Development-Only Route Map
+
+**Decision:** Expose `/dev/routes` only in development and load its route-map page lazily through
+the environment module's development-only loader.
+
+**Reason:** The route map helps inspect planned navigation activation while developing the shell,
+without creating a user-facing production surface for internal roadmap state.
+
+**Alternatives considered:** Shipping the route map in production or omitting a route sanity
+surface altogether.
+
+**Reversibility:** Easy.

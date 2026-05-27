@@ -1,39 +1,69 @@
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { lazy, Suspense, type PropsWithChildren } from 'react';
+import { Route, Routes } from 'react-router-dom';
 
-import { Button } from '@/components/ui/button';
+import { AppShell } from '@/components/layout/AppShell';
+import { ErrorBoundary } from '@/components/layout/ErrorBoundary';
+import { FullScreenLoader } from '@/components/layout/FullScreenLoader';
+import { NotFoundPage } from '@/components/layout/NotFoundPage';
+import { Skeleton } from '@/components/ui/skeleton';
+import { DEV_ROUTES_PAGE_LOADER } from '@/config/env';
 import { ROUTES } from '@/constants/routes';
 import { EmailConfirmPage } from '@/features/auth/EmailConfirmPage';
-import { AUTH_MESSAGES } from '@/features/auth/messages';
 import { OAuthCallbackPage } from '@/features/auth/OAuthCallbackPage';
 import { RequireAuth } from '@/features/auth/RequireAuth';
 import { SignInPage } from '@/features/auth/SignInPage';
 import { SignUpPage } from '@/features/auth/SignUpPage';
 import { useAuth } from '@/features/auth/useAuth';
+import { DashboardPlaceholder } from '@/pages/DashboardPlaceholder';
 import { HomePage } from '@/pages/HomePage';
+import { ProjectModePlaceholder } from '@/pages/ProjectModePlaceholder';
 
-function DashboardPlaceholder() {
-  const { signOut } = useAuth();
-  const navigate = useNavigate();
+const devRoutesPageLoader = DEV_ROUTES_PAGE_LOADER;
 
-  async function handleSignOut(): Promise<void> {
-    await signOut();
-    navigate(ROUTES.SIGN_IN, { replace: true });
-  }
+const DevRoutesPage = devRoutesPageLoader
+  ? lazy(async () => {
+      const module = await devRoutesPageLoader();
+      return { default: module.DevRoutesPage };
+    })
+  : null;
 
+function ProtectedShell({ children }: PropsWithChildren) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4">
-      <section className="space-y-6 rounded-lg border bg-card p-8 text-center text-card-foreground shadow-sm">
-        {/* TODO(chunk-07): replace with the real dashboard. */}
-        <h1 className="text-lg font-medium">{AUTH_MESSAGES.DASHBOARD_PLACEHOLDER}</h1>
-        <Button type="button" variant="outline" onClick={() => void handleSignOut()}>
-          {AUTH_MESSAGES.SIGN_OUT_BUTTON}
-        </Button>
-      </section>
-    </main>
+    <RequireAuth>
+      <AppShell>{children}</AppShell>
+    </RequireAuth>
   );
 }
 
-export function App() {
+function NotFoundRoute() {
+  const { session } = useAuth();
+
+  if (session) {
+    return (
+      <AppShell>
+        <NotFoundPage variant="signedIn" />
+      </AppShell>
+    );
+  }
+
+  return <NotFoundPage variant="signedOut" />;
+}
+
+function ProtectedNotFoundRoute() {
+  return (
+    <ProtectedShell>
+      <NotFoundPage variant="signedIn" />
+    </ProtectedShell>
+  );
+}
+
+function AppRoutes() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return <FullScreenLoader />;
+  }
+
   return (
     <Routes>
       <Route path={ROUTES.HOME} element={<HomePage />} />
@@ -44,19 +74,43 @@ export function App() {
       <Route
         path={ROUTES.DASHBOARD}
         element={
-          <RequireAuth>
+          <ProtectedShell>
             <DashboardPlaceholder />
-          </RequireAuth>
+          </ProtectedShell>
         }
       />
+      {DevRoutesPage && (
+        <Route
+          path={ROUTES.DEV_ROUTES}
+          element={
+            <ProtectedShell>
+              <Suspense fallback={<Skeleton className="h-24 w-full max-w-sm" />}>
+                <DevRoutesPage />
+              </Suspense>
+            </ProtectedShell>
+          }
+        />
+      )}
+      <Route path={ROUTES.USER_SETTINGS} element={<ProtectedNotFoundRoute />} />
+      <Route path={ROUTES.PROJECT_NEW} element={<ProtectedNotFoundRoute />} />
       <Route
-        path="*"
+        path={ROUTES.PROJECT_SHELL}
         element={
-          <main className="flex min-h-screen items-center justify-center bg-background text-foreground">
-            <p className="text-lg font-medium">404 - Page not found</p>
-          </main>
+          <ProtectedShell>
+            {/* TODO(chunk-11): remove this stub when the real project layout lands. */}
+            <ProjectModePlaceholder />
+          </ProtectedShell>
         }
       />
+      <Route path="*" element={<NotFoundRoute />} />
     </Routes>
+  );
+}
+
+export function App() {
+  return (
+    <ErrorBoundary>
+      <AppRoutes />
+    </ErrorBoundary>
   );
 }
