@@ -14,7 +14,7 @@ import { RequireAuth } from '@/features/auth/RequireAuth';
 import { SignInPage } from '@/features/auth/SignInPage';
 import { SignUpPage } from '@/features/auth/SignUpPage';
 import { useAuth } from '@/features/auth/useAuth';
-import { DashboardPlaceholder } from '@/pages/DashboardPlaceholder';
+import { DashboardPage } from '@/features/dashboard/DashboardPage';
 import { HomePage } from '@/pages/HomePage';
 import { ProjectModePlaceholder } from '@/pages/ProjectModePlaceholder';
 
@@ -75,7 +75,7 @@ function AppRoutes() {
         path={ROUTES.DASHBOARD}
         element={
           <ProtectedShell>
-            <DashboardPlaceholder />
+            <DashboardPage />
           </ProtectedShell>
         }
       />

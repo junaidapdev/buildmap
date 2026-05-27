@@ -364,3 +364,38 @@ without creating a user-facing production surface for internal roadmap state.
 surface altogether.
 
 **Reversibility:** Easy.
+
+## 2026-05-27 - Dashboard Project Ordering and Deferred Metrics
+
+**Decision:** Read projects directly from Supabase under RLS and order them by `updated_at`
+descending. Show an em-dash placeholder with an owning-chunk tooltip for chunk count, completion
+percentage, and open issues until Chunks 18, 22, and 23 implement those data paths. Use the
+existing accessible Tailwind palette for project-status dots until dedicated status tokens are
+introduced with the later board styling work.
+
+**Reason:** Recent activity is the useful default ordering and matches the existing database
+index. Placeholders communicate unavailable metrics honestly instead of presenting misleading
+zeros. Existing palette roles provide readable state distinctions without expanding theme scope
+during the first project-list surface.
+
+**Alternatives considered:** Alphabetical ordering, rendering zero-valued metrics, querying
+unimplemented aggregate data, or introducing new status-theme tokens in this chunk.
+
+**Reversibility:** Easy.
+
+## 2026-05-27 - Focused Dashboard Query Scope and Session Cache Clearing
+
+**Decision:** Fetch the complete project list without pagination, client-side filtering, or
+search for the MVP. Keep project query data fresh for 30 seconds with
+`refetchOnWindowFocus: false`, relying on mutation invalidation in later owning chunks. Clear the
+React Query cache on successful sign-out and on observed signed-out auth events.
+
+**Reason:** The MVP targets users with a manageable project collection, so list controls and
+focus-triggered traffic do not yet justify additional UI or query complexity. Removing
+session-scoped cached data on sign-out prevents one user's project cards from remaining available
+to a subsequent session in the same browser.
+
+**Alternatives considered:** Immediate pagination/search controls, refetching on every focus
+change, or retaining query cache data after logout.
+
+**Reversibility:** Easy.

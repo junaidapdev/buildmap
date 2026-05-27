@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase 1 — Database & Authentication (Complete)
+Phase 2 — Project Workspace (In Progress)
 
 ## Completed Chunks
 
@@ -13,6 +13,7 @@ Phase 1 — Database & Authentication (Complete)
 - [x] Chunk 04 — Database Schema & Row-Level Security
 - [x] Chunk 05 — Supabase Auth Integration on the Frontend
 - [x] Chunk 06 — App Shell & Protected Routing
+- [x] Chunk 07 — Dashboard Project List
 
 ## In Progress
 
@@ -20,7 +21,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 07 — Dashboard Project List
+- [ ] Chunk 08 — New Project Flow
 
 ## Blocked
 
@@ -28,9 +29,9 @@ None.
 
 ## Recent Decisions
 
-See `decisions.md`. Authenticated pages now share a responsive `AppShell`; sidebar activation is
-centralized in `nav-config.ts`; and render failures are handled by a privacy-limited global error
-boundary.
+See `decisions.md`. The dashboard now reads RLS-scoped projects directly through Supabase, sorts
+by recent activity, uses deliberate metric placeholders, and clears cached server state on sign
+out.
 
 ## Known Issues
 
@@ -45,13 +46,17 @@ boundary.
   client credentials are configured in Supabase.
 - The frontend production build succeeds but currently reports a bundle-size warning above 500 kB;
   evaluate route-based splitting once the app shell and feature routes are established.
+- Dashboard search, filtering, and pagination are intentionally omitted for the MVP; revisit if
+  project volume makes the recent-activity grid insufficient.
+- Dashboard chunk count, completion, and issue metrics remain unavailable placeholders until their
+  owning feature chunks supply real data.
 
 ## Notes for Next Agent
 
 - Standards and workflow rules are documented. Read `03-code-standards.md` and
   `04-ai-workflow-rules.md` carefully — they govern every chunk from here on.
 - Phase 1 is complete. Schema, RLS, authentication, and protected application chrome are in
-  place. Chunk 07 replaces the dashboard placeholder with the real project list.
+  place. The dashboard is the first real RLS-backed content surface.
 - The `handle_new_auth_user` trigger was verified in Chunk 05; the frontend must not insert into
   `public.users` after sign-up because Supabase does it automatically.
 - Auth is wired. `useAuth()` is the standard way to get session/user. Do not duplicate auth
@@ -59,9 +64,12 @@ boundary.
 - App shell is the chrome: every authenticated page renders inside `<AppShell>`. Sidebar items
   are configured in `nav-config.ts`; activate an inert item by removing its `pendingChunk` field
   when the owning feature route is implemented.
-- The dashboard placeholder becomes the real project list in Chunk 07. The project-mode sidebar
-  stub at `/projects/:id/*` is temporary until Chunk 11, which also replaces the breadcrumb id
-  placeholder with a fetched project name.
+- Dashboard reads `projects` directly from Supabase through the JS client; RLS scopes results.
+  The dashboard nav item activates correctly through `nav-config.ts`.
+- Card placeholders for chunks, completion, and issues stay in place until Chunks 18, 22, and 23
+  land. The `/projects/new` destination is Chunk 08's responsibility.
+- The project-mode sidebar stub at `/projects/:id/*` is temporary until Chunk 11, which also
+  replaces the breadcrumb id placeholder with a fetched project name.
 - Architecture is locked. Read `02-architecture.md` and the SDK/HTTP-adapter known issue before
   implementing further backend integrations.
 - Do not deviate from the stack without updating `decisions.md` first.
