@@ -20,3 +20,7 @@ if (!parsedEnv.success) {
 export const env = Object.freeze(parsedEnv.data);
 
 export const IS_PRODUCTION = import.meta.env.PROD;
+
+export const DEV_ROUTES_PAGE_LOADER = import.meta.env.DEV
+  ? () => import('@/pages/DevRoutesPage')
+  : null;
