@@ -16,8 +16,42 @@ cp .env.example .env.local
 ```
 
 Fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env.local`. Real project
-values will be available after the Supabase backend is created in Chunk 02. The browser-safe
-anonymous key relies on Row Level Security for authorization.
+values come from the local or hosted Supabase project. The browser-safe anonymous key relies on
+Row Level Security for authorization.
+
+## Auth Local Setup
+
+Start the local Supabase stack from `backend/` before testing authentication:
+
+```bash
+cd ../backend
+supabase start
+```
+
+Email/password sign-up requires confirmation. Local confirmation emails appear in the local
+Inbucket interface at `http://127.0.0.1:55324`; open the confirmation link there to complete the
+flow. The configured frontend landing path is `http://127.0.0.1:5173/auth/confirm`.
+
+Google OAuth requires a Google OAuth 2.0 web client:
+
+1. In Google Cloud Console, create an OAuth client for a web application.
+2. Add `http://127.0.0.1:55321/auth/v1/callback` as an authorized redirect URI.
+3. Export the local values referenced by `backend/supabase/config.toml`:
+
+```bash
+export SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID="your-google-client-id"
+export SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET="your-google-client-secret"
+cd ../backend
+supabase stop
+supabase start
+```
+
+The SPA redirect after Google completes is `http://127.0.0.1:5173/auth/callback`. For hosted
+Supabase, configure the same Google provider credentials and the deployed SPA redirect URL in
+the Supabase dashboard under Authentication -> Providers -> Google and URL Configuration. No
+additional frontend environment variable is needed for Google sign-in.
+
+Password recovery is intentionally deferred beyond the current authentication chunk.
 
 ## Scripts
 

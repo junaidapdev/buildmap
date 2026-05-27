@@ -6,6 +6,11 @@ export const ERROR_MESSAGES = {
   NOT_FOUND: 'We could not find what you were looking for.',
   VALIDATION: 'Some of the information you entered is invalid.',
   RATE_LIMITED: 'You are doing that too often. Try again in a moment.',
+  AUTH_GENERIC: 'We could not complete authentication. Try again.',
+  INVALID_CREDENTIALS: 'Email or password is incorrect.',
+  EMAIL_ALREADY_REGISTERED: 'An account with this email already exists.',
+  EMAIL_NOT_CONFIRMED: 'Confirm your email before signing in.',
+  WEAK_PASSWORD: 'Choose a stronger password and try again.',
 } as const;
 
 export type ErrorMessageKey = keyof typeof ERROR_MESSAGES;

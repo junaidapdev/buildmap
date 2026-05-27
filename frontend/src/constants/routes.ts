@@ -2,6 +2,8 @@ export const ROUTES = {
   HOME: '/',
   SIGN_IN: '/sign-in',
   SIGN_UP: '/sign-up',
+  AUTH_CALLBACK: '/auth/callback',
+  AUTH_CONFIRM: '/auth/confirm',
   DASHBOARD: '/dashboard',
   PROJECT_NEW: '/projects/new',
   PROJECT: (id: string) => `/projects/${id}`,

@@ -275,3 +275,49 @@ silent cross-project association path before the schema is committed.
 integrity checks to future Edge Functions.
 
 **Reversibility:** Medium.
+
+## 2026-05-27 - Email Confirmation and Explicit Auth Redirects
+
+**Decision:** Keep Supabase email confirmation enabled for sign-up and allow only the exact local
+SPA auth landing routes `/auth/confirm` and `/auth/callback` in addition to the local application
+roots on Vite's configured `5173` port. Updating `backend/supabase/config.toml` is an approved
+Chunk 05 exception because that file controls whether the required frontend flow can run locally.
+
+**Reason:** A confirmation page cannot be exercised when local auth auto-confirms new accounts,
+and OAuth/email redirect destinations must be permitted by Supabase before the SPA can complete
+the flow.
+
+**Alternatives considered:** Leave confirmation disabled for development or allow wildcard
+redirect destinations.
+
+**Reversibility:** Easy.
+
+## 2026-05-27 - Browser Auth Session and Friendly Error Boundary
+
+**Decision:** Use the Supabase JS default browser session persistence and automatic redirect-token
+processing, with OAuth completing at `<origin>/auth/callback`. The frontend maps stable Supabase
+auth error codes to application-controlled messages and does not display provider error strings.
+
+**Reason:** This follows the locked authentication model while preventing raw provider diagnostics
+from leaking into UI copy or forcing custom token handling in the browser.
+
+**Alternatives considered:** Custom token storage, manual callback token parsing, or displaying
+raw Supabase error text.
+
+**Reversibility:** Easy.
+
+## 2026-05-27 - Auth UI Primitives and Direct Zod Form Validation
+
+**Decision:** Add the shadcn/ui `input`, `label`, `card`, `alert`, and `separator` primitives
+required by the auth pages, introducing their Radix label and separator dependencies. Validate
+the two simple auth forms directly with Zod on submit rather than add an unrequested form-state
+dependency.
+
+**Reason:** These primitives are explicitly required by Chunk 05. Direct Zod parsing provides the
+required shared validation boundary and inline issues for two small forms while keeping the
+dependency surface within the approved scope.
+
+**Alternatives considered:** Hand-built UI controls or introducing React Hook Form and a resolver
+package that the feature spec did not authorize.
+
+**Reversibility:** Easy.
