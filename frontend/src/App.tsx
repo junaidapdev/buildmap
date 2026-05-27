@@ -1,5 +1,5 @@
 import { lazy, Suspense, type PropsWithChildren } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { AppShell } from '@/components/layout/AppShell';
 import { ErrorBoundary } from '@/components/layout/ErrorBoundary';
@@ -7,7 +7,7 @@ import { FullScreenLoader } from '@/components/layout/FullScreenLoader';
 import { NotFoundPage } from '@/components/layout/NotFoundPage';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DEV_ROUTES_PAGE_LOADER } from '@/config/env';
-import { ROUTES } from '@/constants/routes';
+import { PROJECT_SUBROUTES, ROUTES } from '@/constants/routes';
 import { EmailConfirmPage } from '@/features/auth/EmailConfirmPage';
 import { OAuthCallbackPage } from '@/features/auth/OAuthCallbackPage';
 import { RequireAuth } from '@/features/auth/RequireAuth';
@@ -17,9 +17,9 @@ import { useAuth } from '@/features/auth/useAuth';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
 import { BriefPage } from '@/features/projects/brief/BriefPage';
 import { ClarifyPage } from '@/features/projects/clarify/ClarifyPage';
+import { ProjectLayout } from '@/features/projects/layout/ProjectLayout';
 import { NewProjectPage } from '@/features/projects/new/NewProjectPage';
 import { HomePage } from '@/pages/HomePage';
-import { ProjectModePlaceholder } from '@/pages/ProjectModePlaceholder';
 
 const devRoutesPageLoader = DEV_ROUTES_PAGE_LOADER;
 
@@ -104,30 +104,19 @@ function AppRoutes() {
         }
       />
       <Route
-        path={ROUTES.PROJECT_CLARIFY(':id')}
+        path={ROUTES.PROJECT(':id')}
         element={
           <ProtectedShell>
-            <ClarifyPage />
+            <ProjectLayout />
           </ProtectedShell>
         }
-      />
-      <Route
-        path={ROUTES.PROJECT_BRIEF(':id')}
-        element={
-          <ProtectedShell>
-            <BriefPage />
-          </ProtectedShell>
-        }
-      />
-      <Route
-        path={ROUTES.PROJECT_SHELL}
-        element={
-          <ProtectedShell>
-            {/* TODO(chunk-11): remove this stub when the real project layout lands. */}
-            <ProjectModePlaceholder />
-          </ProtectedShell>
-        }
-      />
+      >
+        {/* TODO(chunk-12): switch the default subroute to `overview` once it exists. */}
+        <Route index element={<Navigate replace to={PROJECT_SUBROUTES.BRIEF} />} />
+        <Route path={PROJECT_SUBROUTES.BRIEF} element={<BriefPage />} />
+        <Route path={PROJECT_SUBROUTES.CLARIFY} element={<ClarifyPage />} />
+        <Route path="*" element={<NotFoundPage variant="signedIn" />} />
+      </Route>
       <Route path="*" element={<NotFoundRoute />} />
     </Routes>
   );

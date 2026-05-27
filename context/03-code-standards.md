@@ -43,6 +43,10 @@ enforced, that gap is stated explicitly rather than presented as completed work.
   **Empty** (description and a clear next action), **Error** (friendly message and recovery when
   relevant), and **Success / Default** (the actual content). The current scaffold home page is a
   static verification page; feature pages must satisfy this rule when introduced.
+- **Layout-level data fetching.** When multiple subpages share a parent resource (for example, every
+  `/projects/:id/*` page shares the project), fetch it once at the layout level and provide it through
+  React context (the `useProject()` pattern). Subpages must not duplicate the fetch, and a mutation
+  that changes the parent invalidates the parent query at the layout level.
 
 ## Backend / Edge Function Standards
 

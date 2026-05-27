@@ -7,7 +7,6 @@ export const ROUTES = {
   DASHBOARD: '/dashboard',
   DEV_ROUTES: '/dev/routes',
   PROJECT_NEW: '/projects/new',
-  PROJECT_SHELL: '/projects/:id/*',
   PROJECT: (id: string) => `/projects/${id}`,
   PROJECT_CLARIFY: (id: string) => `/projects/${id}/clarify`,
   PROJECT_OVERVIEW: (id: string) => `/projects/${id}/overview`,
@@ -22,4 +21,10 @@ export const ROUTES = {
   PROJECT_EXPORT: (id: string) => `/projects/${id}/export`,
   PROJECT_SETTINGS: (id: string) => `/projects/${id}/settings`,
   USER_SETTINGS: '/settings',
+} as const;
+
+/** Relative child segments for the nested `/projects/:id` route tree. */
+export const PROJECT_SUBROUTES = {
+  BRIEF: 'brief',
+  CLARIFY: 'clarify',
 } as const;

@@ -17,6 +17,7 @@ Phase 2 — Project Workspace (In Progress)
 - [x] Chunk 08 — New Project Basic Details
 - [x] Chunk 09 — Idea Clarifier
 - [x] Chunk 10 — Project Brief Generator
+- [x] Chunk 11 — Project Detail Layout
 
 ## In Progress
 
@@ -24,7 +25,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 11 — Project Workspace Layout
+- [ ] Chunk 12 — Project Overview
 
 ## Blocked
 
@@ -32,10 +33,10 @@ None.
 
 ## Recent Decisions
 
-See `decisions.md`. The project brief is the first persistent AI artifact: generated through an Edge
-Function and stored as dual `content` (markdown) plus `content_json` (structured) in
-`project_documents`, upserted with a version bump on regeneration, and approved through a
-transactional `security invoker` stored procedure called directly from the SPA. All generation types
+See `decisions.md`. Project subpages now render inside a nested `<ProjectLayout>` that fetches the
+project once (UUID-validated), handles loading/error/not-found, and exposes it via `useProject()`;
+subpages no longer fetch the project themselves, and mutations invalidate the layout's
+`['project', id]` query. The brief remains the first persistent AI artifact, and all generation types
 temporarily use OpenAI per a product-owner override of the Anthropic long-form default.
 
 ## Known Issues
@@ -57,8 +58,11 @@ temporarily use OpenAI per a product-owner override of the Anthropic long-form d
   owning feature chunks supply real data.
 - The dedicated `/projects/{id}/clarify` route now replaces the creation-flow placeholder with the
   AI clarification experience.
-- The dedicated `/projects/{id}/brief` route now renders the brief generator; the `/projects/:id/*`
-  shell stub still backs the remaining project subpages until Chunk 11.
+- Project subpages now render inside a nested `<ProjectLayout>`; the temporary `/projects/:id/*`
+  stub from Chunk 06 is removed. The default subroute is `brief` until Chunk 12 switches it to
+  `overview`.
+- Dashboard project cards link to `/projects/{id}/overview`, which has no route yet and 404s
+  (within the project layout) until Chunk 12 builds the overview page.
 - Regenerating a brief runs without the original clarification answers, which are ephemeral, so it
   rebuilds from the project's basic details only. Persisting answers is a possible follow-up.
 - Chunk 10's database and AI paths (migration apply, Edge Function behavior, stored-procedure
@@ -99,8 +103,13 @@ temporarily use OpenAI per a product-owner override of the Anthropic long-form d
   owned by Chunk 18 (chunk generator).
 - The generation metadata hook is marked `TODO(chunk-27)`; usage-log insertion remains owned by
   Chunk 27.
-- The project-mode sidebar stub at `/projects/:id/*` is temporary until Chunk 11, which also
-  replaces the breadcrumb id placeholder with a fetched project name.
+- Project subpages render inside `<ProjectLayout>` and read the project via `useProject()` (mirrors
+  `useAuth()`); they never fetch the project themselves. Add a subpage by adding a child route under
+  `/projects/:id` in `App.tsx` and a `PROJECT_NAV` entry (with `pendingChunk` until it lands). The
+  default subroute is `brief`; Chunk 12 should switch it to `overview`. The sidebar reads the id from
+  `useParams` (it lives in `AppShell`, outside the provider) — do not call `useProject()` there.
+  Subpage mutations that change the project (e.g. brief approval) must invalidate
+  `projectQueryKey(id)`.
 - Architecture is locked. Read `02-architecture.md` and the SDK/HTTP-adapter known issue before
   implementing further backend integrations.
 - Do not deviate from the stack without updating `decisions.md` first.

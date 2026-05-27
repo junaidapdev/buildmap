@@ -622,3 +622,26 @@ is pre-sanctioned; regeneration is the first destructive action that needs it.
 destructive confirmation, or regenerating without a confirmation step.
 
 **Reversibility:** Easy.
+
+## 2026-05-27 - Project Detail Layout, Context, and Routing
+
+**Decision:** Every `/projects/:id/*` page renders inside a nested `<ProjectLayout>` that fetches the
+project once and provides it through `ProjectContext`; subpages read it with `useProject()` (mirroring
+`useAuth()`), which throws if used outside the layout, and never re-fetch the project. The `:id` URL
+param is Zod-validated as a UUID at the layout boundary. Loading, error, and not-found states are
+handled once at the layout. A subpage mutation that changes the project (e.g. brief approval)
+invalidates the layout's `projectQueryKey(id)` query, which is distinct from the dashboard's
+`projectsQueryKey` list. The breadcrumb renders at the top of the project content (Option A) rather
+than via a header portal (Option B). The default subroute for `/projects/:id` redirects to `brief`
+until Chunk 12 builds `overview`.
+
+**Reason:** Fetching the shared project once at the layout removes duplicate per-subpage fetches and
+centralizes the loading/error/not-found handling. Rendering the breadcrumb in content avoids portal
+complexity and the auth-aware header. Validating the id at the boundary keeps malformed URLs from
+reaching the query.
+
+**Alternatives considered:** Per-subpage project fetches; a header portal breadcrumb (Option B);
+distinguishing "does not exist" from "not yours" (rejected for privacy — both surface as not found so
+project-id existence is never leaked); keeping the Chunk 06 `/projects/:id/*` stub.
+
+**Reversibility:** Medium.

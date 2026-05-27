@@ -1,5 +1,5 @@
 import { Menu } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { UserMenu } from '@/components/layout/UserMenu';
 import { Button } from '@/components/ui/button';
@@ -10,9 +10,6 @@ type AppHeaderProps = {
 };
 
 export function AppHeader({ onOpenNavigation }: AppHeaderProps) {
-  const { id } = useParams<{ id: string }>();
-  const projectId = id && id !== 'new' ? id : undefined;
-
   return (
     <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-3 border-b bg-background px-4 sm:px-6">
       <Button
@@ -31,24 +28,6 @@ export function AppHeader({ onOpenNavigation }: AppHeaderProps) {
       >
         buildmap
       </Link>
-      {projectId && (
-        <>
-          <span className="text-muted-foreground" aria-hidden="true">
-            /
-          </span>
-          <Link
-            className="text-sm text-muted-foreground hover:text-foreground"
-            to={ROUTES.DASHBOARD}
-          >
-            Projects
-          </Link>
-          <span className="text-muted-foreground" aria-hidden="true">
-            /
-          </span>
-          {/* TODO(chunk-11): replace placeholder with the real project name. */}
-          <span className="max-w-48 truncate text-sm text-muted-foreground">{projectId}</span>
-        </>
-      )}
       <div className="ml-auto">
         <UserMenu />
       </div>

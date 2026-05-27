@@ -118,3 +118,12 @@ src/
 
 The logger in `src/lib/logger.ts` is the only frontend boundary where `console.*` calls are
 permitted. Committed frontend TypeScript must not use `any`.
+
+## Project Subpages
+
+Every `/projects/:id/*` page renders inside `<ProjectLayout>` (`src/features/projects/layout/`),
+which fetches the project once, validates the id, handles loading/error/not-found, and exposes the
+project through `useProject()`. Subpages read the project via `useProject()` and never fetch it
+directly. To add a subpage: add a child route under `/projects/:id` in `src/App.tsx`, and add an
+entry to `PROJECT_NAV` in `nav-config.ts` (initially with `pendingChunk`, removed when its chunk
+lands).
