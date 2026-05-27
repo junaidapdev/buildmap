@@ -60,5 +60,7 @@ export function useExistingBrief(projectId: string) {
     },
     staleTime: 10 * 1000,
     refetchOnWindowFocus: false,
+    // Skip the read when no project id is present; the brief page redirects in that case.
+    enabled: projectId.length > 0,
   });
 }

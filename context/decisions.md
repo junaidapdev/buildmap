@@ -553,8 +553,9 @@ regenerations, or surfacing a version-history UI now.
 uuid)`, added in a Chunk 10 migration. It sets `is_final = true` on the brief and advances
 `projects.status` from `idea` to `planning` in one transaction, gated on `status = 'idea'` so
 re-approval never rewinds the lifecycle, with an explicit ownership check on top of RLS and an
-`execute` grant to `authenticated`. The SPA calls it directly through `supabase.rpc`; no
-pass-through Edge Function is added.
+`execute` grant to `authenticated`. Approval requires an existing brief: the status update runs only
+after a brief row is finalized, raising otherwise, so a project cannot advance to `planning` without
+one. The SPA calls it directly through `supabase.rpc`; no pass-through Edge Function is added.
 
 **Reason:** The two writes must not partially apply, which a stored procedure guarantees.
 `security invoker` keeps RLS enforcing ownership on both writes, so a thin Edge Function wrapper

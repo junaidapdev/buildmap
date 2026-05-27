@@ -13,6 +13,7 @@ security invoker
 as $$
 declare
   v_user_id uuid := auth.uid();
+  v_finalized integer;
 begin
   -- Verify ownership; relies on RLS but doubles up explicitly.
   if not exists (
@@ -25,6 +26,13 @@ begin
   update public.project_documents
   set is_final = true, updated_at = now()
   where project_id = p_project_id and type = 'project_brief';
+
+  -- A project must have a brief to approve; never advance the lifecycle without finalizing one.
+  get diagnostics v_finalized = row_count;
+
+  if v_finalized = 0 then
+    raise exception 'project brief not found for project %', p_project_id;
+  end if;
 
   -- Gated on 'idea' so re-approving an already-advanced project never rewinds the lifecycle.
   update public.projects

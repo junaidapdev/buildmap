@@ -15,7 +15,7 @@ export const ProjectBriefContentSchema = z.object({
       hosting: z.string().max(300).optional(),
       ai: z.string().max(300).optional(),
       other: z.array(z.string().max(200)).max(10).optional(),
-      assumptions: z.array(z.string().max(300)).max(10).optional(),
+      assumptions: z.array(z.string().min(3).max(300)).max(10).optional(),
     })
     .optional(),
   assumptions: z.array(z.string().min(3).max(300)).max(15).optional(),

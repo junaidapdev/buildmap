@@ -132,9 +132,9 @@ export function BriefView({ brief, projectId }: BriefViewProps) {
       </div>
 
       <BriefActions
-        isApproving={approve.isPending}
+        isApproving={approve.isPending || generate.isPending}
         isFinal={brief.is_final}
-        isRegenerating={generate.isPending}
+        isRegenerating={generate.isPending || approve.isPending}
         onApprove={() => approve.mutate()}
         onRegenerate={() => generate.mutate({ projectId })}
         projectId={projectId}

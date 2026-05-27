@@ -62,6 +62,11 @@ export function BriefPage() {
       return;
     }
 
+    // A failed read must not trigger generation; the error state offers a retry instead.
+    if (existing.isError) {
+      return;
+    }
+
     // A brief already exists (return visit): display it and never auto-regenerate.
     if (existing.data) {
       return;
@@ -74,7 +79,15 @@ export function BriefPage() {
 
     autoStarted.current = true;
     generateBrief({ projectId, answers: extractAnswers(location.state) });
-  }, [id, existing.isPending, existing.data, generateBrief, location.state, projectId]);
+  }, [
+    id,
+    existing.isPending,
+    existing.isError,
+    existing.data,
+    generateBrief,
+    location.state,
+    projectId,
+  ]);
 
   if (!id) {
     return <Navigate replace to={ROUTES.DASHBOARD} />;
