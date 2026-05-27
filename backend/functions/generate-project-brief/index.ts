@@ -46,13 +46,19 @@ const BriefRowSchema = z.object({
 
 const ExistingBriefSchema = z.object({ version: z.number().int().min(1) });
 
+// Strip the context delimiter from untrusted values so user content cannot break out of the
+// <project_context> block and inject instructions. Enum fields are already constrained.
+function sanitize(value: string): string {
+  return value.replace(/<\/?project_context>/gi, '');
+}
+
 function buildUserMessage(project: ProjectContext, answers: ClarificationAnswer): string {
   const lines: string[] = [
     '<project_context>',
-    `Project name: ${project.name}`,
-    project.description ? `Description: ${project.description}` : null,
+    `Project name: ${sanitize(project.name)}`,
+    project.description ? `Description: ${sanitize(project.description)}` : null,
     project.project_type ? `Type: ${project.project_type}` : null,
-    project.preferred_stack ? `Preferred stack: ${project.preferred_stack}` : null,
+    project.preferred_stack ? `Preferred stack: ${sanitize(project.preferred_stack)}` : null,
     project.preferred_agent ? `Preferred AI tool: ${project.preferred_agent}` : null,
   ].filter((line): line is string => line !== null);
 
@@ -60,7 +66,7 @@ function buildUserMessage(project: ProjectContext, answers: ClarificationAnswer)
     lines.push('', 'Clarification answers:');
 
     for (const answer of answers) {
-      lines.push(`Q: ${answer.questionText}`, `A: ${answer.answer}`);
+      lines.push(`Q: ${sanitize(answer.questionText)}`, `A: ${sanitize(answer.answer)}`);
     }
   }
 

@@ -136,7 +136,7 @@ export function BriefView({ brief, projectId }: BriefViewProps) {
         isFinal={brief.is_final}
         isRegenerating={generate.isPending || approve.isPending}
         onApprove={() => approve.mutate()}
-        onRegenerate={() => generate.mutate({ projectId })}
+        onRegenerate={() => generate.mutate({})}
         projectId={projectId}
       />
     </article>

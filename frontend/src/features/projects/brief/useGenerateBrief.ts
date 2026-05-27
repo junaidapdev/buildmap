@@ -13,7 +13,6 @@ export type GenerateBriefAnswer = {
 };
 
 export type GenerateBriefInput = {
-  projectId: string;
   answers?: GenerateBriefAnswer[];
 };
 
@@ -22,16 +21,17 @@ export function useGenerateBrief(projectId: string) {
   const queryClient = useQueryClient();
 
   return useMutation<unknown, Error, GenerateBriefInput>({
-    mutationFn: async (input) => {
+    mutationFn: async ({ answers }) => {
       if (!session) {
         throw new Error('NOT_AUTHENTICATED');
       }
 
-      // The Edge Function validates the AI output and persists the row. The copy that is rendered
+      // projectId comes from the hook scope so it always matches the cache key invalidated below.
+      // The Edge Function validates the AI output and persists the row; the copy that is rendered
       // is re-read and Zod-validated by useExistingBrief once this mutation invalidates its cache.
       return await callEdgeFunction(
         EDGE_FUNCTIONS.GENERATE_PROJECT_BRIEF,
-        input,
+        { projectId, answers },
         session.access_token,
       );
     },

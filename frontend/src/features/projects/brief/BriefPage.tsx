@@ -50,7 +50,7 @@ export function BriefPage() {
   const existing = useExistingBrief(projectId);
   const generate = useGenerateBrief(projectId);
   const generateBrief = generate.mutate;
-  const autoStarted = useRef(false);
+  const startedForProjectRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!id) {
@@ -72,13 +72,14 @@ export function BriefPage() {
       return;
     }
 
-    // The ref guards against React StrictMode effect replay issuing a duplicate AI request.
-    if (autoStarted.current) {
+    // Track which project auto-generation fired for: this both blocks StrictMode replay from
+    // double-firing and lets a different project opened in the same component instance still generate.
+    if (startedForProjectRef.current === projectId) {
       return;
     }
 
-    autoStarted.current = true;
-    generateBrief({ projectId, answers: extractAnswers(location.state) });
+    startedForProjectRef.current = projectId;
+    generateBrief({ answers: extractAnswers(location.state) });
   }, [
     id,
     existing.isPending,
@@ -94,7 +95,7 @@ export function BriefPage() {
   }
 
   function retryGeneration(): void {
-    generateBrief({ projectId, answers: extractAnswers(location.state) });
+    generateBrief({ answers: extractAnswers(location.state) });
   }
 
   let body: ReactNode;
