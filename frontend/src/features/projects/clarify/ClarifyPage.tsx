@@ -1,34 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
 
-import { ROUTES } from '@/constants/routes';
 import { ClarifyError } from '@/features/projects/clarify/ClarifyError';
 import { ClarifyForm } from '@/features/projects/clarify/ClarifyForm';
 import { CLARIFY_MESSAGES } from '@/features/projects/clarify/messages';
 import { ClarifyPending } from '@/features/projects/clarify/ClarifyPending';
 import { useClarifyingQuestions } from '@/features/projects/clarify/useClarifyingQuestions';
+import { useProject } from '@/features/projects/layout/useProject';
 
 export function ClarifyPage() {
-  const { id } = useParams<{ id: string }>();
-  const projectId = id ?? '';
+  // The layout guarantees a loaded project before this page renders.
+  const { project } = useProject();
+  const projectId = project.id;
   const generation = useClarifyingQuestions(projectId);
   const generateQuestions = generation.mutate;
   const initialGenerationStarted = useRef(false);
   const [retryUsed, setRetryUsed] = useState(false);
 
   useEffect(() => {
-    if (!id || initialGenerationStarted.current) {
+    if (initialGenerationStarted.current) {
       return;
     }
 
     // The ref prevents React development effect replay from issuing a duplicate AI request.
     initialGenerationStarted.current = true;
     generateQuestions();
-  }, [generateQuestions, id]);
-
-  if (!id) {
-    return <Navigate replace to={ROUTES.DASHBOARD} />;
-  }
+  }, [generateQuestions]);
 
   function retryGeneration(): void {
     setRetryUsed(true);

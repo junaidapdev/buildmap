@@ -1,8 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { Navigate, useLocation, useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { z } from 'zod';
 
-import { ROUTES } from '@/constants/routes';
 import { BriefError } from '@/features/projects/brief/BriefError';
 import { BRIEF_MESSAGES } from '@/features/projects/brief/messages';
 import { BriefPending } from '@/features/projects/brief/BriefPending';
@@ -12,6 +11,7 @@ import {
   type GenerateBriefAnswer,
   useGenerateBrief,
 } from '@/features/projects/brief/useGenerateBrief';
+import { useProject } from '@/features/projects/layout/useProject';
 
 // The clarify step hands answers over as { clarificationAnswers: [{ id, text, answer }] } in route
 // state. It is untrusted navigation data, so it is parsed before being mapped to the brief input.
@@ -44,8 +44,9 @@ function extractAnswers(state: unknown): GenerateBriefAnswer[] | undefined {
 }
 
 export function BriefPage() {
-  const { id } = useParams<{ id: string }>();
-  const projectId = id ?? '';
+  // The layout guarantees a loaded project before this page renders.
+  const { project } = useProject();
+  const projectId = project.id;
   const location = useLocation();
   const existing = useExistingBrief(projectId);
   const generate = useGenerateBrief(projectId);
@@ -53,10 +54,6 @@ export function BriefPage() {
   const startedForProjectRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!id) {
-      return;
-    }
-
     // Wait until the existing-brief lookup resolves before deciding whether to generate.
     if (existing.isPending) {
       return;
@@ -81,7 +78,6 @@ export function BriefPage() {
     startedForProjectRef.current = projectId;
     generateBrief({ answers: extractAnswers(location.state) });
   }, [
-    id,
     existing.isPending,
     existing.isError,
     existing.data,
@@ -89,10 +85,6 @@ export function BriefPage() {
     location.state,
     projectId,
   ]);
-
-  if (!id) {
-    return <Navigate replace to={ROUTES.DASHBOARD} />;
-  }
 
   function retryGeneration(): void {
     generateBrief({ answers: extractAnswers(location.state) });

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { briefQueryKey } from '@/features/projects/brief/useExistingBrief';
+import { projectQueryKey } from '@/features/projects/layout/useProjectQuery';
 import { projectsQueryKey } from '@/features/dashboard/useProjects';
 import { logger } from '@/lib/logger';
 import { supabase } from '@/lib/supabase';
@@ -25,6 +26,8 @@ export function useApproveBrief(projectId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: briefQueryKey(projectId) });
+      // Approval advances projects.status, so refresh the layout's project and the dashboard list.
+      queryClient.invalidateQueries({ queryKey: projectQueryKey(projectId) });
       queryClient.invalidateQueries({ queryKey: projectsQueryKey });
     },
   });
