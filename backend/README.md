@@ -81,8 +81,17 @@ supabase functions deploy health
 supabase functions deploy ai-test
 ```
 
-Database migrations will be deployed later with `supabase db push`; Chunk 04 owns the first
-migrations and RLS policies.
+Apply the schema and RLS migrations to a fresh local database with:
+
+```bash
+supabase db reset
+```
+
+Deploy reviewed migrations to a linked Supabase project with:
+
+```bash
+supabase db push
+```
 
 ## Structure
 
@@ -99,7 +108,7 @@ backend/
   functions/
     ai-test/        disabled-by-default provider diagnostics and local Deno config
     health/         reference health/auth endpoint and local Deno config
-  supabase/         local project configuration and future migrations
+  supabase/         local project configuration, schema migration, and RLS policies
 ```
 
 ## Backend Rules
