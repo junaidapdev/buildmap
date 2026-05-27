@@ -42,6 +42,9 @@ export async function callProvider(
       ...(config.maxOutputTokens === undefined
         ? {}
         : { max_completion_tokens: config.maxOutputTokens }),
+      ...(config.responseFormat === undefined
+        ? {}
+        : { response_format: { type: config.responseFormat } }),
     }),
   });
 

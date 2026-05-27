@@ -64,6 +64,18 @@ The new-project form establishes the feature form pattern: shadcn/ui `Form` cont
 with React Hook Form, a Zod resolver using the shared schema, and a TanStack Query mutation hook
 for server writes and cache invalidation. Later typed forms should follow this pattern.
 
+## AI-Driven Features
+
+The SPA never calls model providers directly. AI-backed interactions call authenticated Supabase
+Edge Functions through `src/lib/edge.ts`, which is the single frontend helper for the standard
+Edge Function response envelope. Feature hooks re-validate successful data with shared Zod
+schemas after it crosses the network boundary.
+
+The idea clarifier establishes the AI feature pattern: a TanStack Query mutation exposes pending
+skeletons, retryable provider or output-validation errors, and a validated success form. Later
+generation features should follow this pending/error/validated-success composition and keep
+provider prompts and credentials on the backend.
+
 ## App Shell and Navigation
 
 Every authenticated page renders inside `src/components/layout/AppShell.tsx`, which provides the

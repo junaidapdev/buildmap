@@ -15,6 +15,7 @@ Phase 2 — Project Workspace (In Progress)
 - [x] Chunk 06 — App Shell & Protected Routing
 - [x] Chunk 07 — Dashboard Project List
 - [x] Chunk 08 — New Project Basic Details
+- [x] Chunk 09 — Idea Clarifier
 
 ## In Progress
 
@@ -22,7 +23,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 09 — AI Clarification Step
+- [ ] Chunk 10 — Project Brief Generation
 
 ## Blocked
 
@@ -30,9 +31,9 @@ None.
 
 ## Recent Decisions
 
-See `decisions.md`. Project creation now inserts an owner-scoped `idea` project using the shared
-`@shared/schemas/project.ts` schema, the shadcn/ui and React Hook Form pattern, and dashboard
-query invalidation after a successful write.
+See `decisions.md`. The first AI feature now calls a JWT-authenticated Edge Function through the
+shared client helper, validates generated clarifying questions at both boundaries, and keeps answers
+ephemeral for the next flow step.
 
 ## Known Issues
 
@@ -51,24 +52,26 @@ query invalidation after a successful write.
   project volume makes the recent-activity grid insufficient.
 - Dashboard chunk count, completion, and issue metrics remain unavailable placeholders until their
   owning feature chunks supply real data.
-- The `/projects/:id/*` shell stub currently handles `/projects/{id}/clarify` after successful
-  creation; Chunk 09 replaces that placeholder with the clarification experience.
+- The dedicated `/projects/{id}/clarify` route now replaces the creation-flow placeholder with the
+  AI clarification experience.
+- The `/projects/:id/*` shell stub currently handles `/projects/{id}/brief` after clarification;
+  Chunk 10 replaces that placeholder with brief generation.
 
 ## Notes for Next Agent
 
 - Standards and workflow rules are documented. Read `03-code-standards.md` and
   `04-ai-workflow-rules.md` carefully — they govern every chunk from here on.
-- Phase 1 is complete. Schema, RLS, authentication, and protected application chrome are in
-  place. The dashboard is the first real RLS-backed content surface.
+- Phase 1 is complete. Schema, RLS, authentication, and protected application chrome are in place.
+  The dashboard is the first real RLS-backed content surface.
 - The `handle_new_auth_user` trigger was verified in Chunk 05; the frontend must not insert into
   `public.users` after sign-up because Supabase does it automatically.
-- Auth is wired. `useAuth()` is the standard way to get session/user. Do not duplicate auth
-  logic — extend the existing context.
-- App shell is the chrome: every authenticated page renders inside `<AppShell>`. Sidebar items
-  are configured in `nav-config.ts`; activate an inert item by removing its `pendingChunk` field
-  when the owning feature route is implemented.
-- Dashboard reads `projects` directly from Supabase through the JS client; RLS scopes results.
-  The dashboard nav item activates correctly through `nav-config.ts`.
+- Auth is wired. `useAuth()` is the standard way to get session/user. Do not duplicate auth logic —
+  extend the existing context.
+- App shell is the chrome: every authenticated page renders inside `<AppShell>`. Sidebar items are
+  configured in `nav-config.ts`; activate an inert item by removing its `pendingChunk` field when
+  the owning feature route is implemented.
+- Dashboard reads `projects` directly from Supabase through the JS client; RLS scopes results. The
+  dashboard nav item activates correctly through `nav-config.ts`.
 - Card placeholders for chunks, completion, and issues stay in place until Chunks 18, 22, and 23
   land.
 - Project creation works end-to-end. Submitting the new-project form lands on
@@ -77,9 +80,17 @@ query invalidation after a successful write.
   frontend-to-backend shared resource validation schemas.
 - The new-project persistence model is a project row at step 1, clarification answers in component
   state in Chunk 09, and a persisted brief document at the end of Chunk 10.
+- The first AI feature is live. Its canonical pattern is an authenticated Edge Function using
+  `generate(...)`, the frontend `callEdgeFunction` helper, explicit pending/error/success UI, and
+  Zod-validated input and output boundaries.
+- Clarification answers arrive at `/projects/{id}/brief` in `location.state`; Chunk 10 should
+  consume that ephemeral handoff and persist the generated brief as a `project_documents` row.
+- The generation metadata hook is marked `TODO(chunk-27)`; usage-log insertion remains owned by
+  Chunk 27.
 - The project-mode sidebar stub at `/projects/:id/*` is temporary until Chunk 11, which also
   replaces the breadcrumb id placeholder with a fetched project name.
 - Architecture is locked. Read `02-architecture.md` and the SDK/HTTP-adapter known issue before
   implementing further backend integrations.
 - Do not deviate from the stack without updating `decisions.md` first.
-- Backend infra is in place. AI abstraction is wired but unused — first real consumer is Chunk 09. Provider mapping is set; revisit if costs or quality require swaps.
+- Backend infra is in place. AI abstraction is wired but unused — first real consumer is Chunk 09.
+  Provider mapping is set; revisit if costs or quality require swaps.

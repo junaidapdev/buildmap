@@ -56,6 +56,7 @@ function routes include:
 GET  /functions/v1/health
 POST /functions/v1/health/auth
 POST /functions/v1/ai-test
+POST /functions/v1/generate-clarifying-questions
 ```
 
 `health` and `ai-test` perform authentication in shared function code rather than relying on gateway
@@ -65,6 +66,10 @@ Supabase JWT.
 
 `ai-test` is a diagnostic endpoint only. It remains disabled unless `AI_TEST_ENABLED=true`; leave
 that setting unset or `false` in production.
+
+`generate-clarifying-questions` is the first production AI endpoint. It authenticates the request,
+reads the owned project through a user JWT-scoped Supabase client, and calls the shared
+`generate(...)` abstraction with validated structured output.
 
 ## Validation
 
@@ -79,6 +84,7 @@ deno task check
 ```bash
 supabase functions deploy health
 supabase functions deploy ai-test
+supabase functions deploy generate-clarifying-questions
 ```
 
 Apply the schema and RLS migrations to a fresh local database with:

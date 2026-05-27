@@ -19,6 +19,7 @@ export interface GenerationConfig {
   systemPrompt: string;
   temperature?: number;
   maxOutputTokens?: number;
+  responseFormat?: 'json_object';
 }
 
 export interface ProviderCallResult {
