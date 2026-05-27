@@ -9,6 +9,7 @@ export const PROJECT_STATUSES: readonly ProjectStatus[] = [
   'completed',
 ] as const;
 
+// New projects begin in idea; the later feature that advances a workflow owns each transition.
 export const PROJECT_STATUS_CONFIG: Record<
   ProjectStatus,
   {

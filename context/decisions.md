@@ -399,3 +399,37 @@ to a subsequent session in the same browser.
 change, or retaining query cache data after logout.
 
 **Reversibility:** Easy.
+
+## 2026-05-27 - New Project Draft State and Persistence
+
+**Decision:** Create a project row during the basic-details step with initial status `idea`.
+Later owning features advance status as their workflows complete. Clarification answers remain
+in component state during Chunk 09 and are persisted with the generated brief document in Chunk 10. Project names are not unique per user in the MVP; duplicate names are allowed.
+
+**Reason:** Persisting the row immediately makes the workflow resumable and gives later steps a
+stable project identifier without storing incomplete clarification content. This accepts that an
+abandoned flow can leave an empty `idea` project until project deletion arrives in Chunk 29.
+Allowing duplicate names preserves the existing database contract instead of adding an
+unrequested migration.
+
+**Alternatives considered:** Persisting only after brief generation, writing partial
+clarification state into the database, or enforcing a per-user project-name constraint.
+
+**Reversibility:** Moderate.
+
+## 2026-05-27 - Shared Schema Alias and Typed Form Pattern
+
+**Decision:** Expose `backend/_shared/schemas/*` to the frontend through the `@shared/schemas/*`
+Vite and TypeScript alias, restricted to Zod schema imports. Adopt shadcn/ui `Form` with React
+Hook Form and `@hookform/resolvers` for the new-project form, with writes managed by a TanStack
+Query mutation.
+
+**Reason:** The alias provides one canonical validation definition across browser and future Edge
+Function consumers without permitting general cross-application coupling. React Hook Form and
+its Zod resolver are the official shadcn/ui form composition pattern and keep typed field errors,
+submission state, and transformed optional values straightforward.
+
+**Alternatives considered:** Relative cross-folder schema paths, duplicated frontend schemas, or
+manual field state and validation for a multi-field creation form.
+
+**Reversibility:** Easy.

@@ -9,6 +9,7 @@ export const ROUTES = {
   PROJECT_NEW: '/projects/new',
   PROJECT_SHELL: '/projects/:id/*',
   PROJECT: (id: string) => `/projects/${id}`,
+  PROJECT_CLARIFY: (id: string) => `/projects/${id}/clarify`,
   PROJECT_OVERVIEW: (id: string) => `/projects/${id}/overview`,
   PROJECT_BRIEF: (id: string) => `/projects/${id}/brief`,
   PROJECT_PRD: (id: string) => `/projects/${id}/prd`,
