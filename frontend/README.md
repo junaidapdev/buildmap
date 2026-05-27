@@ -53,6 +53,17 @@ additional frontend environment variable is needed for Google sign-in.
 
 Password recovery is intentionally deferred beyond the current authentication chunk.
 
+## Shared Schemas and Forms
+
+Frontend features import resource validation schemas from `backend/_shared/schemas/` through the
+`@shared/schemas/*` Vite and TypeScript alias. This schema-only import is the single permitted
+cross-folder dependency from the frontend into the backend tree; runtime helpers and unrelated
+types must remain within their owning application.
+
+The new-project form establishes the feature form pattern: shadcn/ui `Form` controls composed
+with React Hook Form, a Zod resolver using the shared schema, and a TanStack Query mutation hook
+for server writes and cache invalidation. Later typed forms should follow this pattern.
+
 ## App Shell and Navigation
 
 Every authenticated page renders inside `src/components/layout/AppShell.tsx`, which provides the

@@ -93,12 +93,10 @@ enforced, that gap is stated explicitly rather than presented as completed work.
 - Shared resource schemas belong in `backend/_shared/schemas/<resource>.ts`.
 - Export both the Zod schema and the inferred input type, for example
   `ProjectCreateSchema` and `ProjectCreateInput`.
-- Frontend feature code imports shared schemas only by relative path, for example:
-
-```ts
-import { ProjectCreateSchema } from '../../../backend/_shared/schemas/project';
-```
-
+- **Cross-folder schema imports.** The frontend imports Zod schemas from
+  `backend/_shared/schemas/` through the `@shared` Vite/TypeScript alias. This is the only
+  sanctioned cross-folder import. Runtime code, helpers, types not derived from a Zod schema, or
+  anything else must not be imported across the boundary.
 - Backend functions validate input at the request boundary. Invalid input returns `422` with
   `ERROR_CODES.VALIDATION_FAILED` through the standard envelope.
 - Frontend forms validate on submit with that same schema and display inline field errors.

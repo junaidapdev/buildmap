@@ -15,6 +15,7 @@ import { SignInPage } from '@/features/auth/SignInPage';
 import { SignUpPage } from '@/features/auth/SignUpPage';
 import { useAuth } from '@/features/auth/useAuth';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
+import { NewProjectPage } from '@/features/projects/new/NewProjectPage';
 import { HomePage } from '@/pages/HomePage';
 import { ProjectModePlaceholder } from '@/pages/ProjectModePlaceholder';
 
@@ -92,7 +93,14 @@ function AppRoutes() {
         />
       )}
       <Route path={ROUTES.USER_SETTINGS} element={<ProtectedNotFoundRoute />} />
-      <Route path={ROUTES.PROJECT_NEW} element={<ProtectedNotFoundRoute />} />
+      <Route
+        path={ROUTES.PROJECT_NEW}
+        element={
+          <ProtectedShell>
+            <NewProjectPage />
+          </ProtectedShell>
+        }
+      />
       <Route
         path={ROUTES.PROJECT_SHELL}
         element={

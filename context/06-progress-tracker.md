@@ -14,6 +14,7 @@ Phase 2 — Project Workspace (In Progress)
 - [x] Chunk 05 — Supabase Auth Integration on the Frontend
 - [x] Chunk 06 — App Shell & Protected Routing
 - [x] Chunk 07 — Dashboard Project List
+- [x] Chunk 08 — New Project Basic Details
 
 ## In Progress
 
@@ -21,7 +22,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 08 — New Project Flow
+- [ ] Chunk 09 — AI Clarification Step
 
 ## Blocked
 
@@ -29,9 +30,9 @@ None.
 
 ## Recent Decisions
 
-See `decisions.md`. The dashboard now reads RLS-scoped projects directly through Supabase, sorts
-by recent activity, uses deliberate metric placeholders, and clears cached server state on sign
-out.
+See `decisions.md`. Project creation now inserts an owner-scoped `idea` project using the shared
+`@shared/schemas/project.ts` schema, the shadcn/ui and React Hook Form pattern, and dashboard
+query invalidation after a successful write.
 
 ## Known Issues
 
@@ -50,6 +51,8 @@ out.
   project volume makes the recent-activity grid insufficient.
 - Dashboard chunk count, completion, and issue metrics remain unavailable placeholders until their
   owning feature chunks supply real data.
+- The `/projects/:id/*` shell stub currently handles `/projects/{id}/clarify` after successful
+  creation; Chunk 09 replaces that placeholder with the clarification experience.
 
 ## Notes for Next Agent
 
@@ -67,7 +70,13 @@ out.
 - Dashboard reads `projects` directly from Supabase through the JS client; RLS scopes results.
   The dashboard nav item activates correctly through `nav-config.ts`.
 - Card placeholders for chunks, completion, and issues stay in place until Chunks 18, 22, and 23
-  land. The `/projects/new` destination is Chunk 08's responsibility.
+  land.
+- Project creation works end-to-end. Submitting the new-project form lands on
+  `/projects/{id}/clarify`, which is Chunk 09's responsibility.
+- The shared `@shared/schemas/project.ts` Zod schema is established as the canonical pattern for
+  frontend-to-backend shared resource validation schemas.
+- The new-project persistence model is a project row at step 1, clarification answers in component
+  state in Chunk 09, and a persisted brief document at the end of Chunk 10.
 - The project-mode sidebar stub at `/projects/:id/*` is temporary until Chunk 11, which also
   replaces the breadcrumb id placeholder with a fetched project name.
 - Architecture is locked. Read `02-architecture.md` and the SDK/HTTP-adapter known issue before

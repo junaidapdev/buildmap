@@ -8,8 +8,10 @@ const rootDirectory = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: {
-      '@': path.resolve(rootDirectory, './src'),
-    },
+    alias: [
+      { find: '@shared', replacement: path.resolve(rootDirectory, '../backend/_shared') },
+      { find: '@', replacement: path.resolve(rootDirectory, './src') },
+      { find: /^zod$/, replacement: path.resolve(rootDirectory, './node_modules/zod/index.js') },
+    ],
   },
 });
