@@ -47,6 +47,11 @@ enforced, that gap is stated explicitly rather than presented as completed work.
   `/projects/:id/*` page shares the project), fetch it once at the layout level and provide it through
   React context (the `useProject()` pattern). Subpages must not duplicate the fetch, and a mutation
   that changes the parent invalidates the parent query at the layout level.
+- **Stub hook pattern.** When a screen needs data from a feature that is not built yet, add a stub
+  hook (for example `src/features/projects/overview/stubs/useChunksState.ts`) that returns the
+  empty/initial shape synchronously. The screen consumes the stub. When the feature lands in a later
+  chunk, only the stub's body is replaced with a real query — the screen does not change. Mark every
+  stub with a `// TODO(chunk-N)` comment.
 
 ## Backend / Edge Function Standards
 

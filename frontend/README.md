@@ -127,3 +127,12 @@ project through `useProject()`. Subpages read the project via `useProject()` and
 directly. To add a subpage: add a child route under `/projects/:id` in `src/App.tsx`, and add an
 entry to `PROJECT_NAV` in `nav-config.ts` (initially with `pendingChunk`, removed when its chunk
 lands).
+
+## Overview Page Panels
+
+The project overview (`src/features/projects/overview/`) composes self-contained panel components,
+each owning its own data and empty state. Panels for features that do not exist yet read from stub
+hooks in `overview/stubs/` that return an empty shape synchronously. To activate a panel when its
+feature lands, replace the stub hook's body with a real React Query call — the panel component does
+not change. The "recommended next action" is a deterministic rule engine in
+`recommend-next-action.ts` (a pure function); add a milestone by editing that file.

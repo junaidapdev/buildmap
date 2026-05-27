@@ -645,3 +645,24 @@ distinguishing "does not exist" from "not yours" (rejected for privacy — both 
 project-id existence is never leaked); keeping the Chunk 06 `/projects/:id/*` stub.
 
 **Reversibility:** Medium.
+
+## 2026-05-27 - Project Overview Page, Rule-Based Next Action, and Stub Hooks
+
+**Decision:** The project overview at `/projects/:id/overview` is the default landing subroute (the
+`<ProjectLayout>` index now redirects to `overview` instead of `brief`). It composes independent
+panel components, each owning its own data and empty state. The "recommended next action" is a
+deterministic, rule-based pure function (`recommend-next-action.ts`) that walks a fixed milestone
+sequence and returns the first unmet step — not an AI call. Panels for not-yet-built features read
+from stub hooks in `overview/stubs/` that synchronously return an empty shape; when a feature lands,
+only the stub body is swapped for a real query and the panel is unchanged. Product-facing empty-state
+copy never references internal chunk numbers; `pendingChunk` tooltips stay in the sidebar nav only.
+
+**Reason:** A rule engine is fast, free, debuggable, and predictable, and the milestone sequence is
+well understood. Panel composition plus stub hooks let later chunks drop real data in without
+restructuring the page, avoiding a disruptive retrofit. Hiding chunk numbers keeps the product UI
+honest and user-focused.
+
+**Alternatives considered:** An AI-driven recommendation (deferred — a possible follow-up); a single
+monolithic page component; "Coming in Chunk N" copy in panels (rejected — leaks internal sequencing).
+
+**Reversibility:** Easy.

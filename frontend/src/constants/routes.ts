@@ -25,6 +25,7 @@ export const ROUTES = {
 
 /** Relative child segments for the nested `/projects/:id` route tree. */
 export const PROJECT_SUBROUTES = {
+  OVERVIEW: 'overview',
   BRIEF: 'brief',
   CLARIFY: 'clarify',
 } as const;

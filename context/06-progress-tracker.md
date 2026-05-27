@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase 2 — Project Workspace (In Progress)
+Phase 2 — Project Workspace (Complete). Phase 3 — Planning Documents begins with Chunk 13.
 
 ## Completed Chunks
 
@@ -18,6 +18,7 @@ Phase 2 — Project Workspace (In Progress)
 - [x] Chunk 09 — Idea Clarifier
 - [x] Chunk 10 — Project Brief Generator
 - [x] Chunk 11 — Project Detail Layout
+- [x] Chunk 12 — Project Overview Page
 
 ## In Progress
 
@@ -25,7 +26,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 12 — Project Overview
+- [ ] Chunk 13 — PRD Generator
 
 ## Blocked
 
@@ -33,10 +34,10 @@ None.
 
 ## Recent Decisions
 
-See `decisions.md`. Project subpages now render inside a nested `<ProjectLayout>` that fetches the
-project once (UUID-validated), handles loading/error/not-found, and exposes it via `useProject()`;
-subpages no longer fetch the project themselves, and mutations invalidate the layout's
-`['project', id]` query. The brief remains the first persistent AI artifact, and all generation types
+See `decisions.md`. Phase 2 is complete: the project overview is the landing screen for every
+project. It composes self-contained panels, most showing empty states backed by stub hooks in
+`overview/stubs/` that later chunks replace with real queries. The "recommended next action" is a
+deterministic rule engine (not AI) that walks a fixed milestone sequence. All AI generation types
 temporarily use OpenAI per a product-owner override of the Anthropic long-form default.
 
 ## Known Issues
@@ -58,11 +59,12 @@ temporarily use OpenAI per a product-owner override of the Anthropic long-form d
   owning feature chunks supply real data.
 - The dedicated `/projects/{id}/clarify` route now replaces the creation-flow placeholder with the
   AI clarification experience.
-- Project subpages now render inside a nested `<ProjectLayout>`; the temporary `/projects/:id/*`
-  stub from Chunk 06 is removed. The default subroute is `brief` until Chunk 12 switches it to
-  `overview`.
-- Dashboard project cards link to `/projects/{id}/overview`, which has no route yet and 404s
-  (within the project layout) until Chunk 12 builds the overview page.
+- Project subpages render inside a nested `<ProjectLayout>`; the default subroute is now `overview`,
+  and dashboard project cards resolve to it correctly.
+- The overview's Chunks, Open issues, and Recent decisions panels show empty states backed by stub
+  hooks in `overview/stubs/`; they activate when Chunks 16/18/23 replace the stubs. The Export panel
+  is a disabled shortcut until Chunk 25. The next-action CTA may point at routes (PRD, architecture,
+  context, chunks) that 404 until their chunks land — expected.
 - Regenerating a brief runs without the original clarification answers, which are ephemeral, so it
   rebuilds from the project's basic details only. Persisting answers is a possible follow-up.
 - Chunk 10's database and AI paths (migration apply, Edge Function behavior, stored-procedure
@@ -106,7 +108,7 @@ temporarily use OpenAI per a product-owner override of the Anthropic long-form d
 - Project subpages render inside `<ProjectLayout>` and read the project via `useProject()` (mirrors
   `useAuth()`); they never fetch the project themselves. Add a subpage by adding a child route under
   `/projects/:id` in `App.tsx` and a `PROJECT_NAV` entry (with `pendingChunk` until it lands). The
-  default subroute is `brief`; Chunk 12 should switch it to `overview`. The sidebar reads the id from
+  default subroute is now `overview`. The sidebar reads the id from
   `useParams` (it lives in `AppShell`, outside the provider) — do not call `useProject()` there.
   Subpage mutations that change the project (e.g. brief approval) must invalidate
   `projectQueryKey(id)`.
@@ -115,3 +117,9 @@ temporarily use OpenAI per a product-owner override of the Anthropic long-form d
 - Do not deviate from the stack without updating `decisions.md` first.
 - Backend infra is in place. AI abstraction is wired but unused — first real consumer is Chunk 09.
   Provider mapping is set; revisit if costs or quality require swaps.
+- Phase 2 is done. The overview page is the user's home base inside a project; most panels show
+  empty states today. To activate a panel, replace its stub hook in
+  `src/features/projects/overview/stubs/` with a real React Query call — the panel component does
+  not change. The recommendation engine in `recommend-next-action.ts` walks a fixed milestone
+  sequence; add a milestone by editing that file. Phase 3 begins with the PRD generator (Chunk 13),
+  the first long-form structured document with a multi-section editor (Chunk 14).
