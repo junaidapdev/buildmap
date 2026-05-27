@@ -1,4 +1,5 @@
 import { AuthUnknownError, type AuthError, type Session, type User } from '@supabase/supabase-js';
+import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useEffect, useState, type PropsWithChildren } from 'react';
 
 import { ROUTES } from '@/constants/routes';
@@ -34,6 +35,7 @@ function unexpectedAuthError(cause: unknown): AuthError {
 }
 
 export function AuthProvider({ children }: PropsWithChildren) {
+  const queryClient = useQueryClient();
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,9 +69,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
       if (!mounted) {
         return;
+      }
+
+      if (event === 'SIGNED_OUT') {
+        // Session-scoped server state must not survive logout or a sign-out from another tab.
+        queryClient.clear();
       }
 
       setSession(nextSession);
@@ -81,7 +88,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [queryClient]);
 
   async function signInWithPassword(email: string, password: string): Promise<AuthResult> {
     try {
@@ -157,6 +164,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         return;
       }
 
+      queryClient.clear();
       logger.info('auth_sign_out_succeeded');
     } catch {
       logger.error('auth_sign_out_failed');
