@@ -720,3 +720,24 @@ status on PRD approval (rejected — duplicates Chunk 18); client-only gating (r
 enforceable); keeping the Anthropic default (superseded by the OpenAI-only directive).
 
 **Reversibility:** Medium.
+
+## 2026-05-28 - OpenAI for All Generation Types; Anthropic Key No Longer Required
+
+**Decision:** Per the product owner, the app uses OpenAI for every generation type. All
+`GENERATION_CONFIG` entries now map to OpenAI (`gpt-4o-mini`), and `ANTHROPIC_API_KEY` is optional in
+`backend/_shared/env.ts` so Edge Functions boot without it. The Anthropic adapter
+(`_shared/ai/anthropic.ts`) and the `'anthropic'` provider type are retained but dormant — no config
+routes to them — so the dual-provider abstraction can be restored later without re-architecting. This
+supersedes the earlier per-type "temporarily use OpenAI" overrides for the brief and PRD.
+
+**Reason:** The project only has an OpenAI key, and requiring a non-empty `ANTHROPIC_API_KEY` made env
+validation throw at startup, preventing every Edge Function from booting — a failure that looked
+unrelated to the missing key. Mapping everything to OpenAI matches the directive and removes the
+footgun.
+
+**Alternatives considered:** Requiring a placeholder Anthropic key (rejected — confusing); fully
+deleting the Anthropic adapter and the `'anthropic'` provider (rejected for now — it contradicts the
+locked dual-provider architecture and is harder to reverse; `02-architecture.md` should be reconciled
+in an approved architecture update, already tracked as a known issue).
+
+**Reversibility:** Easy.

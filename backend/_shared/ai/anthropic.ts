@@ -29,7 +29,8 @@ export async function callProvider(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': env.ANTHROPIC_API_KEY,
+      // ANTHROPIC_API_KEY is optional now; this adapter is dormant (no generation type maps to it).
+      'x-api-key': env.ANTHROPIC_API_KEY ?? '',
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
