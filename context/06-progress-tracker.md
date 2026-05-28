@@ -21,6 +21,7 @@ Phase 3 — Planning Documents (In Progress). Phases 1–2 complete.
 - [x] Chunk 12 — Project Overview Page
 - [x] Chunk 13 — PRD Generator
 - [x] Chunk 14 — PRD Editor
+- [x] Chunk 15 — Architecture Generator
 
 ## In Progress
 
@@ -28,7 +29,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 15 — Architecture Generator
+- [ ] Chunk 16 — Architecture Editor
 
 ## Blocked
 
@@ -36,12 +37,15 @@ None.
 
 ## Recent Decisions
 
-See `decisions.md`. The PRD is now fully editable: every section has in-place structured editing
-(textareas, add/remove/reorder list editors, field-level feature/story cards — not markdown) plus
-per-section AI regenerate. The SPA sends the full `content_json` to a save Edge Function that renders
-markdown deterministically server-side and bumps the version via a stored procedure; any edit or
-regenerate resets approval. All AI generation types temporarily use OpenAI per a product-owner
-override of the Anthropic long-form default.
+See `decisions.md`. The architecture generator is live: generated from the approved PRD (gated 412
+`PRD_NOT_APPROVED`, brief optional), stored as a `project_documents` row of `type = 'architecture'`
+with nine structured sections, including architectural decisions inline in `content_json.decisions`
+(no separate table). Markdown is rendered server-side deterministically; the AI's `content_markdown`
+is discarded. Approval (`approve_project_architecture`) marks the doc final without advancing status.
+The architecture nav item is active and the overview's `useArchitectureState` and `useDecisionsState`
+now read real data. Before this, the PRD became fully editable (per-section structured editing +
+regenerate). All AI generation types use OpenAI (`gpt-4o-mini`) per the standing product-owner
+override; the Anthropic adapter is dormant.
 
 ## Known Issues
 
@@ -83,6 +87,18 @@ override of the Anthropic long-form default.
 
 ## Notes for Next Agent
 
+- Architecture generation works end-to-end. Decisions are part of `content_json.decisions`.
+  Per-section editing and per-section regeneration come in Chunk 16, plus the dedicated decision log
+  management UI (add/remove/edit individual decisions). Architecture nav item is active. The pattern
+  from Chunk 14 (per-section editor + regen) applies here directly; the only new surface is the
+  decision log. The generator (`generate-architecture`) gates on an approved PRD (412
+  `PRD_NOT_APPROVED`) and treats the brief as optional context. Markdown is rendered server-side via
+  `backend/_shared/markdown/architecture-markdown.ts`; the AI's `content_markdown` is discarded.
+  `approve_project_architecture` (security invoker) marks the doc final without advancing status. The
+  overview's `useArchitectureState` and `useDecisionsState` stubs were replaced with real queries
+  reading the architecture document. Backend gates (migration apply, Edge Function behavior, stored
+  procedure, end-to-end flow) are verified here only by static checks; exercising them needs a live
+  Supabase project + `OPENAI_API_KEY`, and the migration still needs `supabase db push`.
 - The PRD is fully editable: per-section edit + per-section regenerate. Pattern: the SPA sends the
   full `content_json` to the `save-prd-content` Edge Function, which renders markdown via the
   deterministic template (`backend/_shared/markdown/prd-markdown.ts`) and calls the

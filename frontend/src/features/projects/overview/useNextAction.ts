@@ -42,5 +42,8 @@ export function useNextAction(projectId: string): NextActionResult {
     allChunksDone: chunks.data.allDone,
   });
 
-  return { nextAction, isPending: brief.isPending || prd.isPending };
+  return {
+    nextAction,
+    isPending: brief.isPending || prd.isPending || architecture.isPending,
+  };
 }

@@ -4,4 +4,5 @@ export const EDGE_FUNCTIONS = {
   GENERATE_PRD: 'generate-prd',
   REGENERATE_PRD_SECTION: 'regenerate-prd-section',
   SAVE_PRD_CONTENT: 'save-prd-content',
+  GENERATE_ARCHITECTURE: 'generate-architecture',
 } as const;
