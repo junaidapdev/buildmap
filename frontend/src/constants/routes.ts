@@ -27,5 +27,6 @@ export const ROUTES = {
 export const PROJECT_SUBROUTES = {
   OVERVIEW: 'overview',
   BRIEF: 'brief',
+  PRD: 'prd',
   CLARIFY: 'clarify',
 } as const;

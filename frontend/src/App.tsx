@@ -20,6 +20,7 @@ import { ClarifyPage } from '@/features/projects/clarify/ClarifyPage';
 import { ProjectLayout } from '@/features/projects/layout/ProjectLayout';
 import { NewProjectPage } from '@/features/projects/new/NewProjectPage';
 import { OverviewPage } from '@/features/projects/overview/OverviewPage';
+import { PrdPage } from '@/features/projects/prd/PrdPage';
 import { HomePage } from '@/pages/HomePage';
 
 const devRoutesPageLoader = DEV_ROUTES_PAGE_LOADER;
@@ -115,6 +116,7 @@ function AppRoutes() {
         <Route index element={<Navigate replace to={PROJECT_SUBROUTES.OVERVIEW} />} />
         <Route path={PROJECT_SUBROUTES.OVERVIEW} element={<OverviewPage />} />
         <Route path={PROJECT_SUBROUTES.BRIEF} element={<BriefPage />} />
+        <Route path={PROJECT_SUBROUTES.PRD} element={<PrdPage />} />
         <Route path={PROJECT_SUBROUTES.CLARIFY} element={<ClarifyPage />} />
         <Route path="*" element={<NotFoundPage variant="signedIn" />} />
       </Route>

@@ -5,7 +5,9 @@ const RawEnvSchema = z.object({
   SUPABASE_ANON_KEY: z.string().min(1, 'is required'),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'is required'),
   OPENAI_API_KEY: z.string().min(1, 'is required'),
-  ANTHROPIC_API_KEY: z.string().min(1, 'is required'),
+  // Optional: every generation type uses OpenAI for now, so the Anthropic key is not required to
+  // boot. The Anthropic adapter is retained but dormant. See decisions.md.
+  ANTHROPIC_API_KEY: z.string().optional(),
   ENVIRONMENT: z.enum(['development', 'staging', 'production']).default('development'),
   AI_TEST_ENABLED: z.enum(['true', 'false']).default('false'),
   ALLOWED_ORIGINS: z.string().optional(),

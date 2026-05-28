@@ -1,0 +1,96 @@
+import { CheckCircle2, RefreshCw } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { ROUTES } from '@/constants/routes';
+import { PRD_MESSAGES } from '@/features/projects/prd/messages';
+
+type PrdActionsProps = {
+  projectId: string;
+  isFinal: boolean;
+  onApprove: () => void;
+  isApproving: boolean;
+  onRegenerate: () => void;
+  isRegenerating: boolean;
+};
+
+export function PrdActions({
+  projectId,
+  isFinal,
+  onApprove,
+  isApproving,
+  onRegenerate,
+  isRegenerating,
+}: PrdActionsProps) {
+  return (
+    <div className="space-y-4 border-t pt-6">
+      {isFinal && (
+        <Alert className="border-green-600/40 text-green-700 dark:border-green-500/40 dark:text-green-500 [&>svg]:text-green-600 dark:[&>svg]:text-green-500">
+          <CheckCircle2 aria-hidden="true" className="h-4 w-4" />
+          <AlertTitle>{PRD_MESSAGES.APPROVED_BANNER}</AlertTitle>
+          <AlertDescription>
+            <Link
+              className="font-medium underline underline-offset-4"
+              to={ROUTES.PROJECT_ARCHITECTURE(projectId)}
+            >
+              {PRD_MESSAGES.NEXT_CTA}
+            </Link>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+        {!isFinal && (
+          <Button
+            aria-busy={isApproving}
+            disabled={isApproving || isRegenerating}
+            onClick={onApprove}
+          >
+            {isApproving ? PRD_MESSAGES.APPROVE_BUTTON_BUSY : PRD_MESSAGES.APPROVE_BUTTON}
+          </Button>
+        )}
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              aria-busy={isRegenerating}
+              disabled={isRegenerating || isApproving}
+              variant="outline"
+            >
+              <RefreshCw aria-hidden="true" className="h-4 w-4" />
+              {isRegenerating ? PRD_MESSAGES.REGENERATE_BUSY : PRD_MESSAGES.REGENERATE_BUTTON}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{PRD_MESSAGES.REGENERATE_CONFIRM_TITLE}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {PRD_MESSAGES.REGENERATE_CONFIRM_BODY}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{PRD_MESSAGES.REGENERATE_CONFIRM_CANCEL}</AlertDialogCancel>
+              <AlertDialogAction onClick={onRegenerate}>
+                {PRD_MESSAGES.REGENERATE_CONFIRM_CONFIRM}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+
+      <p className="text-right text-xs text-muted-foreground">{PRD_MESSAGES.REGENERATE_HINT}</p>
+    </div>
+  );
+}

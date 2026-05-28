@@ -44,7 +44,7 @@ export const PROJECT_NAV: readonly NavItem[] = [
     to: ROUTES.PROJECT_OVERVIEW,
   },
   { id: 'brief', label: 'Brief', icon: FileText, to: ROUTES.PROJECT_BRIEF },
-  { id: 'prd', label: 'PRD', icon: FileText, to: ROUTES.PROJECT_PRD, pendingChunk: 14 },
+  { id: 'prd', label: 'PRD', icon: FileText, to: ROUTES.PROJECT_PRD },
   {
     id: 'architecture',
     label: 'Architecture',
