@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 
 import { ClarifyError } from '@/features/projects/clarify/ClarifyError';
 import { ClarifyForm } from '@/features/projects/clarify/ClarifyForm';
@@ -12,24 +12,16 @@ export function ClarifyPage() {
   const { project } = useProject();
   const projectId = project.id;
   const generation = useClarifyingQuestions(projectId);
-  const generateQuestions = generation.mutate;
-  const initialGenerationStarted = useRef(false);
   const [retryUsed, setRetryUsed] = useState(false);
-
-  useEffect(() => {
-    if (initialGenerationStarted.current) {
-      return;
-    }
-
-    // The ref prevents React development effect replay from issuing a duplicate AI request.
-    initialGenerationStarted.current = true;
-    generateQuestions();
-  }, [generateQuestions]);
 
   function retryGeneration(): void {
     setRetryUsed(true);
-    generateQuestions();
+    void generation.refetch();
   }
+
+  // "Working" covers waiting on the session (query disabled), the initial fetch, and an in-flight
+  // retry — so retrying shows the pending state instead of leaving the error card on screen.
+  const isWorking = generation.isPending || generation.isFetching;
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -37,11 +29,13 @@ export function ClarifyPage() {
         <h1 className="text-2xl font-semibold">{CLARIFY_MESSAGES.PAGE_TITLE}</h1>
         <p className="mt-2 text-muted-foreground">{CLARIFY_MESSAGES.PAGE_SUBTITLE}</p>
       </header>
-      {(generation.isIdle || generation.isPending) && <ClarifyPending />}
-      {generation.isError && (
+      {isWorking && <ClarifyPending />}
+      {!isWorking && generation.isError && (
         <ClarifyError canRetry={!retryUsed} onRetry={retryGeneration} projectId={projectId} />
       )}
-      {generation.isSuccess && <ClarifyForm projectId={projectId} questions={generation.data} />}
+      {!isWorking && generation.isSuccess && (
+        <ClarifyForm projectId={projectId} questions={generation.data} />
+      )}
     </div>
   );
 }
