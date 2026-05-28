@@ -122,10 +122,19 @@ export function recommendNextAction(input: NextActionInputs): NextAction {
     };
   }
 
-  // allChunksDone, or the defensive default for an unreachable flag combination.
+  if (input.allChunksDone) {
+    return {
+      id: 'done',
+      label: OVERVIEW_MESSAGES.NEXT_ACTION_DONE,
+      to: null,
+    };
+  }
+
+  // Defensive default for an unexpected flag combination (chunks exist but none are in progress,
+  // incomplete, or all done): keep the user moving rather than incorrectly declaring completion.
   return {
-    id: 'done',
-    label: OVERVIEW_MESSAGES.NEXT_ACTION_DONE,
-    to: null,
+    id: 'continue',
+    label: OVERVIEW_MESSAGES.NEXT_ACTION_CONTINUE,
+    to: ROUTES.PROJECT_CHUNKS(projectId),
   };
 }
