@@ -59,14 +59,17 @@ export function PrdPage() {
 
   let body: ReactNode;
 
-  if (brief.isPending || prd.isPending) {
+  if (prd.isPending) {
+    body = <PrdPending />;
+  } else if (prd.data) {
+    // An existing PRD renders regardless of brief state; the brief only gates generation.
+    body = <PrdView prd={prd.data} projectId={projectId} />;
+  } else if (prd.isError) {
+    body = <PrdError onRetry={() => void prd.refetch()} />;
+  } else if (brief.isPending) {
     body = <PrdPending />;
   } else if (brief.isError) {
     body = <PrdError onRetry={() => void brief.refetch()} />;
-  } else if (prd.isError) {
-    body = <PrdError onRetry={() => void prd.refetch()} />;
-  } else if (prd.data) {
-    body = <PrdView prd={prd.data} projectId={projectId} />;
   } else if (!briefApproved) {
     body = <PrdGatingState projectId={projectId} />;
   } else if (generate.isError) {

@@ -25,12 +25,22 @@ export async function callProvider(
   config: GenerationConfig,
   userInput: string,
 ): Promise<ProviderCallResult> {
+  // ANTHROPIC_API_KEY is optional and this adapter is dormant (no generation type maps to it). Fail
+  // fast with a clear error if it is ever invoked without a key instead of making a doomed request.
+  const apiKey = env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    throw new AiProviderError(
+      'anthropic',
+      HTTP_STATUS.SERVICE_UNAVAILABLE,
+      'ANTHROPIC_API_KEY is not configured.',
+    );
+  }
+
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      // ANTHROPIC_API_KEY is optional now; this adapter is dormant (no generation type maps to it).
-      'x-api-key': env.ANTHROPIC_API_KEY ?? '',
+      'x-api-key': apiKey,
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
