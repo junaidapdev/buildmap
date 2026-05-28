@@ -415,6 +415,16 @@ verify_jwt = false
 entrypoint = "../functions/generate-prd/index.ts"
 import_map = "../functions/generate-prd/deno.json"
 
+[functions.regenerate-prd-section]
+verify_jwt = false
+entrypoint = "../functions/regenerate-prd-section/index.ts"
+import_map = "../functions/regenerate-prd-section/deno.json"
+
+[functions.save-prd-content]
+verify_jwt = false
+entrypoint = "../functions/save-prd-content/index.ts"
+import_map = "../functions/save-prd-content/deno.json"
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 

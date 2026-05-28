@@ -3,8 +3,8 @@ import { z } from 'zod';
 export const PrdFeaturePrioritySchema = z.enum(['must_have', 'should_have', 'nice_to_have']);
 export type PrdFeaturePriority = z.infer<typeof PrdFeaturePrioritySchema>;
 
-// Stable, lowercase kebab-case id the model assigns so Chunk 14 (per-section regenerate) and Chunk
-// 18 (chunk generation) can address features and stories by id. Uniqueness is enforced on the
+// Stable, lowercase kebab-case id the model assigns so per-section regenerate (Chunk 14) and chunk
+// generation (Chunk 18) can address features and stories by id. Uniqueness is enforced on the
 // container schema below.
 const StableIdSchema = z
   .string()
@@ -27,7 +27,9 @@ export const PrdUserStorySchema = z.object({
   acceptance_criteria: z.array(z.string().min(3).max(500)).min(1).max(15),
 });
 
-export const PrdContentSchema = z.object({
+// Base object schema. Kept separate so per-section schemas can reference `.shape`; the exported
+// PrdContentSchema below wraps it with cross-field uniqueness via superRefine.
+const PrdContentObjectSchema = z.object({
   goal: z.string().min(20).max(2000),
   target_users: z.array(z.string().min(3).max(500)).min(1).max(15),
   problem_statement: z.string().min(20).max(3000),
@@ -36,7 +38,9 @@ export const PrdContentSchema = z.object({
   user_stories: z.array(PrdUserStorySchema).max(30),
   out_of_scope: z.array(z.string().min(3).max(300)).max(25),
   open_questions: z.array(z.string().min(3).max(500)).max(15),
-}).superRefine((content, ctx) => {
+});
+
+export const PrdContentSchema = PrdContentObjectSchema.superRefine((content, ctx) => {
   const seenFeatureIds = new Set<string>();
   content.features.forEach((feature, index) => {
     if (seenFeatureIds.has(feature.id)) {
@@ -71,8 +75,70 @@ export const PrdModelOutputSchema = z.object({
 });
 export type PrdModelOutput = z.infer<typeof PrdModelOutputSchema>;
 
-/** Edge Function input. */
+/** Edge Function input for full generation. */
 export const GeneratePrdInputSchema = z.object({
   projectId: z.string().uuid(),
 });
 export type GeneratePrdInput = z.infer<typeof GeneratePrdInputSchema>;
+
+// --- Chunk 14: per-section edit + regenerate ---
+
+export const PrdSectionKeySchema = z.enum([
+  'goal',
+  'target_users',
+  'problem_statement',
+  'success_criteria',
+  'features',
+  'user_stories',
+  'out_of_scope',
+  'open_questions',
+]);
+export type PrdSectionKey = z.infer<typeof PrdSectionKeySchema>;
+
+export const RegeneratePrdSectionInputSchema = z.object({
+  projectId: z.string().uuid(),
+  sectionKey: PrdSectionKeySchema,
+});
+export type RegeneratePrdSectionInput = z.infer<typeof RegeneratePrdSectionInputSchema>;
+
+/**
+ * Per-section AI output. The Edge Function asks the model for ONLY this section's shape, then
+ * validates the response against this discriminated union before the SPA stitches it into the
+ * existing PRD's content_json (where full uniqueness is re-checked on save).
+ */
+export const RegeneratePrdSectionOutputSchema = z.discriminatedUnion('sectionKey', [
+  z.object({ sectionKey: z.literal('goal'), value: PrdContentObjectSchema.shape.goal }),
+  z.object({
+    sectionKey: z.literal('target_users'),
+    value: PrdContentObjectSchema.shape.target_users,
+  }),
+  z.object({
+    sectionKey: z.literal('problem_statement'),
+    value: PrdContentObjectSchema.shape.problem_statement,
+  }),
+  z.object({
+    sectionKey: z.literal('success_criteria'),
+    value: PrdContentObjectSchema.shape.success_criteria,
+  }),
+  z.object({ sectionKey: z.literal('features'), value: PrdContentObjectSchema.shape.features }),
+  z.object({
+    sectionKey: z.literal('user_stories'),
+    value: PrdContentObjectSchema.shape.user_stories,
+  }),
+  z.object({
+    sectionKey: z.literal('out_of_scope'),
+    value: PrdContentObjectSchema.shape.out_of_scope,
+  }),
+  z.object({
+    sectionKey: z.literal('open_questions'),
+    value: PrdContentObjectSchema.shape.open_questions,
+  }),
+]);
+export type RegeneratePrdSectionOutput = z.infer<typeof RegeneratePrdSectionOutputSchema>;
+
+/** Save input. The SPA sends the full new content_json; the server validates, renders markdown, upserts. */
+export const SavePrdContentInputSchema = z.object({
+  projectId: z.string().uuid(),
+  contentJson: PrdContentSchema,
+});
+export type SavePrdContentInput = z.infer<typeof SavePrdContentInputSchema>;

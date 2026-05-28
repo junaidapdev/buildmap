@@ -741,3 +741,35 @@ locked dual-provider architecture and is harder to reverse; `02-architecture.md`
 in an approved architecture update, already tracked as a known issue).
 
 **Reversibility:** Easy.
+
+## 2026-05-28 - PRD Per-Section Editing and Regeneration
+
+**Decision:** The PRD is edited section by section with structured editors (a textarea for prose, an
+add/remove/reorder list editor for string arrays, and field-level cards for features and user
+stories) — not free-form markdown, because `content_json` is the source of truth. Saving sends the
+full `content_json` to a `save-prd-content` Edge Function that re-validates it, renders
+`content_markdown` deterministically via `backend/_shared/markdown/prd-markdown.ts`, and persists
+both through the `update_project_prd_content` stored procedure (security invoker), which bumps the
+version and resets `is_final`. Per-section regenerate is a separate `regenerate-prd-section` Edge
+Function returning only the requested section's value (validated by a discriminated-union schema with
+a server-side section-key-match check); the SPA stitches it into `content_json` and saves through the
+same path, so markdown rendering lives in exactly one place. List reordering uses up/down buttons (no
+drag-and-drop). `prd_section_regenerate` runs on OpenAI per the standing override.
+
+In-app navigation blocking for unsaved edits is deferred: React Router's `useBlocker` requires a data
+router, but the app uses `<BrowserRouter>`, so only `beforeunload` (browser refresh/close) is wired.
+Migrating to `createBrowserRouter` to enable full in-app blocking is a follow-up beyond this chunk's
+"no route changes" scope.
+
+**Reason:** Structured editing keeps the renderer and downstream chunks working off a reliable shape
+and avoids brittle markdown round-tripping. A separate per-section regenerate makes "redo just this
+part" far cheaper than a full regeneration. Centralizing markdown rendering server-side keeps
+`content` and `content_json` in sync.
+
+**Alternatives considered:** A whole-document markdown editor (rejected — brittle re-parsing); the
+SPA rendering markdown (rejected — duplicates rules); drag-and-drop reorder (deferred — adds a
+dependency and accessibility complexity); migrating to a data router now for `useBlocker` (deferred —
+out of chunk scope). The final `prd_section_regenerate` prompt lives in
+`PRD_SECTION_REGENERATION_SYSTEM_PROMPT` in `backend/_shared/ai/config.ts`.
+
+**Reversibility:** Medium.

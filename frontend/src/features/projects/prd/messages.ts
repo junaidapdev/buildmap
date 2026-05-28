@@ -14,13 +14,15 @@ export const PRD_MESSAGES = {
     'The PRD is generated from your project brief. Approve the brief, then come back to generate the PRD.',
   GATING_OPEN_BRIEF: 'Open brief',
 
-  REGENERATE_BUTTON: 'Regenerate',
+  REGENERATE_BUTTON: 'Regenerate full PRD',
   REGENERATE_BUSY: 'Regenerating…',
-  REGENERATE_CONFIRM_TITLE: 'Regenerate PRD?',
-  REGENERATE_CONFIRM_BODY: 'This will replace the current PRD and reset the approved state.',
+  REGENERATE_CONFIRM_TITLE: 'Regenerate the whole PRD?',
+  REGENERATE_CONFIRM_BODY:
+    'This replaces every section and resets the approved state. To change one section, use its own Edit or Regenerate instead.',
   REGENERATE_CONFIRM_CONFIRM: 'Yes, regenerate',
   REGENERATE_CONFIRM_CANCEL: 'Cancel',
-  REGENERATE_HINT: 'Regenerating will reset the approved state.',
+  REGENERATE_HINT:
+    'Edit or regenerate any section above, or regenerate the whole PRD. Either resets approval.',
 
   APPROVE_BUTTON: 'Approve PRD',
   APPROVE_BUTTON_BUSY: 'Approving…',
