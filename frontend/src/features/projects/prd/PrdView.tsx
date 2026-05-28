@@ -1,9 +1,17 @@
+import { useCallback, useState } from 'react';
+
+import type { PrdContent, PrdSectionKey } from '@shared/schemas/prd';
 import { Badge } from '@/components/ui/badge';
-import { PRD_MESSAGES } from '@/features/projects/prd/messages';
 import { PrdActions } from '@/features/projects/prd/PrdActions';
 import { PrdFeatureCard } from '@/features/projects/prd/PrdFeatureCard';
-import { PrdSection } from '@/features/projects/prd/PrdSection';
 import { PrdUserStoryCard } from '@/features/projects/prd/PrdUserStoryCard';
+import { PrdSectionEditor } from '@/features/projects/prd/edit/PrdSectionEditor';
+import { FeatureListEditor } from '@/features/projects/prd/edit/editors/FeatureListEditor';
+import { ProseEditor } from '@/features/projects/prd/edit/editors/ProseEditor';
+import { StringListEditor } from '@/features/projects/prd/edit/editors/StringListEditor';
+import { UserStoryListEditor } from '@/features/projects/prd/edit/editors/UserStoryListEditor';
+import { useDirtyGuard } from '@/features/projects/prd/edit/useDirtyGuard';
+import { PRD_MESSAGES } from '@/features/projects/prd/messages';
 import { useApprovePrd } from '@/features/projects/prd/useApprovePrd';
 import type { PrdRow } from '@/features/projects/prd/useExistingPrd';
 import { useGeneratePrd } from '@/features/projects/prd/useGeneratePrd';
@@ -28,10 +36,51 @@ function renderList(items: readonly string[]) {
   );
 }
 
+function renderFeatures(features: PrdContent['features']) {
+  if (features.length === 0) {
+    return <p className="text-muted-foreground">{PRD_MESSAGES.EMPTY_LIST}</p>;
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      {features.map((feature) => (
+        <PrdFeatureCard feature={feature} key={feature.id} />
+      ))}
+    </div>
+  );
+}
+
+function renderStories(stories: PrdContent['user_stories']) {
+  if (stories.length === 0) {
+    return <p className="text-muted-foreground">{PRD_MESSAGES.EMPTY_LIST}</p>;
+  }
+
+  return (
+    <div className="space-y-3">
+      {stories.map((story) => (
+        <PrdUserStoryCard key={story.id} story={story} />
+      ))}
+    </div>
+  );
+}
+
 export function PrdView({ prd, projectId }: PrdViewProps) {
   const generate = useGeneratePrd(projectId);
   const approve = useApprovePrd(projectId);
   const content = prd.content_json;
+
+  const [dirtyMap, setDirtyMap] = useState<Partial<Record<PrdSectionKey, boolean>>>({});
+  const anyDirty = Object.values(dirtyMap).some(Boolean);
+  useDirtyGuard(anyDirty);
+
+  const handleDirtyChange = useCallback((sectionKey: PrdSectionKey, dirty: boolean) => {
+    setDirtyMap((previous) =>
+      previous[sectionKey] === dirty ? previous : { ...previous, [sectionKey]: dirty },
+    );
+  }, []);
+
+  // Saving invalidates the PRD query, so the refetched row updates this view; nothing to do here.
+  const handleSaved = useCallback(() => {}, []);
 
   return (
     <article className="space-y-8">
@@ -44,46 +93,106 @@ export function PrdView({ prd, projectId }: PrdViewProps) {
       </div>
 
       <div className="space-y-8">
-        <PrdSection title={PRD_MESSAGES.SECTION_GOAL}>
-          <p>{content.goal}</p>
-        </PrdSection>
-        <PrdSection title={PRD_MESSAGES.SECTION_TARGET_USERS}>
-          {renderList(content.target_users)}
-        </PrdSection>
-        <PrdSection title={PRD_MESSAGES.SECTION_PROBLEM}>
-          <p>{content.problem_statement}</p>
-        </PrdSection>
-        <PrdSection title={PRD_MESSAGES.SECTION_SUCCESS_CRITERIA}>
-          {renderList(content.success_criteria)}
-        </PrdSection>
-        <PrdSection title={PRD_MESSAGES.SECTION_FEATURES}>
-          {content.features.length === 0 ? (
-            <p className="text-muted-foreground">{PRD_MESSAGES.EMPTY_LIST}</p>
-          ) : (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {content.features.map((feature) => (
-                <PrdFeatureCard feature={feature} key={feature.id} />
-              ))}
-            </div>
+        <PrdSectionEditor
+          label={PRD_MESSAGES.SECTION_GOAL}
+          onDirtyChange={handleDirtyChange}
+          onSaved={handleSaved}
+          prdContent={content}
+          projectId={projectId}
+          renderEditor={(draft, setDraft) => <ProseEditor onChange={setDraft} value={draft} />}
+          renderView={() => <p>{content.goal}</p>}
+          sectionKey="goal"
+          stitch={(value) => ({ ...content, goal: value })}
+          value={content.goal}
+        />
+        <PrdSectionEditor
+          label={PRD_MESSAGES.SECTION_TARGET_USERS}
+          onDirtyChange={handleDirtyChange}
+          onSaved={handleSaved}
+          prdContent={content}
+          projectId={projectId}
+          renderEditor={(draft, setDraft) => <StringListEditor onChange={setDraft} value={draft} />}
+          renderView={() => renderList(content.target_users)}
+          sectionKey="target_users"
+          stitch={(value) => ({ ...content, target_users: value })}
+          value={content.target_users}
+        />
+        <PrdSectionEditor
+          label={PRD_MESSAGES.SECTION_PROBLEM}
+          onDirtyChange={handleDirtyChange}
+          onSaved={handleSaved}
+          prdContent={content}
+          projectId={projectId}
+          renderEditor={(draft, setDraft) => <ProseEditor onChange={setDraft} value={draft} />}
+          renderView={() => <p>{content.problem_statement}</p>}
+          sectionKey="problem_statement"
+          stitch={(value) => ({ ...content, problem_statement: value })}
+          value={content.problem_statement}
+        />
+        <PrdSectionEditor
+          label={PRD_MESSAGES.SECTION_SUCCESS_CRITERIA}
+          onDirtyChange={handleDirtyChange}
+          onSaved={handleSaved}
+          prdContent={content}
+          projectId={projectId}
+          renderEditor={(draft, setDraft) => <StringListEditor onChange={setDraft} value={draft} />}
+          renderView={() => renderList(content.success_criteria)}
+          sectionKey="success_criteria"
+          stitch={(value) => ({ ...content, success_criteria: value })}
+          value={content.success_criteria}
+        />
+        <PrdSectionEditor
+          label={PRD_MESSAGES.SECTION_FEATURES}
+          onDirtyChange={handleDirtyChange}
+          onSaved={handleSaved}
+          prdContent={content}
+          projectId={projectId}
+          renderEditor={(draft, setDraft) => (
+            <FeatureListEditor onChange={setDraft} value={draft} />
           )}
-        </PrdSection>
-        <PrdSection title={PRD_MESSAGES.SECTION_USER_STORIES}>
-          {content.user_stories.length === 0 ? (
-            <p className="text-muted-foreground">{PRD_MESSAGES.EMPTY_LIST}</p>
-          ) : (
-            <div className="space-y-3">
-              {content.user_stories.map((story) => (
-                <PrdUserStoryCard key={story.id} story={story} />
-              ))}
-            </div>
+          renderView={() => renderFeatures(content.features)}
+          sectionKey="features"
+          stitch={(value) => ({ ...content, features: value })}
+          value={content.features}
+        />
+        <PrdSectionEditor
+          label={PRD_MESSAGES.SECTION_USER_STORIES}
+          onDirtyChange={handleDirtyChange}
+          onSaved={handleSaved}
+          prdContent={content}
+          projectId={projectId}
+          renderEditor={(draft, setDraft) => (
+            <UserStoryListEditor onChange={setDraft} value={draft} />
           )}
-        </PrdSection>
-        <PrdSection title={PRD_MESSAGES.SECTION_OUT_OF_SCOPE}>
-          {renderList(content.out_of_scope)}
-        </PrdSection>
-        <PrdSection title={PRD_MESSAGES.SECTION_OPEN_QUESTIONS}>
-          {renderList(content.open_questions)}
-        </PrdSection>
+          renderView={() => renderStories(content.user_stories)}
+          sectionKey="user_stories"
+          stitch={(value) => ({ ...content, user_stories: value })}
+          value={content.user_stories}
+        />
+        <PrdSectionEditor
+          label={PRD_MESSAGES.SECTION_OUT_OF_SCOPE}
+          onDirtyChange={handleDirtyChange}
+          onSaved={handleSaved}
+          prdContent={content}
+          projectId={projectId}
+          renderEditor={(draft, setDraft) => <StringListEditor onChange={setDraft} value={draft} />}
+          renderView={() => renderList(content.out_of_scope)}
+          sectionKey="out_of_scope"
+          stitch={(value) => ({ ...content, out_of_scope: value })}
+          value={content.out_of_scope}
+        />
+        <PrdSectionEditor
+          label={PRD_MESSAGES.SECTION_OPEN_QUESTIONS}
+          onDirtyChange={handleDirtyChange}
+          onSaved={handleSaved}
+          prdContent={content}
+          projectId={projectId}
+          renderEditor={(draft, setDraft) => <StringListEditor onChange={setDraft} value={draft} />}
+          renderView={() => renderList(content.open_questions)}
+          sectionKey="open_questions"
+          stitch={(value) => ({ ...content, open_questions: value })}
+          value={content.open_questions}
+        />
       </div>
 
       <PrdActions

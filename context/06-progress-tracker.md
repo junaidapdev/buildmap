@@ -20,6 +20,7 @@ Phase 3 — Planning Documents (In Progress). Phases 1–2 complete.
 - [x] Chunk 11 — Project Detail Layout
 - [x] Chunk 12 — Project Overview Page
 - [x] Chunk 13 — PRD Generator
+- [x] Chunk 14 — PRD Editor
 
 ## In Progress
 
@@ -27,7 +28,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 14 — PRD Editor (per-section)
+- [ ] Chunk 15 — Architecture Generator
 
 ## Blocked
 
@@ -35,12 +36,12 @@ None.
 
 ## Recent Decisions
 
-See `decisions.md`. The PRD is the second persistent AI document: generated from the approved brief
-(gated server-side with HTTP 412 `BRIEF_NOT_APPROVED` when the brief is not approved) and stored with
-the same dual-storage + upsert + approval pattern as the brief. Its features and user stories are
-structured arrays with stable ids so Chunks 14/18 can address them. PRD approval does NOT advance
-project status. All AI generation types temporarily use OpenAI per a product-owner override of the
-Anthropic long-form default.
+See `decisions.md`. The PRD is now fully editable: every section has in-place structured editing
+(textareas, add/remove/reorder list editors, field-level feature/story cards — not markdown) plus
+per-section AI regenerate. The SPA sends the full `content_json` to a save Edge Function that renders
+markdown deterministically server-side and bumps the version via a stored procedure; any edit or
+regenerate resets approval. All AI generation types temporarily use OpenAI per a product-owner
+override of the Anthropic long-form default.
 
 ## Known Issues
 
@@ -73,9 +74,23 @@ Anthropic long-form default.
 - Chunk 10's database and AI paths (migration apply, Edge Function behavior, stored-procedure
   approval, and the end-to-end brief flow) are verified here only by static gates; exercising them
   needs a live Supabase project and an `OPENAI_API_KEY` Edge Function secret.
+- PRD edits warn before browser refresh/close (`beforeunload`) but do NOT yet block in-app
+  navigation: `useBlocker` requires a data router and the app uses `<BrowserRouter>`. Migrating to
+  `createBrowserRouter` would enable it (deferred follow-up).
+- Chunk 13/14 live paths (PRD generation, per-section regenerate, save + server-side markdown
+  render, stored-procedure approval/update) are verified here only by static gates; exercising them
+  needs a live Supabase project and an `OPENAI_API_KEY` Edge Function secret.
 
 ## Notes for Next Agent
 
+- The PRD is fully editable: per-section edit + per-section regenerate. Pattern: the SPA sends the
+  full `content_json` to the `save-prd-content` Edge Function, which renders markdown via the
+  deterministic template (`backend/_shared/markdown/prd-markdown.ts`) and calls the
+  `update_project_prd_content` stored procedure. Per-section regenerate has its own Edge Function
+  (`regenerate-prd-section`) returning just the section value; the SPA stitches and saves. Any edit
+  or regenerate resets approval (the procedure sets `is_final = false`). Architecture (Chunk 15
+  generator, Chunk 16 editor) follows the same generator-then-editor pattern with its own schemas.
+  The `regenerate-X-section` split is canonical for any future per-section AI feature.
 - Standards and workflow rules are documented. Read `03-code-standards.md` and
   `04-ai-workflow-rules.md` carefully — they govern every chunk from here on.
 - Phase 1 is complete. Schema, RLS, authentication, and protected application chrome are in place.
