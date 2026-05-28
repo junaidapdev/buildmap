@@ -10,6 +10,7 @@ export const ERROR_CODES = {
   INTERNAL: 'INTERNAL',
   METHOD_NOT_ALLOWED: 'METHOD_NOT_ALLOWED',
   FEATURE_DISABLED: 'FEATURE_DISABLED',
+  BRIEF_NOT_APPROVED: 'BRIEF_NOT_APPROVED',
 } as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
@@ -26,4 +27,5 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   INTERNAL: 'An unexpected error occurred.',
   METHOD_NOT_ALLOWED: 'This HTTP method is not allowed on this endpoint.',
   FEATURE_DISABLED: 'This feature is currently disabled.',
+  BRIEF_NOT_APPROVED: 'You must approve the project brief before generating the PRD.',
 };

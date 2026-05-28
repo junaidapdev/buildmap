@@ -15,6 +15,7 @@ export const ERROR_MESSAGES = {
   RENDER_FAILURE: 'An unexpected error occurred. You can try again, or reload the page.',
   PAGE_NOT_FOUND_TITLE: 'Page not found.',
   PAGE_NOT_FOUND: "We couldn't find the page you were looking for.",
+  BRIEF_NOT_APPROVED: 'Approve your project brief before generating the PRD.',
 } as const;
 
 export type ErrorMessageKey = keyof typeof ERROR_MESSAGES;

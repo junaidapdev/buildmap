@@ -1,10 +1,18 @@
-// Stub for the not-yet-built PRD feature. The overview reads PRD existence/approval through this
-// hook so that activating the PRD only means swapping this body for a real query — the overview
-// page and recommendation engine do not change.
-// TODO(chunk-13): replace with a real query for the project's PRD document.
-// Future query key: ['overview', 'prd', projectId].
+// Reads the project's PRD existence/approval for the overview recommendation engine. This replaced
+// the Chunk 12 stub once the PRD feature (Chunk 13) landed; the `{ data }` shape is unchanged so the
+// recommendation engine keeps working, with `isPending` added to avoid a recommendation flicker.
+import { useExistingPrd } from '@/features/projects/prd/useExistingPrd';
+
 export type PrdState = { exists: boolean; approved: boolean };
 
-export function usePrdState(_projectId: string): { data: PrdState } {
-  return { data: { exists: false, approved: false } };
+export function usePrdState(projectId: string): { data: PrdState; isPending: boolean } {
+  const query = useExistingPrd(projectId);
+
+  return {
+    data: {
+      exists: Boolean(query.data),
+      approved: query.data?.is_final === true,
+    },
+    isPending: query.isPending,
+  };
 }

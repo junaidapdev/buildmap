@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase 2 — Project Workspace (Complete). Phase 3 — Planning Documents begins with Chunk 13.
+Phase 3 — Planning Documents (In Progress). Phases 1–2 complete.
 
 ## Completed Chunks
 
@@ -19,6 +19,7 @@ Phase 2 — Project Workspace (Complete). Phase 3 — Planning Documents begins 
 - [x] Chunk 10 — Project Brief Generator
 - [x] Chunk 11 — Project Detail Layout
 - [x] Chunk 12 — Project Overview Page
+- [x] Chunk 13 — PRD Generator
 
 ## In Progress
 
@@ -26,7 +27,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 13 — PRD Generator
+- [ ] Chunk 14 — PRD Editor (per-section)
 
 ## Blocked
 
@@ -34,11 +35,12 @@ None.
 
 ## Recent Decisions
 
-See `decisions.md`. Phase 2 is complete: the project overview is the landing screen for every
-project. It composes self-contained panels, most showing empty states backed by stub hooks in
-`overview/stubs/` that later chunks replace with real queries. The "recommended next action" is a
-deterministic rule engine (not AI) that walks a fixed milestone sequence. All AI generation types
-temporarily use OpenAI per a product-owner override of the Anthropic long-form default.
+See `decisions.md`. The PRD is the second persistent AI document: generated from the approved brief
+(gated server-side with HTTP 412 `BRIEF_NOT_APPROVED` when the brief is not approved) and stored with
+the same dual-storage + upsert + approval pattern as the brief. Its features and user stories are
+structured arrays with stable ids so Chunks 14/18 can address them. PRD approval does NOT advance
+project status. All AI generation types temporarily use OpenAI per a product-owner override of the
+Anthropic long-form default.
 
 ## Known Issues
 
@@ -63,8 +65,9 @@ temporarily use OpenAI per a product-owner override of the Anthropic long-form d
   and dashboard project cards resolve to it correctly.
 - The overview's Chunks, Open issues, and Recent decisions panels show empty states backed by stub
   hooks in `overview/stubs/`; they activate when Chunks 16/18/23 replace the stubs. The Export panel
-  is a disabled shortcut until Chunk 25. The next-action CTA may point at routes (PRD, architecture,
-  context, chunks) that 404 until their chunks land — expected.
+  is a disabled shortcut until Chunk 25.
+- The PRD's "Next: generate architecture" CTA and the next-action recommendations for architecture,
+  context files, and chunks point at routes that 404 until their chunks land — expected.
 - Regenerating a brief runs without the original clarification answers, which are ephemeral, so it
   rebuilds from the project's basic details only. Persisting answers is a possible follow-up.
 - Chunk 10's database and AI paths (migration apply, Edge Function behavior, stored-procedure
@@ -123,3 +126,9 @@ temporarily use OpenAI per a product-owner override of the Anthropic long-form d
   not change. The recommendation engine in `recommend-next-action.ts` walks a fixed milestone
   sequence; add a milestone by editing that file. Phase 3 begins with the PRD generator (Chunk 13),
   the first long-form structured document with a multi-section editor (Chunk 14).
+- PRD generation works end-to-end: viewable, regeneratable, approvable, and gated on an approved
+  brief (412 `BRIEF_NOT_APPROVED`). Per-section editing and per-section regeneration come in Chunk
+  14 — that chunk extends `PrdView` (or an editable variant) and adds a `regenerate-prd-section`
+  Edge Function that takes a section id; the persistence pattern is the same, the AI surface is
+  per-section. PRD approval does not advance status; Chunk 18 owns `planning` -> `ready_to_build`.
+  The PRD nav item is active and the overview's `usePrdState` is now a real query.
