@@ -19,6 +19,7 @@ import { BriefPage } from '@/features/projects/brief/BriefPage';
 import { ClarifyPage } from '@/features/projects/clarify/ClarifyPage';
 import { ProjectLayout } from '@/features/projects/layout/ProjectLayout';
 import { NewProjectPage } from '@/features/projects/new/NewProjectPage';
+import { OverviewPage } from '@/features/projects/overview/OverviewPage';
 import { HomePage } from '@/pages/HomePage';
 
 const devRoutesPageLoader = DEV_ROUTES_PAGE_LOADER;
@@ -111,8 +112,8 @@ function AppRoutes() {
           </ProtectedShell>
         }
       >
-        {/* TODO(chunk-12): switch the default subroute to `overview` once it exists. */}
-        <Route index element={<Navigate replace to={PROJECT_SUBROUTES.BRIEF} />} />
+        <Route index element={<Navigate replace to={PROJECT_SUBROUTES.OVERVIEW} />} />
+        <Route path={PROJECT_SUBROUTES.OVERVIEW} element={<OverviewPage />} />
         <Route path={PROJECT_SUBROUTES.BRIEF} element={<BriefPage />} />
         <Route path={PROJECT_SUBROUTES.CLARIFY} element={<ClarifyPage />} />
         <Route path="*" element={<NotFoundPage variant="signedIn" />} />
