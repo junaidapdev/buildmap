@@ -52,6 +52,17 @@ enforced, that gap is stated explicitly rather than presented as completed work.
   empty/initial shape synchronously. The screen consumes the stub. When the feature lands in a later
   chunk, only the stub's body is replaced with a real query — the screen does not change. Mark every
   stub with a `// TODO(chunk-N)` comment.
+- **Rendering AI-authored or user-authored Markdown.** Render untrusted Markdown with `react-markdown`
+  using its safe defaults and **never** add `rehype-raw` — that plugin renders embedded raw HTML and
+  reintroduces an XSS vector for model- or user-supplied content. This is the canonical Markdown
+  renderer for the app (established by the Chunk 17 context files: `react-markdown` inside a
+  `prose prose-sm max-w-none dark:prose-invert` container from `@tailwindcss/typography`). If a surface
+  ever genuinely needs inline HTML, add `rehype-sanitize` (an allowlist sanitizer), never bare
+  `rehype-raw`, and record the exception in `context/decisions.md` first. Documents that are Markdown
+  natively (context files) store the Markdown as the source of truth with no `content_json` and no
+  server-side renderer; structured documents (brief, PRD, architecture) keep `content_json` plus a
+  deterministic server-side renderer instead — choose by whether the artifact is structured or
+  Markdown-native.
 
 ## Backend / Edge Function Standards
 

@@ -36,6 +36,7 @@ export function useNextAction(projectId: string): NextActionResult {
     architectureExists: architecture.data.exists,
     architectureApproved: architecture.data.approved,
     contextFilesExist: contextFiles.data.exists,
+    contextFilesApproved: contextFiles.data.allApproved,
     chunksExist: chunks.data.exists,
     hasInProgressChunk: chunks.data.hasInProgress,
     hasIncompleteChunk: chunks.data.hasIncomplete,
@@ -44,6 +45,7 @@ export function useNextAction(projectId: string): NextActionResult {
 
   return {
     nextAction,
-    isPending: brief.isPending || prd.isPending || architecture.isPending,
+    isPending:
+      brief.isPending || prd.isPending || architecture.isPending || contextFiles.isPending,
   };
 }

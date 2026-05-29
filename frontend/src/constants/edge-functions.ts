@@ -7,4 +7,6 @@ export const EDGE_FUNCTIONS = {
   GENERATE_ARCHITECTURE: 'generate-architecture',
   REGENERATE_ARCHITECTURE_SECTION: 'regenerate-architecture-section',
   SAVE_ARCHITECTURE_CONTENT: 'save-architecture-content',
+  GENERATE_CONTEXT_FILES: 'generate-context-files',
+  REGENERATE_CONTEXT_DOC: 'regenerate-context-doc',
 } as const;

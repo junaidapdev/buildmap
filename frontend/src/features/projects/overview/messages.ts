@@ -17,6 +17,7 @@ export const OVERVIEW_MESSAGES = {
   NEXT_ACTION_ARCHITECTURE: 'Generate the architecture',
   NEXT_ACTION_ARCHITECTURE_APPROVE: 'Review and approve the architecture',
   NEXT_ACTION_CONTEXT_FILES: 'Generate context files for your AI tools',
+  NEXT_ACTION_CONTEXT_FILES_APPROVE: 'Review and approve your context files',
   NEXT_ACTION_CHUNKS: 'Break the work into shippable chunks',
   NEXT_ACTION_FIRST_CHUNK: 'Start your first chunk',
   NEXT_ACTION_CONTINUE: 'Continue building — pick up your next chunk',
