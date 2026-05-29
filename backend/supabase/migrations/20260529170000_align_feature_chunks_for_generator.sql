@@ -26,14 +26,12 @@ alter table public.feature_chunks drop column if exists goal;
 alter table public.feature_chunks rename column "order" to position;
 
 -- 3. Dependencies hold AI-assigned chunk refs (kebab-case strings), not ids, so a text[] is the
---    natural representation and matches the new included_features column. The table is empty, so the
---    USING conversion is a formality.
-alter table public.feature_chunks alter column dependencies drop default;
+--    natural representation and matches the new included_features column. Postgres forbids a subquery
+--    in an ALTER COLUMN ... TYPE ... USING transform, and the table is empty (no chunks ever
+--    generated), so dropping and re-adding the column is non-destructive and avoids the transform.
+alter table public.feature_chunks drop column dependencies;
 alter table public.feature_chunks
-  alter column dependencies type text[]
-  using (array(select jsonb_array_elements_text(dependencies)));
-alter table public.feature_chunks alter column dependencies set default '{}'::text[];
-alter table public.feature_chunks alter column dependencies set not null;
+  add column dependencies text[] not null default '{}'::text[];
 
 -- 4. Add the columns the generator writes.
 --    description: 2-4 sentence summary of what shipping the chunk delivers.
