@@ -50,7 +50,6 @@ export const PROJECT_NAV: readonly NavItem[] = [
     label: 'Architecture',
     icon: Layers,
     to: ROUTES.PROJECT_ARCHITECTURE,
-    pendingChunk: 16,
   },
   {
     id: 'context',

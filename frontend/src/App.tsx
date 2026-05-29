@@ -17,6 +17,7 @@ import { useAuth } from '@/features/auth/useAuth';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
 import { BriefPage } from '@/features/projects/brief/BriefPage';
 import { ClarifyPage } from '@/features/projects/clarify/ClarifyPage';
+import { ArchitecturePage } from '@/features/projects/architecture/ArchitecturePage';
 import { ProjectLayout } from '@/features/projects/layout/ProjectLayout';
 import { NewProjectPage } from '@/features/projects/new/NewProjectPage';
 import { OverviewPage } from '@/features/projects/overview/OverviewPage';
@@ -117,6 +118,7 @@ function AppRoutes() {
         <Route path={PROJECT_SUBROUTES.OVERVIEW} element={<OverviewPage />} />
         <Route path={PROJECT_SUBROUTES.BRIEF} element={<BriefPage />} />
         <Route path={PROJECT_SUBROUTES.PRD} element={<PrdPage />} />
+        <Route path={PROJECT_SUBROUTES.ARCHITECTURE} element={<ArchitecturePage />} />
         <Route path={PROJECT_SUBROUTES.CLARIFY} element={<ClarifyPage />} />
         <Route path="*" element={<NotFoundPage variant="signedIn" />} />
       </Route>
