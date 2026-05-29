@@ -860,3 +860,68 @@ rendering (out of scope); advancing status on approval (rejected — duplicates 
 suggested `anthropic`/`claude-sonnet-4-5` config was superseded by the standing OpenAI-only directive.
 
 **Reversibility:** Medium.
+
+## 2026-05-29 - Architecture Editor: Per-Section Edit, Per-Section + Per-Decision Regenerate, Decision Log
+
+**Decision:** The architecture document is edited section by section with structured editors, exactly
+mirroring the PRD editor (Chunk 14): prose textareas for prose sections, an add/remove/reorder
+string-list editor for `open_questions`, and field-level cards for `components`, `external_services`,
+and `decisions`. `content_json` is the source of truth — there is no free-form markdown editor.
+Saving sends the full `content_json` to a `save-architecture-content` Edge Function that re-validates
+it, renders `content_markdown` deterministically via `backend/_shared/markdown/architecture-markdown.ts`,
+and persists both through the `update_project_architecture_content` stored procedure (security
+invoker, ownership-checked, `grant execute` to `authenticated`) which bumps `version` and resets
+`is_final` — identical to `update_project_prd_content`. The migration is
+`20260529130000_architecture_content_update_procedure.sql`.
+
+Regeneration has two modes behind one Edge Function (`regenerate-architecture-section`) and one
+generation type (`architecture_section_regeneration`, OpenAI `gpt-4o-mini`, temperature `0.4`,
+`maxOutputTokens` 6000, json_object; prompt in `ARCHITECTURE_SECTION_REGENERATION_SYSTEM_PROMPT`).
+The input is a discriminated union on `mode`: `full_section` (carries `sectionKey`) regenerates one
+whole section; `single_decision` (carries `decisionId`) regenerates one decision. The output schema
+is a `z.union` of a full-section discriminated-union-on-`sectionKey` variant and a `single_decision`
+variant, and the Edge Function enforces that the echoed key matches the request. The function returns
+only the section/decision value; the SPA stitches it into `content_json` and saves through the same
+`save-architecture-content` path, so markdown rendering lives in exactly one place.
+
+The two regenerate modes integrate differently by design. **Per-section regenerate auto-saves**: the
+section editor stitches the new value and immediately persists (consistent with the PRD editor), since
+a whole-section replace is the user's explicit intent. **Per-decision regenerate is a draft-only
+operation**: it lives inside the decision-log edit-mode card, updates the in-progress draft via
+`onChange`, and the user reviews and then saves the decisions section as a whole — because a single
+decision is one item within a list the user is actively editing, silently auto-saving mid-edit would
+discard their other unsaved decision changes. Per-decision regenerate also works **only on
+already-saved decisions**: the Edge Function looks the decision up by `id` in the stored `content_json`
+to build context and preserve the `id`, so a freshly added (unsaved) decision must be saved first.
+The newly added decision's `crypto.randomUUID()` id is not yet in saved content, so its per-decision
+regenerate stays disabled-by-failure until the section is saved.
+
+The decision log gains full management in edit mode: add, remove, reorder (up/down buttons, no
+drag-and-drop), edit all fields, and change `status` (proposed/accepted/superseded/rejected) via a
+`Select`. New items use `crypto.randomUUID()` ids (lowercase hex + hyphens satisfies the kebab-case id
+contract). Shared edit utilities used by both editors — `ProseEditor`, `StringListEditor`,
+`useDirtyGuard`, and `SHARED_EDIT_MESSAGES` — were lifted from `prd/edit/` to
+`frontend/src/features/projects/_shared/edit/`; PRD-specific and architecture-specific editors stay in
+their own feature folders. In-app navigation blocking for unsaved edits remains deferred (the
+`beforeunload`-only `useDirtyGuard` is reused; `useBlocker` still needs a data router — same
+known limitation as Chunk 14). The overview's Recent decisions "view all" link now deep-links to the
+architecture decision log via a `#decisions` anchor, and `ArchitecturePage` scrolls to it on load.
+
+**Reason:** Structured editing keeps the renderer and downstream chunks working off a reliable shape
+and avoids brittle markdown round-tripping. Reusing the PRD editor's save/regenerate architecture
+(one server-side markdown renderer, the `save-X-content` + `regenerate-X-section` split, the lifted
+`_shared/edit/` utilities) keeps the two editors uniform and review cheap. Treating per-decision
+regenerate as a draft op rather than an auto-save protects the user's other in-flight decision edits,
+and scoping it to saved decisions keeps the Edge Function's lookup-by-id contract simple.
+
+**Alternatives considered:** A whole-document markdown editor (rejected — brittle re-parsing); the
+SPA rendering markdown (rejected — duplicates rules and drifts from the generator); drag-and-drop
+reorder (deferred — adds a dependency and accessibility complexity); auto-saving per-decision
+regenerate like per-section (rejected — would clobber other unsaved decision edits); allowing
+per-decision regenerate on unsaved decisions (rejected — the Edge Function needs the persisted
+decision to build context and preserve the id); a separate `section-config.ts` table instead of
+inlining the nine `ArchitectureSectionEditor` blocks (rejected — PrdView inlines its blocks, so this
+matches precedent); migrating to a data router now for in-app `useBlocker` (deferred — out of chunk
+scope, same as Chunk 14).
+
+**Reversibility:** Medium.

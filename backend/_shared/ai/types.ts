@@ -4,6 +4,7 @@ export type GenerationType =
   | 'prd_generation'
   | 'prd_section_regenerate'
   | 'architecture_generation'
+  | 'architecture_section_regeneration'
   | 'context_files_generation'
   | 'chunk_generation'
   | 'feature_spec_generation'

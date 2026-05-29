@@ -28,7 +28,7 @@ export function RecentDecisionsPanel({ projectId }: { projectId: string }) {
       action={
         <Link
           className="text-sm text-muted-foreground hover:text-foreground"
-          to={ROUTES.PROJECT_ARCHITECTURE(projectId)}
+          to={`${ROUTES.PROJECT_ARCHITECTURE(projectId)}#decisions`}
         >
           {OVERVIEW_MESSAGES.DECISIONS_OPEN_ALL_LINK}
         </Link>

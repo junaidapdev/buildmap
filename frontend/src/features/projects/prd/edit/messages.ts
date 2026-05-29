@@ -1,4 +1,7 @@
+import { SHARED_EDIT_MESSAGES } from '@/features/projects/_shared/edit/messages';
+
 export const PRD_EDIT_MESSAGES = {
+  ...SHARED_EDIT_MESSAGES,
   EDIT_BUTTON: 'Edit',
   CANCEL_BUTTON: 'Cancel',
   SAVE_BUTTON: 'Save',
@@ -10,12 +13,8 @@ export const PRD_EDIT_MESSAGES = {
     'The current content of this section will be replaced. Other sections are unchanged, and the PRD’s approved state will be reset.',
   REGENERATE_CONFIRM_CONFIRM: 'Yes, regenerate',
   REGENERATE_CONFIRM_CANCEL: 'Cancel',
-  ADD_ITEM_BUTTON: 'Add item',
   ADD_FEATURE_BUTTON: 'Add feature',
   ADD_USER_STORY_BUTTON: 'Add user story',
-  REMOVE_LABEL: 'Remove',
-  MOVE_UP_LABEL: 'Move up',
-  MOVE_DOWN_LABEL: 'Move down',
   FEATURE_NAME_LABEL: 'Name',
   FEATURE_DESCRIPTION_LABEL: 'Description',
   FEATURE_PRIORITY_LABEL: 'Priority',
