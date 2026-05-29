@@ -13,6 +13,9 @@ export const ERROR_CODES = {
   BRIEF_NOT_APPROVED: 'BRIEF_NOT_APPROVED',
   PRD_NOT_APPROVED: 'PRD_NOT_APPROVED',
   ARCHITECTURE_NOT_APPROVED: 'ARCHITECTURE_NOT_APPROVED',
+  PRD_NOT_FOUND: 'PRD_NOT_FOUND',
+  ARCHITECTURE_NOT_FOUND: 'ARCHITECTURE_NOT_FOUND',
+  CONTEXT_FILES_MISSING: 'CONTEXT_FILES_MISSING',
 } as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
@@ -32,4 +35,7 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   BRIEF_NOT_APPROVED: 'You must approve the project brief before generating the PRD.',
   PRD_NOT_APPROVED: 'You must approve the PRD before generating the architecture.',
   ARCHITECTURE_NOT_APPROVED: 'You must approve the architecture before generating context files.',
+  PRD_NOT_FOUND: 'A PRD is required before generating chunks.',
+  ARCHITECTURE_NOT_FOUND: 'An architecture is required before generating chunks.',
+  CONTEXT_FILES_MISSING: 'You must generate context files before generating chunks.',
 };
