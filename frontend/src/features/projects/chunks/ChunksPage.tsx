@@ -2,9 +2,9 @@ import { CheckCircle2 } from 'lucide-react';
 import { useEffect, useRef, type ReactNode } from 'react';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ChunkBoard } from '@/features/projects/chunks/board/ChunkBoard';
 import { ChunksError } from '@/features/projects/chunks/ChunksError';
 import { ChunksGatingState } from '@/features/projects/chunks/ChunksGatingState';
-import { ChunksListView } from '@/features/projects/chunks/ChunksListView';
 import { ChunksPending } from '@/features/projects/chunks/ChunksPending';
 import { CHUNKS_MESSAGES } from '@/features/projects/chunks/messages';
 import { useChunks } from '@/features/projects/chunks/useChunks';
@@ -65,7 +65,7 @@ export function ChunksPage() {
   if (chunksQuery.isPending) {
     body = <ChunksPending />;
   } else if (chunksExist) {
-    body = <ChunksListView chunks={chunks} projectId={projectId} />;
+    body = <ChunkBoard chunks={chunks} projectId={projectId} />;
   } else if (chunksQuery.isError) {
     body = <ChunksError onRetry={() => void chunksQuery.refetch()} />;
   } else if (contextFiles.isPending) {

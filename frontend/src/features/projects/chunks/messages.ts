@@ -58,5 +58,29 @@ export const CHUNKS_MESSAGES = {
   /** Shown when an id/ref cannot be resolved to a PRD feature name or sibling chunk. */
   UNKNOWN_REFERENCE: (raw: string) => `${raw} (unknown)`,
 
-  BOARD_VIEW_PLACEHOLDER: 'A drag-and-drop board view is coming in the next update.',
+  // Board column copy. Headers reuse STATUS_LABELS; these add the muted subtitle and the empty-state
+  // line shown per column. Keyed by the six canonical statuses (one column each).
+  COLUMN_DESCRIPTIONS: {
+    backlog: 'Not started',
+    ready: 'Ready to start',
+    in_progress: 'Being worked on',
+    needs_review: 'Awaiting review',
+    completed: 'Shipped',
+    blocked: 'Stuck or waiting',
+  } as const,
+
+  EMPTY_COLUMN: {
+    backlog: 'Nothing in the backlog.',
+    ready: 'Nothing ready yet.',
+    in_progress: 'Pick a chunk to start.',
+    needs_review: 'Nothing awaiting review.',
+    completed: 'Nothing shipped yet.',
+    blocked: 'Nothing blocked.',
+  } as const,
+
+  CARD_OPEN_BUTTON: 'Open',
+  CARD_STATUS_LABEL: 'Status',
+  CARD_DRAG_HANDLE_LABEL: 'Drag to reorder',
+
+  MOVE_FAILED: 'Could not move chunk. Reverting.',
 } as const;
