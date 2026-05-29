@@ -30,5 +30,6 @@ export const PROJECT_SUBROUTES = {
   PRD: 'prd',
   ARCHITECTURE: 'architecture',
   CONTEXT: 'context',
+  CHUNKS: 'chunks',
   CLARIFY: 'clarify',
 } as const;

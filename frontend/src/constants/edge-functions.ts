@@ -9,4 +9,5 @@ export const EDGE_FUNCTIONS = {
   SAVE_ARCHITECTURE_CONTENT: 'save-architecture-content',
   GENERATE_CONTEXT_FILES: 'generate-context-files',
   REGENERATE_CONTEXT_DOC: 'regenerate-context-doc',
+  GENERATE_CHUNKS: 'generate-chunks',
 } as const;

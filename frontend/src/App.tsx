@@ -18,6 +18,7 @@ import { DashboardPage } from '@/features/dashboard/DashboardPage';
 import { BriefPage } from '@/features/projects/brief/BriefPage';
 import { ClarifyPage } from '@/features/projects/clarify/ClarifyPage';
 import { ArchitecturePage } from '@/features/projects/architecture/ArchitecturePage';
+import { ChunksPage } from '@/features/projects/chunks/ChunksPage';
 import { ContextFilesPage } from '@/features/projects/context-files/ContextFilesPage';
 import { ProjectLayout } from '@/features/projects/layout/ProjectLayout';
 import { NewProjectPage } from '@/features/projects/new/NewProjectPage';
@@ -121,6 +122,7 @@ function AppRoutes() {
         <Route path={PROJECT_SUBROUTES.PRD} element={<PrdPage />} />
         <Route path={PROJECT_SUBROUTES.ARCHITECTURE} element={<ArchitecturePage />} />
         <Route path={PROJECT_SUBROUTES.CONTEXT} element={<ContextFilesPage />} />
+        <Route path={PROJECT_SUBROUTES.CHUNKS} element={<ChunksPage />} />
         <Route path={PROJECT_SUBROUTES.CLARIFY} element={<ClarifyPage />} />
         <Route path="*" element={<NotFoundPage variant="signedIn" />} />
       </Route>

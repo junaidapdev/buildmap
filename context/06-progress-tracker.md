@@ -2,10 +2,10 @@
 
 ## Current Phase
 
-Phase 3 — Planning Documents (Complete). Phases 1–2 complete. With the brief, PRD, architecture, and
-the seven context files all generated, viewable, editable, and approvable, the planning phase is done.
-The build phase begins with Chunk 18 (chunk generator), which owns the `planning -> ready_to_build`
-status transition.
+Phase 4 — Build (In Progress). Phases 1–3 complete. The chunk generator (Chunk 18) slices the approved
+PRD + architecture into shippable chunks and advances the project from `planning` to `ready_to_build`
+on first generation. Next is the chunk board (Chunk 19), which visualizes these chunks; the generator
+already persists everything the board renders against.
 
 ## Completed Chunks
 
@@ -27,6 +27,7 @@ status transition.
 - [x] Chunk 15 — Architecture Generator
 - [x] Chunk 16 — Architecture Editor
 - [x] Chunk 17 — Context Files Generator
+- [x] Chunk 18 — Shippable Chunk Generator
 
 ## In Progress
 
@@ -34,7 +35,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 18 — Chunk Generator
+- [ ] Chunk 19 — Chunk Board (Kanban)
 
 ## Blocked
 
@@ -42,21 +43,21 @@ None.
 
 ## Recent Decisions
 
-See `decisions.md`. The architecture is now fully editable, mirroring the PRD editor: per-section
-in-place editing (prose textareas, string-list editors, and structured cards for components, external
-services, and decisions), per-section AI regeneration (`full_section` mode), and per-decision AI
-regeneration (`single_decision` mode) inside a decision-log management UI that adds, removes,
-reorders, and re-statuses decisions. Saving sends the full `content_json` to `save-architecture-content`,
-which re-validates, renders markdown deterministically via the existing renderer, and persists through
-the `update_project_architecture_content` stored procedure (bumps version, resets `is_final`).
-Per-section regenerate is `regenerate-architecture-section`, returning only the section value; the SPA
-stitches and saves through the same path. Per-decision regenerate updates the edit-mode draft (not an
-auto-save) and works only on already-saved decisions, since the Edge Function looks the decision up by
-id in stored `content_json`. The architecture generator (live since Chunk 15) is generated from the
-approved PRD (gated 412 `PRD_NOT_APPROVED`, brief optional), stored as a `project_documents` row of
-`type = 'architecture'` with nine structured sections, decisions inline in `content_json.decisions`
-(no separate table). Before this, the PRD became fully editable the same way. All AI generation types
-use OpenAI (`gpt-4o-mini`) per the standing product-owner override; the Anthropic adapter is dormant.
+See `decisions.md`. The chunk generator (Chunk 18) breaks the approved PRD + architecture into an
+ordered set of shippable chunks in one AI call (`generate-chunks`), gated on the EXISTENCE (not
+approval) of the PRD, architecture, and all seven context files (412 `PRD_NOT_FOUND` /
+`ARCHITECTURE_NOT_FOUND` / `CONTEXT_FILES_MISSING`). Each chunk is a `feature_chunks` row: a stable
+kebab-case `ref`, title, description, `included_features` (PRD feature ids), `dependencies` (refs of
+sibling chunks), `estimated_effort`, status (always `backlog` on generation), and `position`. The
+Chunk 04 placeholder table was aligned to this model in a migration (dropped `chunk_number`/`summary`/
+`goal`, renamed `"order"`→`position`, `dependencies` jsonb→text[], added `description`/
+`included_features`/`estimated_effort`/`version`/`ref`). Writes go through `replace_project_chunks`
+(security invoker), which deletes-and-reinserts atomically — cascading to `feature_specs` — and
+advances `projects.status` `planning`→`ready_to_build` ONLY on first generation, returning whether it
+advanced. The six canonical chunk statuses from `05-ui-context.md` are kept (the spec's 4-status
+proposal was NOT adopted; a canonical doc supersedes the spec). All AI generation still uses OpenAI
+(`gpt-4o-mini`) per the standing override (the spec's Anthropic suggestion was NOT adopted); the
+Anthropic adapter is dormant.
 
 The seven canonical context files (project_overview, code_standards, ai_workflow_rules, ui_context,
 agents_md, claude_md, progress_tracker) are now generated in a single AI call (gated 412
@@ -91,12 +92,16 @@ context files to be approved before recommending chunk generation.
   and dashboard project cards resolve to it correctly.
 - The overview's Recent decisions panel now reads real data from the architecture document (its
   `useDecisionsState` stub body was swapped in Chunk 15), and its "view all" link deep-links to the
-  architecture decision log via `#decisions` (Chunk 16). The Chunks and Open issues panels still show
-  empty states backed by stub hooks in `overview/stubs/`; they activate when Chunks 18/23 replace the
-  stubs. The Export panel is a disabled shortcut until Chunk 25.
-- The architecture and context-files routes are now live (Chunks 15–17). The only next-action
-  recommendation still pointing at an unbuilt route is chunk generation, which 404s until Chunk 18
-  lands — expected.
+  architecture decision log via `#decisions` (Chunk 16). The Chunks panel's `useChunksState` now reads
+  real chunk data (Chunk 18), but `ChunksProgressPanel` still renders an empty body when chunks exist —
+  its Total/Completed/In-progress display stays a `TODO(chunk-18+)` owned by the board (Chunk 19). The
+  Open issues panel is still backed by a stub until Chunk 23. The Export panel is a disabled shortcut
+  until Chunk 25.
+- The chunks route is now live (Chunk 18), so no next-action recommendation points at an unbuilt route
+  anymore. Note the divergence: the recommendation engine still gates "Generate chunks" on context
+  files being APPROVED, while the chunks page itself gates only on context files EXISTENCE (per the
+  locked "approval doesn't gate downstream" rule) — a user who skipped approving context files can
+  still generate chunks from the page.
 - Regenerating a brief runs without the original clarification answers, which are ephemeral, so it
   rebuilds from the project's basic details only. Persisting answers is a possible follow-up.
 - Chunk 10's database and AI paths (migration apply, Edge Function behavior, stored-procedure
@@ -123,6 +128,14 @@ context files to be approved before recommending chunk generation.
   `20260529160000_upsert_context_files_procedure.sql`) and the two new Edge Functions
   (`generate-context-files`, `regenerate-context-doc`) apply/deploy out-of-band post-merge — do NOT
   run `supabase db push`.
+- Chunk 18 live paths (chunk generation via `generate-chunks`, ref-uniqueness + dependency-resolvability
+  validation, unresolvable `included_features` dropping, the `replace_project_chunks` stored procedure,
+  `planning`→`ready_to_build` advancement, and the `feature_specs` cascade on regeneration) are verified
+  here only by static gates (backend `deno check`/`lint`/`fmt:check`, frontend `typecheck`/`lint`/
+  `build`); exercising them needs a live Supabase project and an `OPENAI_API_KEY` secret. The two Chunk
+  18 migrations (`20260529170000_align_feature_chunks_for_generator.sql`,
+  `20260529180000_replace_project_chunks_procedure.sql`) and the new Edge Function (`generate-chunks`)
+  apply/deploy out-of-band post-merge — do NOT run `supabase db push`.
 - `react-markdown` is configured WITHOUT `rehype-raw`, so any literal HTML an AI puts in a context
   file is shown as escaped text rather than rendered. This is the intended XSS-safe default; if a
   future doc genuinely needs sanitized inline HTML, add `rehype-sanitize` (never bare `rehype-raw`)
@@ -130,6 +143,26 @@ context files to be approved before recommending chunk generation.
 
 ## Notes for Next Agent
 
+- Chunks generation works end-to-end (Chunk 18). `generate-chunks` gates on the EXISTENCE of the PRD,
+  architecture, and all seven context files (not approval), runs one AI call, validates ref uniqueness
+  and dependency resolvability (502 on violation) and drops unresolvable `included_features` (warn),
+  then persists via `replace_project_chunks`. Project status advances `planning`→`ready_to_build` on
+  FIRST generation only; the procedure returns that boolean and the SPA surfaces it once via an inline
+  `Alert`. Bulk regeneration deletes existing chunks AND their feature specs (FK cascade) and does NOT
+  re-advance status. Each chunk has a stable kebab-case `ref` (AI-assigned); `dependencies` are stored
+  as refs (the SPA resolves them to rows by `(project_id, ref)`), and `included_features` are PRD
+  feature ids (the SPA resolves them to names via `useExistingPrd`). The whole feature lives in
+  `frontend/src/features/projects/chunks/`. The `feature_chunks` table was realigned from the Chunk 04
+  placeholder — see `decisions.md`.
+- Chunk 19 builds the Kanban board UI on top of this: drag-and-drop reordering and the per-status
+  columns. It should also (a) replace `ChunksProgressPanel`'s empty body with the Total/Completed/
+  In-progress display its `TODO(chunk-18+)` describes (the data is already in `useChunksState`), and
+  (b) introduce the distinct per-status color tokens in `tailwind.config.ts` that `05-ui-context.md`
+  calls for (this chunk reused the four shared badge variants for the basic list). Chunk 20 builds
+  feature specs (1:1 with chunks). Chunk 22 owns chunk status transitions (the six statuses
+  backlog/ready/in_progress/needs_review/completed/blocked) and the next status advancement
+  (`ready_to_build`→`building`→`completed`). The four shared-edit utilities and the generate-then-edit
+  document pattern do NOT apply to chunks (chunks are DB rows, not a versioned markdown document).
 - Phase 3 (Planning Documents) is complete. The seven canonical context files
   (project_overview, code_standards, ai_workflow_rules, ui_context, agents_md, claude_md,
   progress_tracker) are generated in ONE AI call by `generate-context-files`, which gates on an

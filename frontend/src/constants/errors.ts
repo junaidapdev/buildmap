@@ -17,6 +17,9 @@ export const ERROR_MESSAGES = {
   PAGE_NOT_FOUND: "We couldn't find the page you were looking for.",
   BRIEF_NOT_APPROVED: 'Approve your project brief before generating the PRD.',
   PRD_NOT_APPROVED: 'Approve your PRD before generating the architecture.',
+  PRD_NOT_FOUND: 'Generate a PRD before generating chunks.',
+  ARCHITECTURE_NOT_FOUND: 'Generate an architecture before generating chunks.',
+  CONTEXT_FILES_MISSING: 'Generate your context files before generating chunks.',
 } as const;
 
 export type ErrorMessageKey = keyof typeof ERROR_MESSAGES;
