@@ -6,6 +6,7 @@ export type GenerationType =
   | 'architecture_generation'
   | 'architecture_section_regeneration'
   | 'context_files_generation'
+  | 'context_doc_regenerate'
   | 'chunk_generation'
   | 'feature_spec_generation'
   | 'agent_prompt_generation'

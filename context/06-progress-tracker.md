@@ -2,7 +2,10 @@
 
 ## Current Phase
 
-Phase 3 — Planning Documents (In Progress). Phases 1–2 complete.
+Phase 3 — Planning Documents (Complete). Phases 1–2 complete. With the brief, PRD, architecture, and
+the seven context files all generated, viewable, editable, and approvable, the planning phase is done.
+The build phase begins with Chunk 18 (chunk generator), which owns the `planning -> ready_to_build`
+status transition.
 
 ## Completed Chunks
 
@@ -23,6 +26,7 @@ Phase 3 — Planning Documents (In Progress). Phases 1–2 complete.
 - [x] Chunk 14 — PRD Editor
 - [x] Chunk 15 — Architecture Generator
 - [x] Chunk 16 — Architecture Editor
+- [x] Chunk 17 — Context Files Generator
 
 ## In Progress
 
@@ -30,7 +34,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 17 — Context Files Generator
+- [ ] Chunk 18 — Chunk Generator
 
 ## Blocked
 
@@ -53,6 +57,16 @@ approved PRD (gated 412 `PRD_NOT_APPROVED`, brief optional), stored as a `projec
 `type = 'architecture'` with nine structured sections, decisions inline in `content_json.decisions`
 (no separate table). Before this, the PRD became fully editable the same way. All AI generation types
 use OpenAI (`gpt-4o-mini`) per the standing product-owner override; the Anthropic adapter is dormant.
+
+The seven canonical context files (project_overview, code_standards, ai_workflow_rules, ui_context,
+agents_md, claude_md, progress_tracker) are now generated in a single AI call (gated 412
+`ARCHITECTURE_NOT_APPROVED`), each persisted as its own `project_documents` row, and surfaced in one
+tabbed view where each doc can be viewed, edited, regenerated, and approved independently. These docs
+DIVERGE from the brief/PRD/architecture pattern: markdown is the source of truth, `content_json` stays
+null, and there is NO server-side renderer — edits save the raw markdown directly via
+`supabase.rpc('update_context_file_content', ...)`. Generated markdown is rendered with `react-markdown`
+WITHOUT `rehype-raw`, so embedded HTML is escaped (XSS-safe). Chunk gating now waits for all seven
+context files to be approved before recommending chunk generation.
 
 ## Known Issues
 
@@ -80,8 +94,9 @@ use OpenAI (`gpt-4o-mini`) per the standing product-owner override; the Anthropi
   architecture decision log via `#decisions` (Chunk 16). The Chunks and Open issues panels still show
   empty states backed by stub hooks in `overview/stubs/`; they activate when Chunks 18/23 replace the
   stubs. The Export panel is a disabled shortcut until Chunk 25.
-- The PRD's "Next: generate architecture" CTA and the next-action recommendations for architecture,
-  context files, and chunks point at routes that 404 until their chunks land — expected.
+- The architecture and context-files routes are now live (Chunks 15–17). The only next-action
+  recommendation still pointing at an unbuilt route is chunk generation, which 404s until Chunk 18
+  lands — expected.
 - Regenerating a brief runs without the original clarification answers, which are ephemeral, so it
   rebuilds from the project's basic details only. Persisting answers is a possible follow-up.
 - Chunk 10's database and AI paths (migration apply, Edge Function behavior, stored-procedure
@@ -99,9 +114,71 @@ use OpenAI (`gpt-4o-mini`) per the standing product-owner override; the Anthropi
   `OPENAI_API_KEY` secret. The Chunk 16 migration
   (`20260529130000_architecture_content_update_procedure.sql`) and the two new Edge Functions
   (`save-architecture-content`, `regenerate-architecture-section`) deploy out-of-band post-merge.
+- Chunk 17 live paths (single-call generation of all seven context files, per-doc save, per-doc
+  regenerate, and the `update_context_file_content`/`approve_context_file`/`upsert_context_files`
+  stored procedures) are verified here only by static gates; exercising them needs a live Supabase
+  project and an `OPENAI_API_KEY` secret. The three Chunk 17 migrations
+  (`20260529140000_extend_project_documents_type_check.sql`,
+  `20260529150000_context_file_update_and_approval_procedures.sql`,
+  `20260529160000_upsert_context_files_procedure.sql`) and the two new Edge Functions
+  (`generate-context-files`, `regenerate-context-doc`) apply/deploy out-of-band post-merge — do NOT
+  run `supabase db push`.
+- `react-markdown` is configured WITHOUT `rehype-raw`, so any literal HTML an AI puts in a context
+  file is shown as escaped text rather than rendered. This is the intended XSS-safe default; if a
+  future doc genuinely needs sanitized inline HTML, add `rehype-sanitize` (never bare `rehype-raw`)
+  and record it in `decisions.md` first.
 
 ## Notes for Next Agent
 
+- Phase 3 (Planning Documents) is complete. The seven canonical context files
+  (project_overview, code_standards, ai_workflow_rules, ui_context, agents_md, claude_md,
+  progress_tracker) are generated in ONE AI call by `generate-context-files`, which gates on an
+  approved architecture (412 `ARCHITECTURE_NOT_APPROVED`), calls the `upsert_context_files` stored
+  procedure to write all seven `project_documents` rows in one transaction, and returns
+  `{ generated: true }` (it does not return the docs — the SPA refetches). The whole feature lives in
+  `frontend/src/features/projects/context-files/`; `doc-config.ts` holds the canonical order, labels,
+  and on-disk filenames (`CONTEXT_DOC_ORDER`, `CONTEXT_DOC_TOTAL = 7`) and is the single source for
+  the tab order — add or reorder docs there, not in the components.
+- Context files DIVERGE from the brief/PRD/architecture pattern — do NOT copy those conventions
+  blindly. Markdown is the source of truth, `content_json` stays NULL, and there is NO server-side
+  renderer. A per-doc edit saves the raw markdown straight to the DB via
+  `supabase.rpc('update_context_file_content', ...)` (no Edge Function, no markdown rebuild). Approval
+  is `supabase.rpc('approve_context_file', ...)`. Both are security-invoker, ownership-checked, and
+  whitelist the seven types. Any edit, regenerate, or save bumps `version` and resets `is_final`
+  (un-approves), exactly like the other docs.
+- Per-doc regenerate is special: `regenerate-context-doc` is the ONE Edge Function in this feature
+  that does NOT write — it returns `{ type, content }` only, and `useRegenerateContextDoc` then
+  persists that content through `update_context_file_content` in the same mutation (two awaited steps,
+  one pending state). The function validates that the echoed `type` matches the request (502 on
+  mismatch). It accepts an optional `userInstruction` nudge. "Regenerate all" reuses
+  `generate-context-files` (a full re-generation of the set), guarded by an `AlertDialog`.
+- Rendering: context-file markdown is shown with `react-markdown` and `@tailwindcss/typography`
+  (`prose prose-sm dark:prose-invert`) and deliberately WITHOUT `rehype-raw`, so any literal HTML the
+  AI emits is escaped, not executed. This is the canonical XSS-safe markdown renderer for the app —
+  reuse it for any future AI-authored markdown surface, and never add bare `rehype-raw` (use
+  `rehype-sanitize` if inline HTML is ever truly required, and record it in `decisions.md` first).
+- One fetch backs all seven panels: `useAllContextFiles` fetches every context row once (keyed
+  `['context-files', projectId]`), and `useContextFile(projectId, type)` selects one doc from that
+  cache. The tabbed UI is a controlled Radix `Tabs`; switching tabs while a doc is dirty pops a
+  confirm dialog (`useDirtyGuard` also warns on browser unload, the same `beforeunload`-only
+  limitation as the PRD/architecture editors — `useBlocker` still needs a data router).
+- The overview recommendation engine now gates chunk generation on ALL SEVEN context files being
+  approved: `recommend-next-action.ts` has a `contextFilesApproved` input and a `context_files_approve`
+  action between `context_files_generate` and `chunks_generate`. The overview's `useContextFilesState`
+  stub is now a real query delegating to `useAllContextFiles` (its `{ data }` shape is unchanged; the
+  exported type was renamed `ContextFilesOverviewState` to avoid colliding with the feature's
+  `ContextFilesState`).
+- Backend live paths are verified here only by static gates; exercising them needs a live Supabase
+  project + `OPENAI_API_KEY`. The three Chunk 17 migrations
+  (`20260529140000`, `20260529150000`, `20260529160000`) and the two Edge Functions
+  (`generate-context-files`, `regenerate-context-doc`) apply/deploy OUT-OF-BAND post-merge — do NOT
+  run `supabase db push`. This PR stacks on the Chunk 16 PR (#19); merge #19 first.
+- `context_files_generation` is the single largest AI call in the product (seven docs in one pass).
+  It runs on OpenAI `gpt-4o-mini`, whose output ceiling is 16384 tokens, so `maxOutputTokens` is set
+  to that ceiling (the spec's suggested 32000 assumes a larger Anthropic model and is unreachable
+  here); the prompt asks for ~200–700 words per doc to stay within budget. If a project's docs ever
+  truncate, that ceiling — not the prompt — is the constraint to revisit (a stronger model or a
+  multi-call split).
 - Architecture is now fully editable end-to-end, mirroring the PRD editor (Chunk 14): per-section
   in-place edit, per-section regenerate (`regenerate-architecture-section`, `full_section` mode), and
   per-decision regenerate (`single_decision` mode) inside a decision-log management UI
@@ -121,11 +198,15 @@ use OpenAI (`gpt-4o-mini`) per the standing product-owner override; the Anthropi
   are verified here only by static checks; exercising them needs a live Supabase project +
   `OPENAI_API_KEY`. The Chunk 16 migration and the two new Edge Functions apply/deploy out-of-band
   post-merge (do NOT `supabase db push`).
-- Next is Chunk 17 — Context Files Generator (produce context files coding agents can read), then
-  Chunk 18 (chunk generator, which owns `planning -> ready_to_build`). The PRD/architecture
-  generate-then-edit pattern is canonical: a `generate-X` Edge Function (gated on the prior approved
-  doc), dual storage in `project_documents`, a `save-X-content` + `regenerate-X-section` pair sharing
-  one server-side markdown renderer, and the lifted `_shared/edit/` utilities for the editor UI.
+- Next is Chunk 18 — Chunk Generator, which owns the `planning -> ready_to_build` status transition.
+  All four planning artifacts (brief, PRD, architecture, context files) are approved before it runs.
+  Two generate-then-edit patterns now exist: (a) the brief/PRD/architecture pattern — a `generate-X`
+  Edge Function (gated on the prior approved doc), dual storage in `project_documents`, a
+  `save-X-content` + `regenerate-X-section` pair sharing one server-side markdown renderer, and the
+  lifted `_shared/edit/` utilities; and (b) the lighter context-files pattern — markdown-only storage
+  (no `content_json`, no renderer), direct `rpc` saves, and a regenerate function that returns content
+  for the SPA to persist. Pick the pattern that matches whether the new artifact is structured
+  (use a renderer) or markdown-native (skip it).
 - The PRD is fully editable: per-section edit + per-section regenerate. Pattern: the SPA sends the
   full `content_json` to the `save-prd-content` Edge Function, which renders markdown via the
   deterministic template (`backend/_shared/markdown/prd-markdown.ts`) and calls the
