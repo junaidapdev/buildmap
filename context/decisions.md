@@ -1190,3 +1190,92 @@ Quality rules:
 Expected JSON shape (illustrative and abbreviated):
 {"chunks":[{"ref":"auth-foundation","title":"Build auth foundation","description":"...","included_features":[],"dependencies":[],"estimated_effort":"m"},{"ref":"user-profile","title":"Add user profile page","description":"...","included_features":["profile-view","profile-edit"],"dependencies":["auth-foundation"],"estimated_effort":"s"}]}
 ```
+
+## 2026-05-29 - Chunk Board: @dnd-kit Kanban, Combined move_chunk, and Optimistic Direct-RPC Moves
+
+Chunk 19 replaces the basic ordered list the generator shipped (Chunk 18) with a drag-and-drop Kanban
+board. It is purely a UI + persistence chunk over the existing `feature_chunks` data: no new AI, no new
+columns, no schema changes to the table. The whole board lives in
+`frontend/src/features/projects/chunks/board/`.
+
+**@dnd-kit is the canonical drag-and-drop library.** Chosen over `react-beautiful-dnd` (effectively
+unmaintained, no React 19 support) and a hand-rolled HTML5 DnD implementation (accessibility is hard to
+get right). @dnd-kit is React-19-compatible, headless (we keep our own markup/styling), and ships
+first-class keyboard support. Four packages are installed: `@dnd-kit/core`, `@dnd-kit/sortable`,
+`@dnd-kit/modifiers` (for `restrictToWindowEdges`), and `@dnd-kit/utilities` (for
+`CSS.Transform.toString`). Reuse it for any future drag-and-drop surface.
+
+**Six columns, one per status — matching the canonical status set.** The board renders one column per
+canonical status (`backlog`, `ready`, `in_progress`, `needs_review`, `completed`, `blocked`) in that
+fixed left-to-right order (`board/columns.ts`, `CHUNK_STATUS_ORDER`). This was confirmed by the user
+against the active spec's four-column proposal (`backlog`/`in_progress`/`done`/`blocked`), consistent
+with the Chunk 18 decision that the canonical six supersede the spec's four. There is no `done` column;
+the Completed column maps to `completed`.
+
+**Position is global within the project, not per-column.** Each column sorts its chunks by the same
+project-wide `position`, and `move_chunk` renumbers the whole project to a consecutive `0..N-1` sequence
+after every move. This keeps a single ordering invariant (the same one the generator and
+`replace_project_chunks` already maintain) rather than introducing per-column position scopes, and means
+a cross-column drag and an in-column reorder are the same operation.
+
+**One combined `move_chunk(status, position)` procedure, not separate status + reorder calls.** A board
+move can change a chunk's column (status) and its slot (position) at once — dragging from In Progress to
+Completed does both. `move_chunk` (`20260529190000`, `security invoker`, explicit ownership join, status
+whitelist mirroring the table CHECK) sets both fields and renumbers in one transaction, so a
+cross-column move is a single atomic round-trip. Tie-breaking on renumber is by `updated_at`, and the
+moved row gets the newest `updated_at`, so it settles just after whatever chunk held the target slot.
+Project status advancement on chunk transitions (`ready_to_build` -> `building`) is explicitly NOT here —
+it is deferred to Chunk 22, which will wrap this procedure.
+
+**`reorder_chunks` shipped as a backend primitive with no frontend caller.** The batch reorder procedure
+(`20260529200000`) is an acceptance-criterion deliverable and a clean primitive for a future
+"reordered a whole column at once" UI, but the MVP board does not call it (single-card moves all go
+through `move_chunk`). I deliberately did NOT add a speculative `useReorderChunks` frontend hook — that
+would be dead code today. The procedure is available; the hook arrives with its first real caller.
+
+**Moves are direct `supabase.rpc`, optimistic with rollback.** Consistent with the standing rule that
+Edge Functions are reserved for AI paths and non-AI state changes go straight through `supabase.rpc`
+against a security-invoker procedure, `useMoveChunk` calls `move_chunk` directly. It is an optimistic
+React Query mutation: `onMutate` snapshots and rewrites the cache, `onError` restores the snapshot,
+`onSettled` invalidates so the server stays the source of truth. A pure `applyMoveLocally` helper mirrors
+the server's insert-after-target + renumber logic (including the `updated_at` tie-break) so the optimistic
+state matches the post-settle refetch and the board does not visibly jump. On failure an inline `Alert`
+shows `MOVE_FAILED` (the app has no toast system); only `{ code }` is logged.
+
+**Accessibility: a dedicated drag handle is the sole activator.** Each card wires `@dnd-kit`'s listeners
+onto a single grip `<button>` (`setActivatorNodeRef`), not the whole card, so the inline status `<Select>`
+and the "Open" link stay fully clickable and keyboard-operable without fighting the drag sensors.
+`PointerSensor` uses a 5px activation distance (clicks don't start drags) and `KeyboardSensor` uses
+`sortableKeyboardCoordinates`, giving full keyboard drag-and-drop. The inline status `<Select>` is the
+non-drag fallback for changing a chunk's column. `DragOverlay` renders a `ChunkCardCompact` ghost so the
+dragged card tracks the cursor cleanly.
+
+**The board shows feature/dependency COUNTS, not resolved names.** Chunk 18's list resolved
+`included_features` to PRD feature names and `dependencies` to sibling chunk titles. The board instead
+shows just the counts (with `ListChecks`/`Link2` icons). This keeps the board self-contained — no PRD
+fetch, no `(project_id, ref)` resolution map — and defers full feature/dependency detail to the chunk
+detail page (Chunk 20). `ChunkCardCompact` is a pure presentational component reused by both the live
+sortable card and the drag overlay so the ghost matches its source exactly.
+
+**The "Open" link 404s gracefully until Chunk 20.** Each card links to `/projects/{id}/chunks/{chunkId}`,
+which has no route yet; it resolves to the in-shell `NotFoundPage` catch-all. No placeholder route was
+added — the link is wired now so Chunk 20 only has to add the route.
+
+**Reason:** The board is the primary surface for managing chunks during the build phase, so it ships
+right after the generator that feeds it. A combined `move_chunk` plus a global position keeps the
+ordering model identical to what the generator already enforces, so there is exactly one notion of
+"chunk order" in the system. Optimistic direct-RPC moves give immediate feedback for a high-frequency
+interaction without an Edge Function in the path.
+
+**Alternatives considered:** `react-beautiful-dnd` (rejected — unmaintained, no React 19); native HTML5
+DnD (rejected — poor accessibility); per-column position scopes (rejected — two ordering notions, and a
+cross-column move would need two writes); separate `set_chunk_status` + `reorder_chunks` calls per move
+(rejected — non-atomic, two round-trips for the common cross-column drag); shipping a `useReorderChunks`
+hook alongside the procedure (rejected — speculative dead code with no MVP caller); resolving
+feature/dependency names on the card (rejected — couples the board to the PRD; counts suffice and detail
+belongs on the Chunk 20 page); routing the move through an Edge Function (rejected — non-AI state change,
+the established pattern is direct `rpc`).
+
+**Reversibility:** High on the frontend (the board is additive; the deleted list view is in git history).
+Medium on the backend: `move_chunk` and `reorder_chunks` are forward migrations; reverting needs a new
+migration, but neither changes any table.

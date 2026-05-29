@@ -4,8 +4,9 @@
 
 Phase 4 — Build (In Progress). Phases 1–3 complete. The chunk generator (Chunk 18) slices the approved
 PRD + architecture into shippable chunks and advances the project from `planning` to `ready_to_build`
-on first generation. Next is the chunk board (Chunk 19), which visualizes these chunks; the generator
-already persists everything the board renders against.
+on first generation. The chunk board (Chunk 19) now visualizes those chunks as a drag-and-drop Kanban
+with a column per status and persists moves via the `move_chunk` stored procedure. Next is Chunk 20 —
+Feature Specs (one detailed implementation spec per chunk), reached from each card's "Open" link.
 
 ## Completed Chunks
 
@@ -28,6 +29,7 @@ already persists everything the board renders against.
 - [x] Chunk 16 — Architecture Editor
 - [x] Chunk 17 — Context Files Generator
 - [x] Chunk 18 — Shippable Chunk Generator
+- [x] Chunk 19 — Chunk Board (Kanban)
 
 ## In Progress
 
@@ -35,7 +37,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 19 — Chunk Board (Kanban)
+- [ ] Chunk 20 — Feature Specs
 
 ## Blocked
 
@@ -94,14 +96,26 @@ context files to be approved before recommending chunk generation.
   `useDecisionsState` stub body was swapped in Chunk 15), and its "view all" link deep-links to the
   architecture decision log via `#decisions` (Chunk 16). The Chunks panel's `useChunksState` now reads
   real chunk data (Chunk 18), but `ChunksProgressPanel` still renders an empty body when chunks exist —
-  its Total/Completed/In-progress display stays a `TODO(chunk-18+)` owned by the board (Chunk 19). The
-  Open issues panel is still backed by a stub until Chunk 23. The Export panel is a disabled shortcut
-  until Chunk 25.
+  its Total/Completed/In-progress display stays a `TODO(chunk-18+)`. Chunk 19 built the board but
+  deliberately scoped itself to the board only (per its spec) and did NOT fill this panel; it remains an
+  open follow-up (the data is already in `useChunksState`). The Open issues panel is still backed by a
+  stub until Chunk 23. The Export panel is a disabled shortcut until Chunk 25.
 - The chunks route is now live (Chunk 18), so no next-action recommendation points at an unbuilt route
   anymore. Note the divergence: the recommendation engine still gates "Generate chunks" on context
   files being APPROVED, while the chunks page itself gates only on context files EXISTENCE (per the
   locked "approval doesn't gate downstream" rule) — a user who skipped approving context files can
   still generate chunks from the page.
+- The chunks page now renders the Chunk 19 Kanban board (the Chunk 18 list view was deleted). Each card's
+  "Open" link points at `/projects/{id}/chunks/{chunkId}`, which has no route yet and resolves to the
+  in-shell `NotFoundPage` catch-all until Chunk 20 adds the feature-spec route. This is expected, not a
+  bug. The board reuses the four shared badge variants for status colors; the distinct per-status color
+  tokens `05-ui-context.md` calls for are still not introduced in `tailwind.config.ts` (open follow-up).
+- Chunk 19 live paths (the `move_chunk` and `reorder_chunks` stored procedures) are verified here only by
+  static gates (backend `deno check`/`lint`/`fmt:check`, frontend `typecheck`/`lint`/`build`); exercising
+  drag-and-drop persistence needs a live Supabase project. The two Chunk 19 migrations
+  (`20260529190000_chunk_board_move_chunk.sql`, `20260529200000_chunk_board_reorder_chunks.sql`) apply
+  out-of-band post-merge — do NOT run `supabase db push`. `reorder_chunks` has no frontend caller in the
+  MVP; it is a backend primitive for a future bulk-column-reorder UI.
 - Regenerating a brief runs without the original clarification answers, which are ephemeral, so it
   rebuilds from the project's basic details only. Persisting answers is a possible follow-up.
 - Chunk 10's database and AI paths (migration apply, Edge Function behavior, stored-procedure
@@ -143,6 +157,30 @@ context files to be approved before recommending chunk generation.
 
 ## Notes for Next Agent
 
+- The chunk board (Chunk 19) is the live chunks surface. It is a `@dnd-kit` Kanban with a column per
+  canonical status (`backlog`/`ready`/`in_progress`/`needs_review`/`completed`/`blocked`, fixed order in
+  `board/columns.ts`). All board code is in `frontend/src/features/projects/chunks/board/`;
+  `ChunkBoard` (DnD context + column layout + drag overlay), `ChunkColumn` (droppable), `ChunkCard`
+  (sortable, with a dedicated drag handle so the inline status `<Select>` and "Open" link stay
+  clickable/keyboard-operable), `ChunkCardCompact` (pure presentation, reused by the drag overlay), and
+  `useMoveChunk` (the optimistic mutation). A move — drag OR the inline status select — calls the
+  `move_chunk(p_chunk_id, p_new_status, p_new_position)` stored procedure directly via `supabase.rpc`
+  (NOT an Edge Function; moves are non-AI). Position is GLOBAL within the project (not per-column);
+  `move_chunk` renumbers every chunk to `0..N-1` after each move, and `applyMoveLocally` mirrors that
+  exactly for the optimistic cache write. The board shows feature/dependency COUNTS, not names — full
+  detail belongs on the Chunk 20 page. `reorder_chunks` exists as a backend primitive but has no caller
+  yet (do not add a `useReorderChunks` hook until a bulk-reorder UI needs it). The Chunk 18 list view
+  (`ChunksListView.tsx`, `ChunkListItem.tsx`) was deleted.
+- Chunk 20 (Feature Specs) is next, and it owns the `/projects/{id}/chunks/{chunkId}` route the board's
+  "Open" link already points at (it 404s in-shell until then). A feature spec is 1:1 with a chunk (the
+  `feature_specs.chunk_id` unique FK, `on delete cascade`). Chunk 22 owns chunk status transitions and
+  the next project status advancement (`ready_to_build`->`building`->`completed`) — it should WRAP
+  `move_chunk` with that logic rather than re-implementing the move; `move_chunk` deliberately does NOT
+  touch project status. Two board-adjacent follow-ups stayed out of Chunk 19's scope and are still open:
+  filling `ChunksProgressPanel`'s Total/Completed/In-progress body (data is in `useChunksState`) and
+  adding per-status color tokens to `tailwind.config.ts` (the board reuses the four shared badge
+  variants). The four shared-edit utilities and the generate-then-edit document pattern do NOT apply to
+  chunks (chunks are DB rows, not a versioned markdown document).
 - Chunks generation works end-to-end (Chunk 18). `generate-chunks` gates on the EXISTENCE of the PRD,
   architecture, and all seven context files (not approval), runs one AI call, validates ref uniqueness
   and dependency resolvability (502 on violation) and drops unresolvable `included_features` (warn),
@@ -154,15 +192,6 @@ context files to be approved before recommending chunk generation.
   feature ids (the SPA resolves them to names via `useExistingPrd`). The whole feature lives in
   `frontend/src/features/projects/chunks/`. The `feature_chunks` table was realigned from the Chunk 04
   placeholder — see `decisions.md`.
-- Chunk 19 builds the Kanban board UI on top of this: drag-and-drop reordering and the per-status
-  columns. It should also (a) replace `ChunksProgressPanel`'s empty body with the Total/Completed/
-  In-progress display its `TODO(chunk-18+)` describes (the data is already in `useChunksState`), and
-  (b) introduce the distinct per-status color tokens in `tailwind.config.ts` that `05-ui-context.md`
-  calls for (this chunk reused the four shared badge variants for the basic list). Chunk 20 builds
-  feature specs (1:1 with chunks). Chunk 22 owns chunk status transitions (the six statuses
-  backlog/ready/in_progress/needs_review/completed/blocked) and the next status advancement
-  (`ready_to_build`→`building`→`completed`). The four shared-edit utilities and the generate-then-edit
-  document pattern do NOT apply to chunks (chunks are DB rows, not a versioned markdown document).
 - Phase 3 (Planning Documents) is complete. The seven canonical context files
   (project_overview, code_standards, ai_workflow_rules, ui_context, agents_md, claude_md,
   progress_tracker) are generated in ONE AI call by `generate-context-files`, which gates on an
