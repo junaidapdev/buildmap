@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { useProject } from '@/features/projects/layout/useProject';
 import { ArchitectureError } from '@/features/projects/architecture/ArchitectureError';
@@ -14,11 +15,21 @@ export function ArchitecturePage() {
   // The layout guarantees a loaded project before this page renders.
   const { project } = useProject();
   const projectId = project.id;
+  const location = useLocation();
   const prd = useExistingPrd(projectId);
   const architecture = useExistingArchitecture(projectId);
   const generate = useGenerateArchitecture(projectId);
   const generateArchitecture = generate.mutate;
   const startedForProjectRef = useRef<string | null>(null);
+
+  // The overview's "View architecture" link deep-links to the decision log via #decisions. Scroll to
+  // it once the architecture (and thus the anchored section) has rendered.
+  useEffect(() => {
+    if (location.hash !== '#decisions' || !architecture.data) {
+      return;
+    }
+    document.getElementById('decisions')?.scrollIntoView({ behavior: 'smooth' });
+  }, [location.hash, architecture.data]);
 
   const prdApproved = prd.data?.is_final === true;
 

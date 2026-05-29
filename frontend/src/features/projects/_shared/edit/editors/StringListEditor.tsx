@@ -2,7 +2,7 @@ import { ArrowDown, ArrowUp, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { PRD_EDIT_MESSAGES } from '@/features/projects/prd/edit/messages';
+import { SHARED_EDIT_MESSAGES } from '@/features/projects/_shared/edit/messages';
 
 type StringListEditorProps = {
   value: string[];
@@ -40,7 +40,7 @@ export function StringListEditor({ value, onChange }: StringListEditorProps) {
         <div className="flex items-center gap-2" key={index}>
           <Input onChange={(event) => updateItem(index, event.target.value)} value={item} />
           <Button
-            aria-label={PRD_EDIT_MESSAGES.MOVE_UP_LABEL}
+            aria-label={SHARED_EDIT_MESSAGES.MOVE_UP_LABEL}
             disabled={index === 0}
             onClick={() => moveItem(index, -1)}
             size="icon"
@@ -50,7 +50,7 @@ export function StringListEditor({ value, onChange }: StringListEditorProps) {
             <ArrowUp aria-hidden="true" className="h-4 w-4" />
           </Button>
           <Button
-            aria-label={PRD_EDIT_MESSAGES.MOVE_DOWN_LABEL}
+            aria-label={SHARED_EDIT_MESSAGES.MOVE_DOWN_LABEL}
             disabled={index === value.length - 1}
             onClick={() => moveItem(index, 1)}
             size="icon"
@@ -60,7 +60,7 @@ export function StringListEditor({ value, onChange }: StringListEditorProps) {
             <ArrowDown aria-hidden="true" className="h-4 w-4" />
           </Button>
           <Button
-            aria-label={PRD_EDIT_MESSAGES.REMOVE_LABEL}
+            aria-label={SHARED_EDIT_MESSAGES.REMOVE_LABEL}
             onClick={() => removeItem(index)}
             size="icon"
             type="button"
@@ -71,7 +71,7 @@ export function StringListEditor({ value, onChange }: StringListEditorProps) {
         </div>
       ))}
       <Button onClick={() => onChange([...value, ''])} size="sm" type="button" variant="outline">
-        {PRD_EDIT_MESSAGES.ADD_ITEM_BUTTON}
+        {SHARED_EDIT_MESSAGES.ADD_ITEM_BUTTON}
       </Button>
     </div>
   );
