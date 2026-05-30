@@ -8,8 +8,12 @@ on first generation. The chunk board (Chunk 19) now visualizes those chunks as a
 with a column per status and persists moves via the `move_chunk` stored procedure. Next is Chunk 20 —
 Feature Specs (one detailed implementation spec per chunk), reached from each card's "Open" link. Those specs are now live (Chunk 20): every chunk has a
 structured seven-section feature spec, generated on first visit to its detail page and editable
-per section. Next is Chunk 21 — the agent prompt generator, which wraps the spec into a copy-paste
-prompt for Claude Code or Cursor.
+per section. Chunk 21 closed the artifact loop: every spec wraps into an agent-ready prompt (Claude Code, Cursor,
+or generic) via `generate-agent-prompt`, stored per (chunk_id, target_agent) in the new
+`coding_agent_prompts` table. The chunk detail page's Prompt tab is live — generate, copy, regenerate,
+switch targets. Next is Chunk 22 — the interactive progress tracker, which closes the workflow loop
+by making chunk-status transitions advance the project (`ready_to_build` -> `building` -> `completed`)
+and syncs progress into the Progress Tracker context file.
 
 ## Completed Chunks
 
@@ -34,6 +38,7 @@ prompt for Claude Code or Cursor.
 - [x] Chunk 18 — Shippable Chunk Generator
 - [x] Chunk 19 — Chunk Board (Kanban)
 - [x] Chunk 20 — Feature Spec Generator
+- [x] Chunk 21 — Coding-Agent Prompt Generator
 
 ## In Progress
 
@@ -41,7 +46,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 21 — Agent Prompt Generator
+- [ ] Chunk 22 — Interactive Progress Tracker
 
 ## Blocked
 
@@ -161,6 +166,33 @@ context files to be approved before recommending chunk generation.
 
 ## Notes for Next Agent
 
+- Coding-agent prompts are generated, copyable, and regeneratable per target (Chunk 21). The chunk
+  detail page's Prompt tab is now live; the tab state in `ChunkDetailPage` was lifted from
+  uncontrolled (`defaultValue="spec"`) to controlled (`value`/`onValueChange`) so the Prompt tab's
+  SpecRequired state can deep-link back to the Spec tab via `onOpenSpec`. The whole feature lives in
+  `frontend/src/features/projects/feature-specs/prompt/`. Prompts are stored in a NEW
+  `coding_agent_prompts` table — N:1 with chunks (one row per target_agent value), not in
+  `project_documents` or `feature_specs`. The table FKs to `feature_chunks(id) ON DELETE CASCADE`, has
+  a unique `(chunk_id, target_agent)`, RLS via the chunk -> project chain (four separate policies),
+  and the standard `set_updated_at` trigger. The Chunk 04 `feature_specs.agent_prompts jsonb` column
+  is left unused on purpose — superseded by the new table; leaving it costs nothing and avoids a
+  destructive migration. Three target agents in MVP: `claude_code`, `cursor`, `generic`; extending is
+  a one-line change in the schema enum, the CHECK constraint, and the procedure whitelist. Prompt
+  body is template + AI-framing + spec verbatim — the AI generates only `role_intro`, `how_to_work`,
+  `philosophy`, and `agent_specific_notes` (small surface, low cost); `assembleAgentPrompt` in
+  `_shared/markdown/agent-prompt-markdown.ts` deterministically stitches the spec sections in
+  verbatim. The Edge Function `generate-agent-prompt` gates on the spec existing (412
+  `FEATURE_SPEC_NOT_FOUND`) and writes via `upsert_agent_prompt` (security invoker, returns the full
+  row jsonb so the SPA's strict `AgentPromptRowSchema` re-validation passes). No approval semantics on
+  prompts (no `is_final`) — if a prompt doesn't work, regenerate. Three Chunk 21 artifacts apply
+  out-of-band post-merge: `20260531100000_create_coding_agent_prompts.sql`,
+  `20260531110000_upsert_agent_prompt_procedure.sql`, and the `generate-agent-prompt` Edge Function
+  (already declared in `config.toml` with `verify_jwt = false` so the CORS preflight isn't blocked).
+- Chunk 22 (Interactive Progress Tracker) is next: it closes the workflow loop by wiring chunk
+  status transitions to project status advancement (`ready_to_build` -> `building` on first
+  in_progress; -> `completed` when all chunks reach completed) and by syncing chunk progress into the
+  Progress Tracker context file (`type = 'progress_tracker'`). Wrap `move_chunk` (Chunk 19) with the
+  advancement logic — do NOT re-implement the move itself.
 - Feature specs are generated and editable per section (Chunk 20). The chunk detail page lives at
   `/projects/{id}/chunks/{chunkId}` (the board's "Open" link now works) and has three tabs: Spec,
   Prompt, Notes. The Prompt tab is a placeholder until Chunk 21; the Notes tab is a placeholder for a

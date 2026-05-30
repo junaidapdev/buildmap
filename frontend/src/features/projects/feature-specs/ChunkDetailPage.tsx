@@ -1,4 +1,5 @@
 import { AlertCircle, ArrowLeft } from 'lucide-react';
+import { useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
@@ -12,10 +13,14 @@ import { PromptTab } from '@/features/projects/feature-specs/PromptTab';
 import { FEATURE_SPEC_MESSAGES } from '@/features/projects/feature-specs/messages';
 import { useChunk } from '@/features/projects/feature-specs/useChunk';
 
+type TabValue = 'spec' | 'prompt' | 'notes';
+
 export function ChunkDetailPage() {
   const { id, chunkId } = useParams<{ id: string; chunkId: string }>();
   // Hook called unconditionally (disabled when chunkId is absent) to keep hook order stable.
   const chunkQuery = useChunk(chunkId ?? '');
+  // Controlled tabs so the Prompt tab's SpecRequired state can deep-link back to the Spec tab.
+  const [tab, setTab] = useState<TabValue>('spec');
 
   if (!id || !chunkId) {
     return <Navigate replace to={ROUTES.DASHBOARD} />;
@@ -68,7 +73,7 @@ export function ChunkDetailPage() {
 
       <ChunkHeader chunk={chunk} projectId={id} />
 
-      <Tabs defaultValue="spec">
+      <Tabs onValueChange={(value) => setTab(value as TabValue)} value={tab}>
         <TabsList className="max-w-full overflow-x-auto">
           <TabsTrigger value="spec">{FEATURE_SPEC_MESSAGES.TAB_SPEC}</TabsTrigger>
           <TabsTrigger value="prompt">{FEATURE_SPEC_MESSAGES.TAB_PROMPT}</TabsTrigger>
@@ -78,7 +83,7 @@ export function ChunkDetailPage() {
           <FeatureSpecTab chunkId={chunkId} />
         </TabsContent>
         <TabsContent className="mt-6" value="prompt">
-          <PromptTab />
+          <PromptTab chunkId={chunkId} onOpenSpec={() => setTab('spec')} />
         </TabsContent>
         <TabsContent className="mt-6" value="notes">
           <NotesTab />

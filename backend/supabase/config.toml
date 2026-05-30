@@ -474,6 +474,11 @@ verify_jwt = false
 entrypoint = "../functions/save-feature-spec-content/index.ts"
 import_map = "../functions/save-feature-spec-content/deno.json"
 
+[functions.generate-agent-prompt]
+verify_jwt = false
+entrypoint = "../functions/generate-agent-prompt/index.ts"
+import_map = "../functions/generate-agent-prompt/deno.json"
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 

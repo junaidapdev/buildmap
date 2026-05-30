@@ -16,6 +16,7 @@ export const ERROR_CODES = {
   PRD_NOT_FOUND: 'PRD_NOT_FOUND',
   ARCHITECTURE_NOT_FOUND: 'ARCHITECTURE_NOT_FOUND',
   CONTEXT_FILES_MISSING: 'CONTEXT_FILES_MISSING',
+  FEATURE_SPEC_NOT_FOUND: 'FEATURE_SPEC_NOT_FOUND',
 } as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
@@ -38,4 +39,5 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   PRD_NOT_FOUND: 'A PRD is required before generating chunks.',
   ARCHITECTURE_NOT_FOUND: 'An architecture is required before generating chunks.',
   CONTEXT_FILES_MISSING: 'You must generate context files before generating chunks.',
+  FEATURE_SPEC_NOT_FOUND: 'A feature spec is required before generating an agent prompt.',
 };

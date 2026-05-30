@@ -1,10 +1,15 @@
-import { FEATURE_SPEC_MESSAGES } from '@/features/projects/feature-specs/messages';
+import { PromptTabContent } from '@/features/projects/feature-specs/prompt/PromptTabContent';
 
-/** Placeholder until Chunk 21 (agent prompt generator) replaces this body. */
-export function PromptTab() {
-  return (
-    <div className="rounded-lg border border-dashed p-8 text-center">
-      <p className="text-muted-foreground">{FEATURE_SPEC_MESSAGES.PROMPT_TAB_PLACEHOLDER}</p>
-    </div>
-  );
+type PromptTabProps = {
+  chunkId: string;
+  onOpenSpec: () => void;
+};
+
+/**
+ * Thin wrapper around PromptTabContent so ChunkDetailPage's import path stays stable while the
+ * implementation lives in feature-specs/prompt/. Carries chunkId plus the onOpenSpec callback the
+ * page passes in (it flips the controlled Tabs value back to 'spec').
+ */
+export function PromptTab({ chunkId, onOpenSpec }: PromptTabProps) {
+  return <PromptTabContent chunkId={chunkId} onOpenSpec={onOpenSpec} />;
 }
