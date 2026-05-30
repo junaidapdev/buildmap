@@ -1,4 +1,4 @@
-import { CheckCircle2, RefreshCw } from 'lucide-react';
+import { CheckCircle2, Download, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import {
@@ -16,9 +16,12 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/constants/routes';
 import { BRIEF_MESSAGES } from '@/features/projects/brief/messages';
+import { useDownloadMarkdown } from '@/hooks/useDownloadMarkdown';
+import { FILENAMES } from '@/lib/filenames';
 
 type BriefActionsProps = {
   projectId: string;
+  content: string;
   isFinal: boolean;
   onApprove: () => void;
   isApproving: boolean;
@@ -28,12 +31,16 @@ type BriefActionsProps = {
 
 export function BriefActions({
   projectId,
+  content,
   isFinal,
   onApprove,
   isApproving,
   onRegenerate,
   isRegenerating,
 }: BriefActionsProps) {
+  const downloadMarkdown = useDownloadMarkdown();
+  const canDownload = content.trim().length > 0;
+
   return (
     <div className="space-y-4 border-t pt-6">
       {isFinal && (
@@ -80,6 +87,15 @@ export function BriefActions({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <Button
+          disabled={!canDownload}
+          onClick={() => downloadMarkdown({ filename: FILENAMES.brief(), content })}
+          variant="outline"
+        >
+          <Download aria-hidden="true" className="h-4 w-4" />
+          {BRIEF_MESSAGES.DOWNLOAD_BUTTON}
+        </Button>
       </div>
 
       <p className="text-right text-xs text-muted-foreground">{BRIEF_MESSAGES.REGENERATE_HINT}</p>

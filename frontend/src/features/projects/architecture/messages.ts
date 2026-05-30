@@ -16,9 +16,11 @@ export const ARCHITECTURE_MESSAGES = {
   REGENERATE_BUTTON: 'Regenerate',
   REGENERATE_BUSY: 'Regenerating…',
   REGENERATE_CONFIRM_TITLE: 'Regenerate architecture?',
-  REGENERATE_CONFIRM_BODY: 'This will replace the current architecture and reset the approved state.',
+  REGENERATE_CONFIRM_BODY:
+    'This will replace the current architecture and reset the approved state.',
   REGENERATE_CONFIRM_CONFIRM: 'Yes, regenerate',
   REGENERATE_CONFIRM_CANCEL: 'Cancel',
+  DOWNLOAD_BUTTON: 'Download',
 
   APPROVE_BUTTON: 'Approve architecture',
   APPROVE_BUTTON_BUSY: 'Approving…',

@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 
+import type { ChunkRow } from '@/features/projects/chunks/useChunks';
 import { FeatureSpecError } from '@/features/projects/feature-specs/FeatureSpecError';
 import { FeatureSpecPending } from '@/features/projects/feature-specs/FeatureSpecPending';
 import { FeatureSpecView } from '@/features/projects/feature-specs/FeatureSpecView';
@@ -7,10 +8,11 @@ import { useExistingFeatureSpec } from '@/features/projects/feature-specs/useExi
 import { useGenerateFeatureSpec } from '@/features/projects/feature-specs/useGenerateFeatureSpec';
 
 type FeatureSpecTabProps = {
+  chunk: Pick<ChunkRow, 'ref' | 'title'>;
   chunkId: string;
 };
 
-export function FeatureSpecTab({ chunkId }: FeatureSpecTabProps) {
+export function FeatureSpecTab({ chunk, chunkId }: FeatureSpecTabProps) {
   const spec = useExistingFeatureSpec(chunkId);
   const generate = useGenerateFeatureSpec(chunkId);
   const generateSpec = generate.mutate;
@@ -40,7 +42,7 @@ export function FeatureSpecTab({ chunkId }: FeatureSpecTabProps) {
   if (spec.isPending) {
     body = <FeatureSpecPending />;
   } else if (spec.data) {
-    body = <FeatureSpecView chunkId={chunkId} spec={spec.data} />;
+    body = <FeatureSpecView chunk={chunk} chunkId={chunkId} spec={spec.data} />;
   } else if (spec.isError) {
     body = <FeatureSpecError onRetry={() => void spec.refetch()} />;
   } else if (generate.isError) {

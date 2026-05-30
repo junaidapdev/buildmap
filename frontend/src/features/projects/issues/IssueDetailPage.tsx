@@ -52,7 +52,14 @@ export function IssueDetailPage() {
     }
     autoFiredRef.current = issueId;
     generatePrompt();
-  }, [issueId, location.state, issueQuery.isPending, issueQuery.isError, issueQuery.data, generatePrompt]);
+  }, [
+    issueId,
+    location.state,
+    issueQuery.isPending,
+    issueQuery.isError,
+    issueQuery.data,
+    generatePrompt,
+  ]);
 
   if (!id || !issueId) {
     return <Navigate replace to={ROUTES.DASHBOARD} />;
@@ -99,9 +106,7 @@ export function IssueDetailPage() {
       <section aria-label={ISSUE_MESSAGES.PROMPT_PENDING_TITLE} className="space-y-4" role="status">
         <div className="text-center">
           <h3 className="text-lg font-semibold">{ISSUE_MESSAGES.PROMPT_PENDING_TITLE}</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {ISSUE_MESSAGES.PROMPT_PENDING_BODY}
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">{ISSUE_MESSAGES.PROMPT_PENDING_BODY}</p>
         </div>
         <div aria-hidden="true" className="space-y-3">
           <Skeleton className="h-4 w-full" />
@@ -114,6 +119,8 @@ export function IssueDetailPage() {
     promptBody = (
       <IssuePromptDisplay
         content={issue.corrective_prompt}
+        issueId={issue.id}
+        issueTitle={issue.title}
         isRegenerating={generate.isPending}
         onRegenerate={() => generate.mutate()}
         updatedAt={issue.updated_at}
@@ -125,9 +132,7 @@ export function IssueDetailPage() {
       <div className="space-y-4 rounded-lg border border-dashed p-12 text-center">
         <h3 className="text-lg font-semibold">{ISSUE_MESSAGES.PROMPT_EMPTY_TITLE}</h3>
         <p className="text-muted-foreground">{ISSUE_MESSAGES.PROMPT_EMPTY_BODY}</p>
-        <Button onClick={() => generate.mutate()}>
-          {ISSUE_MESSAGES.GENERATE_PROMPT_BUTTON}
-        </Button>
+        <Button onClick={() => generate.mutate()}>{ISSUE_MESSAGES.GENERATE_PROMPT_BUTTON}</Button>
       </div>
     );
   }
@@ -150,10 +155,7 @@ export function IssueDetailPage() {
               <IssueSeverityBadge severity={issue.severity} />
               {linkedChunk && (
                 <Badge variant="outline">
-                  <Link
-                    className="hover:underline"
-                    to={ROUTES.PROJECT_CHUNK(id, linkedChunk.id)}
-                  >
+                  <Link className="hover:underline" to={ROUTES.PROJECT_CHUNK(id, linkedChunk.id)}>
                     {linkedChunk.title}
                   </Link>
                 </Badge>

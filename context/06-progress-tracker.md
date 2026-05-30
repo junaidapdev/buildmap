@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase 4 — Build (complete). Phases 1–3 complete. The chunk generator (Chunk 18) slices the approved
+Phase 5 — Export & Knowledge (underway). Phases 1–4 complete. The chunk generator (Chunk 18) slices the approved
 PRD + architecture into shippable chunks and advances the project from `planning` to `ready_to_build`
 on first generation. The chunk board (Chunk 19) visualizes those chunks as a drag-and-drop Kanban
 with a column per status and persists moves via the `move_chunk` stored procedure. Feature specs
@@ -18,7 +18,9 @@ own AI-generated corrective markdown prompt; optional chunk linkage enriches the
 spec body), and Chunk 24 added knowledge ingestion — pasted transcripts and notes are extracted by
 `extract-learnings` into structured `project_learnings` rows grouped by `lesson | decision | gotcha
 | open_question`, with a new Knowledge page at `/projects/{id}/knowledge` and a "Recent learnings"
-panel on the project overview. Next is Chunk 25 — per-document markdown export.
+panel on the project overview. Chunk 25 added per-document markdown downloads across brief, PRD,
+architecture, context files, feature specs, agent prompts, and issue prompts. Next is Chunk 26 —
+full project ZIP export.
 
 ## Completed Chunks
 
@@ -47,6 +49,7 @@ panel on the project overview. Next is Chunk 25 — per-document markdown export
 - [x] Chunk 22 — Interactive Progress Tracker
 - [x] Chunk 23 — Issue-to-Spec Converter
 - [x] Chunk 24 — Knowledge Ingestion
+- [x] Chunk 25 — Per-Document Markdown Export
 
 ## In Progress
 
@@ -54,7 +57,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 25 — Per-Document Markdown Export
+- [ ] Chunk 26 — Full Project ZIP Export
 
 ## Blocked
 
@@ -87,6 +90,12 @@ null, and there is NO server-side renderer — edits save the raw markdown direc
 `supabase.rpc('update_context_file_content', ...)`. Generated markdown is rendered with `react-markdown`
 WITHOUT `rehype-raw`, so embedded HTML is escaped (XSS-safe). Chunk gating now waits for all seven
 context files to be approved before recommending chunk generation.
+
+Per-document markdown export (Chunk 25) is client-side only. Existing markdown already loaded in the
+SPA is written to a `Blob`, downloaded through the browser's standard `<a download>` flow, and the
+object URL is revoked after click. Filename rules are centralized in `frontend/src/lib/filenames.ts`
+and reused through `useDownloadMarkdown()` so Chunk 26 can build the ZIP export from the same
+deterministic mappings.
 
 ## Known Issues
 
@@ -174,6 +183,12 @@ context files to be approved before recommending chunk generation.
 
 ## Notes for Next Agent
 
+- Per-document markdown download is live (Chunk 25). The shared download path is
+  `frontend/src/hooks/useDownloadMarkdown.ts` -> `frontend/src/lib/download.ts`; deterministic names
+  live in `frontend/src/lib/filenames.ts`. Every current document action surface now has a secondary
+  "Download" button: brief, PRD, architecture, context files, feature specs, agent prompts, and issue
+  corrective prompts. Chunk 26 should reuse `FILENAMES` for ZIP entries instead of creating a second
+  naming map.
 - Knowledge ingestion is live (Chunk 24). The whole feature lives in
   `frontend/src/features/projects/knowledge/`. The page is at `/projects/{id}/knowledge` (sidebar
   Knowledge entry activated this chunk by removing its `pendingChunk: 24` marker); the new "Recent
@@ -181,7 +196,7 @@ context files to be approved before recommending chunk generation.
   notes", optionally types a short source label, pastes content (≥20 chars, ≤50000), and submits.
   `extract-learnings` (Edge Function) calls `generate('knowledge_extraction', …)` for the AI to
   return `{ learnings: [...] }` with each entry's `type` (`lesson | decision | gotcha |
-  open_question`), `title`, and `content`; the function truncates the paste to 5000 chars and
+open_question`), `title`, and `content`; the function truncates the paste to 5000 chars and
   invokes `create_learnings_batch` (security invoker) to insert one row per learning, all sharing a
   single `ingest_id`. Empty extractions return `{ ingest_id: null, count: 0 }` and the page shows
   the inline empty-extraction banner — they are NOT errors. The success banner ("Extracted N
@@ -213,7 +228,7 @@ context files to be approved before recommending chunk generation.
   typing would muddy the section grouping).
 - The two Chunk 24 migrations (`20260603100000_align_project_learnings_for_knowledge_ingestion.sql`,
   `20260603110000_learnings_lifecycle_procedures.sql`) and the new Edge Function (`extract-
-  learnings`) apply/deploy OUT-OF-BAND post-merge — do NOT run `supabase db push`.
+learnings`) apply/deploy OUT-OF-BAND post-merge — do NOT run `supabase db push`.
 - Phase 5 continues with Chunks 25 and 26 — per-document markdown export and full project ZIP
   export. Both should include the knowledge learnings under a `knowledge/` folder (each type as a
   separate markdown file, ordered by `created_at desc`). The exports do NOT need to include the

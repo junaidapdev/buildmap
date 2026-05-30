@@ -35,6 +35,7 @@ export const CONTEXT_FILES_MESSAGES = {
   REGENERATE_CONFIRM_CONFIRM: 'Yes, regenerate',
   REGENERATE_CONFIRM_CANCEL: 'Cancel',
   REGENERATE_FAILED: 'We could not regenerate this doc. Try again.',
+  DOWNLOAD_BUTTON: 'Download',
 
   APPROVE_BUTTON: 'Approve',
   APPROVE_BUSY: 'Approving…',

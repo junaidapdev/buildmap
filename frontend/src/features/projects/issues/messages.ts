@@ -63,6 +63,7 @@ export const ISSUE_MESSAGES = {
   COPY_BUTTON_BUSY: 'Copying…',
   COPY_BUTTON_DONE: 'Copied!',
   COPY_BUTTON_ERROR: 'Copy failed',
+  DOWNLOAD_BUTTON: 'Download',
 
   REGENERATE_CONFIRM_TITLE: 'Regenerate this prompt?',
   REGENERATE_CONFIRM_BODY: 'This replaces the current prompt for this issue.',

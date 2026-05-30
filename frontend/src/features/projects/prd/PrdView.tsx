@@ -196,6 +196,7 @@ export function PrdView({ prd, projectId }: PrdViewProps) {
       </div>
 
       <PrdActions
+        content={prd.content}
         isApproving={approve.isPending}
         isFinal={prd.is_final}
         isRegenerating={generate.isPending}

@@ -80,10 +80,10 @@ export function ChunkDetailPage() {
           <TabsTrigger value="notes">{FEATURE_SPEC_MESSAGES.TAB_NOTES}</TabsTrigger>
         </TabsList>
         <TabsContent className="mt-6" value="spec">
-          <FeatureSpecTab chunkId={chunkId} />
+          <FeatureSpecTab chunk={chunk} chunkId={chunkId} />
         </TabsContent>
         <TabsContent className="mt-6" value="prompt">
-          <PromptTab chunkId={chunkId} onOpenSpec={() => setTab('spec')} />
+          <PromptTab chunk={chunk} chunkId={chunkId} onOpenSpec={() => setTab('spec')} />
         </TabsContent>
         <TabsContent className="mt-6" value="notes">
           <NotesTab />

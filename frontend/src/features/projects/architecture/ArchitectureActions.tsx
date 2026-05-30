@@ -1,4 +1,4 @@
-import { CheckCircle2, RefreshCw } from 'lucide-react';
+import { CheckCircle2, Download, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import {
@@ -16,9 +16,12 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/constants/routes';
 import { ARCHITECTURE_MESSAGES } from '@/features/projects/architecture/messages';
+import { useDownloadMarkdown } from '@/hooks/useDownloadMarkdown';
+import { FILENAMES } from '@/lib/filenames';
 
 type ArchitectureActionsProps = {
   projectId: string;
+  content: string;
   isFinal: boolean;
   onApprove: () => void;
   isApproving: boolean;
@@ -28,12 +31,16 @@ type ArchitectureActionsProps = {
 
 export function ArchitectureActions({
   projectId,
+  content,
   isFinal,
   onApprove,
   isApproving,
   onRegenerate,
   isRegenerating,
 }: ArchitectureActionsProps) {
+  const downloadMarkdown = useDownloadMarkdown();
+  const canDownload = content.trim().length > 0;
+
   return (
     <div className="space-y-4 border-t pt-6">
       {isFinal && (
@@ -79,9 +86,7 @@ export function ArchitectureActions({
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>
-                {ARCHITECTURE_MESSAGES.REGENERATE_CONFIRM_TITLE}
-              </AlertDialogTitle>
+              <AlertDialogTitle>{ARCHITECTURE_MESSAGES.REGENERATE_CONFIRM_TITLE}</AlertDialogTitle>
               <AlertDialogDescription>
                 {ARCHITECTURE_MESSAGES.REGENERATE_CONFIRM_BODY}
               </AlertDialogDescription>
@@ -96,6 +101,15 @@ export function ArchitectureActions({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <Button
+          disabled={!canDownload}
+          onClick={() => downloadMarkdown({ filename: FILENAMES.architecture(), content })}
+          variant="outline"
+        >
+          <Download aria-hidden="true" className="h-4 w-4" />
+          {ARCHITECTURE_MESSAGES.DOWNLOAD_BUTTON}
+        </Button>
       </div>
     </div>
   );

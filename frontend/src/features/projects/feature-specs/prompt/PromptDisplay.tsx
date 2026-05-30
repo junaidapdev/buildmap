@@ -1,4 +1,4 @@
-import { Copy, RefreshCw } from 'lucide-react';
+import { Copy, Download, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
@@ -14,20 +14,26 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import type { ChunkRow } from '@/features/projects/chunks/useChunks';
 import { AGENT_PROMPT_MESSAGES } from '@/features/projects/feature-specs/prompt/messages';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { useDownloadMarkdown } from '@/hooks/useDownloadMarkdown';
 import type { AgentPromptRow } from '@/features/projects/feature-specs/prompt/useAgentPromptsForChunk';
+import { FILENAMES } from '@/lib/filenames';
 import { formatRelativeTime } from '@/lib/relative-time';
 
 type PromptDisplayProps = {
   prompt: AgentPromptRow;
+  chunk: Pick<ChunkRow, 'ref' | 'title'>;
   onRegenerate: () => void;
   isRegenerating: boolean;
 };
 
-export function PromptDisplay({ prompt, onRegenerate, isRegenerating }: PromptDisplayProps) {
+export function PromptDisplay({ prompt, chunk, onRegenerate, isRegenerating }: PromptDisplayProps) {
   const clipboard = useCopyToClipboard();
+  const downloadMarkdown = useDownloadMarkdown();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const canDownload = prompt.content.trim().length > 0;
 
   function copyLabel(): string {
     switch (clipboard.state) {
@@ -68,6 +74,19 @@ export function PromptDisplay({ prompt, onRegenerate, isRegenerating }: PromptDi
             {copyLabel()}
           </Button>
           <Button
+            disabled={!canDownload || isRegenerating}
+            onClick={() =>
+              downloadMarkdown({
+                filename: FILENAMES.agentPrompt(chunk.ref, chunk.title, prompt.target_agent),
+                content: prompt.content,
+              })
+            }
+            variant="outline"
+          >
+            <Download aria-hidden="true" className="h-4 w-4" />
+            {AGENT_PROMPT_MESSAGES.DOWNLOAD_BUTTON}
+          </Button>
+          <Button
             aria-busy={isRegenerating}
             disabled={isRegenerating || clipboard.state === 'busy'}
             onClick={() => setConfirmOpen(true)}
@@ -94,9 +113,7 @@ export function PromptDisplay({ prompt, onRegenerate, isRegenerating }: PromptDi
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>
-              {AGENT_PROMPT_MESSAGES.REGENERATE_CONFIRM_CANCEL}
-            </AlertDialogCancel>
+            <AlertDialogCancel>{AGENT_PROMPT_MESSAGES.REGENERATE_CONFIRM_CANCEL}</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirm}>
               {AGENT_PROMPT_MESSAGES.REGENERATE_CONFIRM_CONFIRM}
             </AlertDialogAction>

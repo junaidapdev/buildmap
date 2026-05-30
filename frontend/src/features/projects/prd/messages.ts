@@ -23,6 +23,7 @@ export const PRD_MESSAGES = {
   REGENERATE_CONFIRM_CANCEL: 'Cancel',
   REGENERATE_HINT:
     'Edit or regenerate any section above, or regenerate the whole PRD. Either resets approval.',
+  DOWNLOAD_BUTTON: 'Download',
 
   APPROVE_BUTTON: 'Approve PRD',
   APPROVE_BUTTON_BUSY: 'Approving…',

@@ -1,4 +1,4 @@
-import { Copy, RefreshCw } from 'lucide-react';
+import { Copy, Download, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
@@ -17,8 +17,12 @@ import { Button } from '@/components/ui/button';
 import { ISSUE_MESSAGES } from '@/features/projects/issues/messages';
 import { formatRelativeTime } from '@/lib/relative-time';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { useDownloadMarkdown } from '@/hooks/useDownloadMarkdown';
+import { FILENAMES } from '@/lib/filenames';
 
 type IssuePromptDisplayProps = {
+  issueId: string;
+  issueTitle: string;
   content: string;
   version: number;
   updatedAt: string;
@@ -27,6 +31,8 @@ type IssuePromptDisplayProps = {
 };
 
 export function IssuePromptDisplay({
+  issueId,
+  issueTitle,
   content,
   version,
   updatedAt,
@@ -34,7 +40,9 @@ export function IssuePromptDisplay({
   isRegenerating,
 }: IssuePromptDisplayProps) {
   const clipboard = useCopyToClipboard();
+  const downloadMarkdown = useDownloadMarkdown();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const canDownload = content.trim().length > 0;
 
   function copyLabel(): string {
     switch (clipboard.state) {
@@ -75,15 +83,23 @@ export function IssuePromptDisplay({
             {copyLabel()}
           </Button>
           <Button
+            disabled={!canDownload || isRegenerating}
+            onClick={() =>
+              downloadMarkdown({ filename: FILENAMES.issue(issueTitle, issueId), content })
+            }
+            variant="outline"
+          >
+            <Download aria-hidden="true" className="h-4 w-4" />
+            {ISSUE_MESSAGES.DOWNLOAD_BUTTON}
+          </Button>
+          <Button
             aria-busy={isRegenerating}
             disabled={isRegenerating || clipboard.state === 'busy'}
             onClick={() => setConfirmOpen(true)}
             variant="outline"
           >
             <RefreshCw aria-hidden="true" className="h-4 w-4" />
-            {isRegenerating
-              ? ISSUE_MESSAGES.PROMPT_BUSY
-              : ISSUE_MESSAGES.REGENERATE_PROMPT_BUTTON}
+            {isRegenerating ? ISSUE_MESSAGES.PROMPT_BUSY : ISSUE_MESSAGES.REGENERATE_PROMPT_BUTTON}
           </Button>
         </div>
       </div>

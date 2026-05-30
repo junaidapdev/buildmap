@@ -24,6 +24,7 @@ export const AGENT_PROMPT_MESSAGES = {
   COPY_BUTTON_BUSY: 'Copying…',
   COPY_BUTTON_DONE: 'Copied!',
   COPY_BUTTON_ERROR: 'Copy failed',
+  DOWNLOAD_BUTTON: 'Download',
 
   REGENERATE_BUTTON: 'Regenerate',
   REGENERATE_BUSY: 'Regenerating…',

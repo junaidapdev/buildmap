@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 
 import type { TargetAgent } from '@shared/schemas/agent-prompt';
+import type { ChunkRow } from '@/features/projects/chunks/useChunks';
 import { useExistingFeatureSpec } from '@/features/projects/feature-specs/useExistingFeatureSpec';
 import { AgentTargetSelector } from '@/features/projects/feature-specs/prompt/AgentTargetSelector';
 import { PromptDisplay } from '@/features/projects/feature-specs/prompt/PromptDisplay';
@@ -12,6 +13,7 @@ import { useAgentPromptsForChunk } from '@/features/projects/feature-specs/promp
 import { useGenerateAgentPrompt } from '@/features/projects/feature-specs/prompt/useGenerateAgentPrompt';
 
 type PromptTabContentProps = {
+  chunk: Pick<ChunkRow, 'ref' | 'title'>;
   chunkId: string;
   onOpenSpec: () => void;
 };
@@ -24,7 +26,7 @@ type PromptTabContentProps = {
  * Then, with a spec in hand: target selector + per-target Display / Empty / Pending depending on
  * whether a row exists for the active target and whether a generation is in flight against it.
  */
-export function PromptTabContent({ chunkId, onOpenSpec }: PromptTabContentProps) {
+export function PromptTabContent({ chunk, chunkId, onOpenSpec }: PromptTabContentProps) {
   const specQuery = useExistingFeatureSpec(chunkId);
   const promptsQuery = useAgentPromptsForChunk(chunkId);
   const generate = useGenerateAgentPrompt(chunkId);
@@ -54,6 +56,7 @@ export function PromptTabContent({ chunkId, onOpenSpec }: PromptTabContentProps)
     } else if (currentPrompt) {
       inner = (
         <PromptDisplay
+          chunk={chunk}
           isRegenerating={generate.isPending}
           onRegenerate={() => generate.mutate({ targetAgent: target })}
           prompt={currentPrompt}
