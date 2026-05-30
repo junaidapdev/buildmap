@@ -44,9 +44,11 @@ export interface GenerationResult<T = unknown> {
 
 export class AiProviderError extends Error {
   constructor(
-    readonly provider: Provider,
-    readonly status: number,
     message: string,
+    public readonly provider: string,
+    public readonly model: string,
+    public readonly status?: number,
+    public readonly latencyMs?: number,
   ) {
     super(message);
     this.name = 'AiProviderError';
@@ -54,8 +56,13 @@ export class AiProviderError extends Error {
 }
 
 export class AiInvalidOutputError extends Error {
-  constructor() {
-    super('The AI provider output did not match the expected JSON schema.');
+  constructor(
+    message: string = 'The AI provider output did not match the expected JSON schema.',
+    public readonly provider?: string,
+    public readonly model?: string,
+    public readonly latencyMs?: number,
+  ) {
+    super(message);
     this.name = 'AiInvalidOutputError';
   }
 }
