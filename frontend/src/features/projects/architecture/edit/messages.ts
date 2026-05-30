@@ -45,4 +45,12 @@ export const ARCHITECTURE_EDIT_MESSAGES = {
 
   SAVE_FAILED: 'We could not save your changes. Try again.',
   REGENERATE_FAILED: 'We could not regenerate this section. Try again.',
+  VALIDATION_HEADING: 'Fix this before saving:',
+  VALIDATION_ITEM: (n: number) => `Item ${n}`,
+  VALIDATION_ITEM_FIELD: (n: number, field: string) => `Item ${n} (${field})`,
+  VALIDATION_ITEM_NESTED: (n: number, field: string, m: number) => `Item ${n} (${field} ${m})`,
+  VALIDATION_TOO_SHORT: (min: number) => `must be at least ${min} characters.`,
+  VALIDATION_TOO_LONG: (max: number) => `must be at most ${max} characters.`,
+  VALIDATION_NEED_AT_LEAST: (min: number) => `needs at least ${min} item${min === 1 ? '' : 's'}.`,
+  VALIDATION_INVALID: 'has an invalid value.',
 } as const;
