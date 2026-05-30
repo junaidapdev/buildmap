@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArchitectureSection } from '@/features/projects/architecture/ArchitectureSection';
 import { ARCHITECTURE_EDIT_MESSAGES } from '@/features/projects/architecture/edit/messages';
+import { getArchitectureSectionIssues } from '@/features/projects/architecture/edit/section-validation';
 import { useRegenerateArchitectureSection } from '@/features/projects/architecture/edit/useRegenerateArchitectureSection';
 import { useSaveArchitectureSection } from '@/features/projects/architecture/edit/useSaveArchitectureSection';
 
@@ -55,6 +56,13 @@ export function ArchitectureSectionEditor<K extends ArchitectureSectionKey>({
 
   const isDirty = mode === 'edit' && JSON.stringify(draft) !== JSON.stringify(value);
 
+  // Validate the edited section before allowing Save, so an empty/too-short field is caught inline
+  // with a field-level message instead of failing opaquely on save (architecture_save_invalid_local).
+  const sectionIssues = mode === 'edit'
+    ? getArchitectureSectionIssues(stitch(draft), sectionKey, label)
+    : [];
+  const sectionInvalid = sectionIssues.length > 0;
+
   useEffect(() => {
     onDirtyChange(sectionKey, isDirty);
   }, [isDirty, onDirtyChange, sectionKey]);
@@ -70,6 +78,9 @@ export function ArchitectureSectionEditor<K extends ArchitectureSectionKey>({
   }
 
   async function handleSave(): Promise<void> {
+    if (sectionInvalid) {
+      return;
+    }
     const nextContent = stitch(draft);
     try {
       await save.mutateAsync(nextContent);
@@ -155,6 +166,16 @@ export function ArchitectureSectionEditor<K extends ArchitectureSectionKey>({
       ) : (
         <div className="space-y-3 rounded-md border bg-muted/20 p-4">
           {renderEditor(draft, setDraft)}
+          {sectionInvalid && (
+            <div className="space-y-1 text-sm text-destructive">
+              <p className="font-medium">{ARCHITECTURE_EDIT_MESSAGES.VALIDATION_HEADING}</p>
+              <ul className="list-disc space-y-0.5 pl-5">
+                {sectionIssues.map((message, index) => (
+                  <li key={index}>{message}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           {save.isError && (
             <p className="text-sm text-destructive">{ARCHITECTURE_EDIT_MESSAGES.SAVE_FAILED}</p>
           )}
@@ -164,7 +185,7 @@ export function ArchitectureSectionEditor<K extends ArchitectureSectionKey>({
             </Button>
             <Button
               aria-busy={save.isPending}
-              disabled={save.isPending}
+              disabled={save.isPending || sectionInvalid}
               onClick={handleSave}
               size="sm"
             >
