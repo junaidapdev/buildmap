@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/constants/routes';
 import { BRIEF_MESSAGES } from '@/features/projects/brief/messages';
 import { useDownloadMarkdown } from '@/hooks/useDownloadMarkdown';
-import { FILENAMES } from '@/lib/filenames';
+import { FILENAMES } from '@shared/export/filenames';
 
 type BriefActionsProps = {
   projectId: string;

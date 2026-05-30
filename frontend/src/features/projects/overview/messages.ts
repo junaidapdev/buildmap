@@ -56,10 +56,4 @@ export const OVERVIEW_MESSAGES = {
   DECISIONS_EMPTY_TITLE: 'No decisions logged',
   DECISIONS_EMPTY_BODY: 'Architectural and product decisions you make appear here as you work.',
   DECISIONS_OPEN_ALL_LINK: 'View architecture',
-
-  // Export panel
-  EXPORT_TITLE: 'Export',
-  EXPORT_BODY: 'Download all your project artifacts as a markdown pack.',
-  EXPORT_CTA: 'Open export',
-  EXPORT_PENDING_TOOLTIP: 'Available once export is ready',
 } as const;

@@ -1,7 +1,7 @@
 import { useProject } from '@/features/projects/layout/useProject';
 import { BriefStatusPanel } from '@/features/projects/overview/BriefStatusPanel';
 import { ChunksProgressPanel } from '@/features/projects/overview/ChunksProgressPanel';
-import { ExportShortcutPanel } from '@/features/projects/overview/ExportShortcutPanel';
+import { ExportProjectCard } from '@/features/projects/export/ExportProjectCard';
 import { NextActionPanel } from '@/features/projects/overview/NextActionPanel';
 import { OpenIssuesPanel } from '@/features/projects/overview/OpenIssuesPanel';
 import { ProjectSummaryPanel } from '@/features/projects/overview/ProjectSummaryPanel';
@@ -21,7 +21,7 @@ export function OverviewPage() {
         <OpenIssuesPanel projectId={project.id} />
         <RecentDecisionsPanel projectId={project.id} />
         <RecentLearningsPanel projectId={project.id} />
-        <ExportShortcutPanel />
+        <ExportProjectCard projectId={project.id} projectName={project.name} />
       </div>
     </div>
   );
