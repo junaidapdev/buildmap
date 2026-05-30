@@ -459,6 +459,21 @@ verify_jwt = false
 entrypoint = "../functions/generate-chunks/index.ts"
 import_map = "../functions/generate-chunks/deno.json"
 
+[functions.generate-feature-spec]
+verify_jwt = false
+entrypoint = "../functions/generate-feature-spec/index.ts"
+import_map = "../functions/generate-feature-spec/deno.json"
+
+[functions.regenerate-feature-spec-section]
+verify_jwt = false
+entrypoint = "../functions/regenerate-feature-spec-section/index.ts"
+import_map = "../functions/regenerate-feature-spec-section/deno.json"
+
+[functions.save-feature-spec-content]
+verify_jwt = false
+entrypoint = "../functions/save-feature-spec-content/index.ts"
+import_map = "../functions/save-feature-spec-content/deno.json"
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
