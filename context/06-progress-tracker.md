@@ -13,7 +13,11 @@ the workflow loop: `move_chunk` now advances `projects.status` forward atomicall
 is `completed`), the SPA surfaces those advancements inline on the board, and the new Progress page
 at `/projects/{id}/progress` shows live counts, per-status groups, recent activity, and a one-click
 "Sync to markdown" that rewrites the Progress Tracker context file from live state. Next is
-Phase 5, opening with Chunk 23 — the issue-to-spec converter.
+Phase 5 has now opened with Chunk 23 — the issue-to-spec converter. Each bug is persisted as a
+`project_issues` row with its own AI-generated corrective markdown prompt; an optional linked chunk
+enriches the prompt with the spec body. Issues are first-class but kept separate from the Kanban,
+chunks, specs, and the project status state machine. Next is Chunk 24 — knowledge ingestion: pasted
+transcripts and articles extracted into `project_learnings`.
 
 ## Completed Chunks
 
@@ -39,6 +43,8 @@ Phase 5, opening with Chunk 23 — the issue-to-spec converter.
 - [x] Chunk 19 — Chunk Board (Kanban)
 - [x] Chunk 20 — Feature Spec Generator
 - [x] Chunk 21 — Coding-Agent Prompt Generator
+- [x] Chunk 22 — Interactive Progress Tracker
+- [x] Chunk 23 — Issue-to-Spec Converter
 
 ## In Progress
 
@@ -46,7 +52,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 22 — Interactive Progress Tracker
+- [ ] Chunk 24 — Knowledge Ingestion
 
 ## Blocked
 
@@ -166,6 +172,54 @@ context files to be approved before recommending chunk generation.
 
 ## Notes for Next Agent
 
+- Issues are live (Chunk 23). The whole feature lives in
+  `frontend/src/features/projects/issues/`. The list page is at `/projects/{id}/issues` and a single
+  issue is at `/projects/{id}/issues/{issueId}`; the sidebar Issues entry activated this chunk. The
+  flow: the user opens the "New issue" dialog, writes title + multi-line description, picks a
+  severity (`low | medium | high`), optionally links a chunk from a Select listing the project's
+  chunks, and submits. `create_issue` (security invoker) inserts and returns `{id}`; the dialog then
+  navigates to the detail page with `{ autoGenerate: true }` in the router state, which fires
+  `generate-issue-prompt` exactly once via a chunk-id ref guard (no double-fire on a returning
+  visit). The detail page shows the original report in a muted box, the corrective prompt rendered
+  with `react-markdown` (no `rehype-raw` — same XSS-safe default), copy-to-clipboard and regenerate
+  buttons, and a single "Mark resolved" / "Reopen" toggle (`resolve_issue` procedure). Severity and
+  status are surfaced via dedicated badges.
+- Issues are NOT chunks. They live in their own `project_issues` table (Chunk 04 init schema,
+  realigned this chunk via `20260602100000_align_project_issues_for_issue_converter.sql`: added
+  `severity`, `version`, `resolved_at`; replaced the 4-status enum `open/investigating/fixed/wont_fix`
+  with the 2-status `open/resolved`). The Chunk 04 `corrective_prompt` and `chunk_id` columns were
+  kept as canonical names — the chunk spec called these `generated_prompt` and `related_chunk_id`,
+  but they are the same fields here. Issues do NOT enter the Kanban, the progress tracker, or the
+  project status state machine — Chunk 22's `move_chunk` is unaware of them by design.
+- Backend: three stored procedures (`create_issue`, `update_issue`, `resolve_issue`, all security
+  invoker with ownership via the project chain) and one Edge Function (`generate-issue-prompt`,
+  declared in `config.toml` with `verify_jwt = false` in the same commit). The Edge Function pulls
+  the issue, the project, the architecture, and (when linked) the chunk's title + spec body — feeds
+  them to `issue_prompt_generation` as the AI's three framing fields, then `assembleIssuePrompt`
+  (pure, in `_shared/markdown/issue-prompt-markdown.ts`) stitches the user's report verbatim around
+  the AI framing. The rendered markdown is written directly to `project_issues.corrective_prompt`
+  with a version bump — no procedure round-trip on the AI write path. The Edge Function returns the
+  FULL row so the SPA's strict `IssueRowSchema` defense-in-depth re-validation passes in one
+  round-trip (same shape as Chunk 21/22). The placeholder `issue_to_spec` slot in the
+  `GenerationType` union and `GENERATION_CONFIG` map was renamed to `issue_prompt_generation` in
+  place — the old name was a Chunk 09+ TODO, the new name is what the feature actually does.
+- The chunk spec's "Update Issue" procedure (`update_issue`) shipped but has NO frontend caller yet.
+  An edit form for an existing issue's title/description/severity/chunk is a future enhancement; the
+  procedure is in place so it doesn't need a separate migration when that lands. No new feature
+  artifact in this chunk depends on it.
+- `useCopyToClipboard` was lifted from
+  `features/projects/feature-specs/prompt/useCopyToClipboard.ts` to `@/hooks/useCopyToClipboard` so
+  both Chunk 21 (`PromptDisplay`) and Chunk 23 (`IssuePromptDisplay`) share one source of truth. The
+  old path was removed; any future feature that needs copy-to-clipboard imports from the new shared
+  location.
+- A new `components/ui/dialog.tsx` shadcn wrapper was added (radix dialog was already installed via
+  `sheet.tsx`). Distinct from `alert-dialog.tsx` — Dialog is for forms (NewIssueDialog), AlertDialog
+  stays for destructive/confirm steps. Future feature dialogs should use this Dialog rather than
+  abusing AlertDialog.
+- Phase 5 continues with Chunk 24 — knowledge ingestion. The `project_learnings` table from Chunk 04
+  is the target; the user pastes transcripts/articles and the AI extracts engineering lessons into
+  structured `extracted_insights`/`suggested_rules`/`suggested_chunks` columns that already exist.
+  Chunk 25/26 are export.
 - Phase 4 is complete. The project status state machine is fully wired (Chunk 22). `move_chunk`
   (now redefined in `20260601100000_move_chunk_advance_project_status.sql`, same signature as the
   Chunk 19 version) advances `projects.status` forward in the same transaction as the chunk update:

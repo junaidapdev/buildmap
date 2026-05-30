@@ -14,31 +14,38 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AGENT_PROMPT_MESSAGES } from '@/features/projects/feature-specs/prompt/messages';
-import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
-import type { AgentPromptRow } from '@/features/projects/feature-specs/prompt/useAgentPromptsForChunk';
+import { ISSUE_MESSAGES } from '@/features/projects/issues/messages';
 import { formatRelativeTime } from '@/lib/relative-time';
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
-type PromptDisplayProps = {
-  prompt: AgentPromptRow;
+type IssuePromptDisplayProps = {
+  content: string;
+  version: number;
+  updatedAt: string;
   onRegenerate: () => void;
   isRegenerating: boolean;
 };
 
-export function PromptDisplay({ prompt, onRegenerate, isRegenerating }: PromptDisplayProps) {
+export function IssuePromptDisplay({
+  content,
+  version,
+  updatedAt,
+  onRegenerate,
+  isRegenerating,
+}: IssuePromptDisplayProps) {
   const clipboard = useCopyToClipboard();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   function copyLabel(): string {
     switch (clipboard.state) {
       case 'busy':
-        return AGENT_PROMPT_MESSAGES.COPY_BUTTON_BUSY;
+        return ISSUE_MESSAGES.COPY_BUTTON_BUSY;
       case 'done':
-        return AGENT_PROMPT_MESSAGES.COPY_BUTTON_DONE;
+        return ISSUE_MESSAGES.COPY_BUTTON_DONE;
       case 'error':
-        return AGENT_PROMPT_MESSAGES.COPY_BUTTON_ERROR;
+        return ISSUE_MESSAGES.COPY_BUTTON_ERROR;
       default:
-        return AGENT_PROMPT_MESSAGES.COPY_BUTTON;
+        return ISSUE_MESSAGES.COPY_BUTTON;
     }
   }
 
@@ -51,17 +58,17 @@ export function PromptDisplay({ prompt, onRegenerate, isRegenerating }: PromptDi
     <article className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          <Badge variant="outline">{AGENT_PROMPT_MESSAGES.VERSION_LABEL(prompt.version)}</Badge>
+          <Badge variant="outline">{ISSUE_MESSAGES.VERSION_LABEL(version)}</Badge>
           <span className="text-xs text-muted-foreground">
-            {AGENT_PROMPT_MESSAGES.LAST_UPDATED_PREFIX}{' '}
-            {formatRelativeTime(prompt.updated_at, AGENT_PROMPT_MESSAGES.UPDATED_JUST_NOW)}
+            {ISSUE_MESSAGES.LAST_UPDATED_PREFIX}{' '}
+            {formatRelativeTime(updatedAt, ISSUE_MESSAGES.UPDATED_JUST_NOW)}
           </span>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button
             aria-busy={clipboard.state === 'busy'}
             disabled={clipboard.state === 'busy' || isRegenerating}
-            onClick={() => clipboard.copy(prompt.content)}
+            onClick={() => clipboard.copy(content)}
             variant="outline"
           >
             <Copy aria-hidden="true" className="h-4 w-4" />
@@ -75,30 +82,28 @@ export function PromptDisplay({ prompt, onRegenerate, isRegenerating }: PromptDi
           >
             <RefreshCw aria-hidden="true" className="h-4 w-4" />
             {isRegenerating
-              ? AGENT_PROMPT_MESSAGES.REGENERATE_BUSY
-              : AGENT_PROMPT_MESSAGES.REGENERATE_BUTTON}
+              ? ISSUE_MESSAGES.PROMPT_BUSY
+              : ISSUE_MESSAGES.REGENERATE_PROMPT_BUTTON}
           </Button>
         </div>
       </div>
 
       <div className="prose prose-sm max-w-none dark:prose-invert">
-        <ReactMarkdown>{prompt.content}</ReactMarkdown>
+        <ReactMarkdown>{content}</ReactMarkdown>
       </div>
 
       <AlertDialog onOpenChange={setConfirmOpen} open={confirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{AGENT_PROMPT_MESSAGES.REGENERATE_CONFIRM_TITLE}</AlertDialogTitle>
+            <AlertDialogTitle>{ISSUE_MESSAGES.REGENERATE_CONFIRM_TITLE}</AlertDialogTitle>
             <AlertDialogDescription>
-              {AGENT_PROMPT_MESSAGES.REGENERATE_CONFIRM_BODY}
+              {ISSUE_MESSAGES.REGENERATE_CONFIRM_BODY}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>
-              {AGENT_PROMPT_MESSAGES.REGENERATE_CONFIRM_CANCEL}
-            </AlertDialogCancel>
+            <AlertDialogCancel>{ISSUE_MESSAGES.REGENERATE_CONFIRM_CANCEL}</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirm}>
-              {AGENT_PROMPT_MESSAGES.REGENERATE_CONFIRM_CONFIRM}
+              {ISSUE_MESSAGES.REGENERATE_CONFIRM_CONFIRM}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -75,7 +75,6 @@ export const PROJECT_NAV: readonly NavItem[] = [
     label: 'Issues',
     icon: AlertOctagon,
     to: ROUTES.PROJECT_ISSUES,
-    pendingChunk: 23,
   },
   {
     id: 'knowledge',
