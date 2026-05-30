@@ -11,7 +11,7 @@ export type GenerationType =
   | 'feature_spec_generation'
   | 'feature_spec_section_regeneration'
   | 'agent_prompt_generation'
-  | 'issue_to_spec'
+  | 'issue_prompt_generation'
   | 'knowledge_extraction';
 
 export type Provider = 'openai' | 'anthropic';

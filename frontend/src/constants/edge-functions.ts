@@ -14,4 +14,5 @@ export const EDGE_FUNCTIONS = {
   REGENERATE_FEATURE_SPEC_SECTION: 'regenerate-feature-spec-section',
   SAVE_FEATURE_SPEC_CONTENT: 'save-feature-spec-content',
   GENERATE_AGENT_PROMPT: 'generate-agent-prompt',
+  GENERATE_ISSUE_PROMPT: 'generate-issue-prompt',
 } as const;
