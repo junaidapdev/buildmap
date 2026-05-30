@@ -83,4 +83,11 @@ export const CHUNKS_MESSAGES = {
   CARD_DRAG_HANDLE_LABEL: 'Drag to reorder',
 
   MOVE_FAILED: 'Could not move chunk. Reverting.',
+
+  // Inline alert shown when a chunk move advances the project's status (Chunk 22).
+  ADVANCE_BUILDING_TITLE: 'Building started',
+  ADVANCE_BUILDING_BODY: 'This project moved from "Ready to build" to "Building".',
+  ADVANCE_COMPLETED_TITLE: 'Project complete',
+  ADVANCE_COMPLETED_BODY: 'All chunks are done — this project moved to "Completed".',
+  ADVANCE_DISMISS_LABEL: 'Dismiss',
 } as const;

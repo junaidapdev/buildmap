@@ -11,10 +11,11 @@ import {
 } from '@dnd-kit/core';
 import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { GripVertical } from 'lucide-react';
+import { CheckCircle2, GripVertical, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { ChunkCardCompact } from '@/features/projects/chunks/board/ChunkCardCompact';
 import { ChunkColumn } from '@/features/projects/chunks/board/ChunkColumn';
 import {
@@ -119,6 +120,33 @@ export function ChunkBoard({ projectId, chunks }: ChunkBoardProps) {
       {move.isError && (
         <Alert variant="destructive">
           <AlertDescription>{CHUNKS_MESSAGES.MOVE_FAILED}</AlertDescription>
+        </Alert>
+      )}
+
+      {move.lastAdvancement !== null && (
+        <Alert className="flex items-start gap-3">
+          <CheckCircle2 aria-hidden="true" className="h-4 w-4" />
+          <div className="flex-1">
+            <AlertTitle>
+              {move.lastAdvancement === 'building'
+                ? CHUNKS_MESSAGES.ADVANCE_BUILDING_TITLE
+                : CHUNKS_MESSAGES.ADVANCE_COMPLETED_TITLE}
+            </AlertTitle>
+            <AlertDescription>
+              {move.lastAdvancement === 'building'
+                ? CHUNKS_MESSAGES.ADVANCE_BUILDING_BODY
+                : CHUNKS_MESSAGES.ADVANCE_COMPLETED_BODY}
+            </AlertDescription>
+          </div>
+          <Button
+            aria-label={CHUNKS_MESSAGES.ADVANCE_DISMISS_LABEL}
+            className="-mr-2 h-7 w-7"
+            onClick={move.dismissAdvancement}
+            size="icon"
+            variant="ghost"
+          >
+            <X aria-hidden="true" className="h-4 w-4" />
+          </Button>
         </Alert>
       )}
 
