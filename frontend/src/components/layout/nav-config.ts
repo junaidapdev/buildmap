@@ -28,13 +28,7 @@ export type NavItem = {
 
 export const GLOBAL_NAV: readonly NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, to: ROUTES.DASHBOARD },
-  {
-    id: 'user-settings',
-    label: 'Settings',
-    icon: Settings,
-    to: ROUTES.USER_SETTINGS,
-    pendingChunk: 29,
-  },
+  { id: 'user-settings', label: 'Settings', icon: Settings, to: ROUTES.USER_SETTINGS },
 ] as const;
 
 export const PROJECT_NAV: readonly NavItem[] = [

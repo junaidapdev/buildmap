@@ -1,5 +1,5 @@
 import { LogOut, Settings } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ROUTES } from '@/constants/routes';
 import { useAuth } from '@/features/auth/useAuth';
 
@@ -22,8 +21,8 @@ export function UserMenu() {
   const avatarFallback = user?.email?.charAt(0).toUpperCase() ?? '?';
 
   async function handleSignOut(): Promise<void> {
-    navigate(ROUTES.HOME, { replace: true });
     await signOut();
+    navigate(ROUTES.SIGN_IN, { replace: true });
   }
 
   return (
@@ -46,19 +45,12 @@ export function UserMenu() {
           <p className="truncate text-sm text-muted-foreground">{email}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <DropdownMenuItem
-              aria-disabled="true"
-              className="cursor-not-allowed text-muted-foreground"
-              onSelect={(event) => event.preventDefault()}
-            >
-              <Settings aria-hidden="true" />
-              Settings
-            </DropdownMenuItem>
-          </TooltipTrigger>
-          <TooltipContent side="left">Available in Chunk 29</TooltipContent>
-        </Tooltip>
+        <DropdownMenuItem asChild>
+          <Link to={ROUTES.USER_SETTINGS}>
+            <Settings aria-hidden="true" />
+            Settings
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => void handleSignOut()}>
           <LogOut aria-hidden="true" />
