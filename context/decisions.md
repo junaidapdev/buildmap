@@ -1530,3 +1530,100 @@ Rules:
 Expected JSON shape (illustrative and abbreviated):
 {"role_intro":"You are working on Acme...","how_to_work":"- Read AGENTS.md...","philosophy":"Acme favors small, composable...","agent_specific_notes":"- Use Claude Code's Task tool..."}
 ```
+
+## 2026-06-01 - Progress Tracker: Status Advancement in move_chunk, Inline Notification, One-Way Markdown Sync
+
+Chunk 22 closes Phase 4. It wires chunk-status transitions to project status advancement, ships the
+Progress page that visualizes momentum, and adds a one-click "Sync to markdown" that rewrites the
+`progress_tracker` context file from live chunk state. The whole frontend feature lives in
+`frontend/src/features/projects/progress/`.
+
+**Status advancement lives inside `move_chunk`, not in a separate procedure.** Chunk 19 deliberately
+deferred the advancement logic to Chunk 22. The new migration
+(`20260601100000_move_chunk_advance_project_status.sql`) redefines `move_chunk` with the same
+signature so callers don't change. The advancement runs in the same transaction as the chunk update,
+so the move and the project-status change are atomic: a partial state (chunk advanced but project
+status stale, or vice versa) is impossible. Adding a second procedure would have required either a
+client-orchestrated two-step call (non-atomic) or a server-side transaction wrapping both — the
+in-procedure approach is cleaner.
+
+**Forward-only project status.** Two rules fire, both forward-only:
+1. `ready_to_build` → `building` when the post-move state has any chunk at `in_progress`.
+2. `building` → `completed` when the post-move state has at least one chunk AND every chunk is
+   `completed`.
+
+Reopening a `completed` chunk does NOT reverse the project from `completed` to `building` (or from
+`building` to `ready_to_build` when the last `in_progress` chunk moves back to `backlog`). Rationale:
+avoid status thrashing — a user reopening chunks late in the cycle almost always wants the project
+state to remain `completed` until they explicitly say otherwise. Reversal is a future settings
+action; deliberately out of scope here.
+
+**`paused` is manual-only — no chunk transition lands there.** Same rationale: this status is a
+project-level escape hatch the user toggles deliberately. Chunk-derived transitions only ever advance
+toward `completed`.
+
+**Status whitelist is the canonical six, not the chunk spec's four.** Same reconciliation as Chunk 19
+(the 6 statuses `backlog`/`ready`/`in_progress`/`needs_review`/`completed`/`blocked` win over the
+spec's 4-status `backlog`/`in_progress`/`done`/`blocked`). The procedure's whitelist mirrors the
+table CHECK constraint exactly, and `done` becomes `completed` everywhere — in the SQL, in the
+markdown renderer's labels, and in the SPA's `STATUS_SECTION_LABELS`.
+
+**SPA predicts the advancement locally for instant feedback.** A pure helper
+(`predictProjectStatusAdvance`) mirrors the SQL rules. `useMoveChunk` captures the pre-move project
+status from the React Query cache in `onMutate`, predicts what the server is about to do, and stores
+the prediction in mutation context. On successful confirmation, the hook flips a local `useState`
+that `<ChunkBoard>` reads to render an inline dismissible `<Alert>` with auto-dismiss after 6
+seconds. No toast library was added — the inline `<Alert>` pattern matches the existing
+`STATUS_ADVANCED` banner from Chunk 18 (`ChunksPage`), so the visual language stays consistent. The
+hook also now invalidates `projectQueryKey(projectId)` and `projectsQueryKey` so the status badge
+updates on every surface (overview, dashboard cards, Progress page).
+
+**Markdown sync is one-way: structured → markdown, via the existing context-files procedure.** The
+Progress page's "Sync to markdown" button calls a new mutation that renders the markdown locally via
+`renderProgressTrackerMarkdown` (pure, in `backend/_shared/markdown/progress-tracker-markdown.ts` so
+the renderer can be shared with a future server-side sync if needed), then persists it through the
+existing `update_context_file_content` stored procedure with `p_type = 'progress_tracker'`. No new
+Edge Function. The user can still edit the markdown manually via Chunk 17's editor, but Sync
+overwrites those edits — the confirm dialog warns about this explicitly. After a successful sync,
+the procedure bumps `version` and resets `is_final`, same as any other content update.
+
+**Progress page reads existing queries — no new tables, no new server code.** Built entirely on
+`useProject()` (the layout context) and `useChunks(projectId)` (the existing direct-supabase query).
+Per-status sections, an overview card with seven stat blocks, a recent-activity timeline (the 10
+most recently updated chunks), and the sync button.
+
+**Recent activity is approximated from `updated_at`, not a transitions table.** The spec called this
+out: without a dedicated transitions log (out of scope), a chunk that was renamed without a status
+change still appears in the timeline. Acceptable MVP trade-off; a real history log is a Phase 5+
+follow-up if it ever becomes necessary.
+
+**Sidebar nav entry was added, not "uncommented".** The chunk spec said "Remove `pendingChunk` from
+the `progress` entry in `nav-config.ts`," but no such entry existed — Chunk 11 never added one. The
+fix was to add the entry from scratch with the `Activity` Lucide icon, placed right after Chunks in
+the project nav.
+
+**Recommendation engine was not modified.** The chunk spec asked to add post-chunks-generation
+clauses for `ready_to_build` / `building` / `completed`. The existing engine
+(`recommend-next-action.ts`) already covers these via its `first_chunk` / `continue` / `done`
+clauses, and pointing the `done` clause at `/projects/{id}/export` (the spec's suggestion) would
+have produced dead UX since export 404s until Chunk 26. Deliberately left as a follow-up.
+
+**Reason:** The project-status state machine has been gradually filled in chunk by chunk (brief
+approval, chunk generation); closing it here makes Phase 4 a self-contained, complete unit and lets
+Phase 5 (issues, knowledge, export) build on a stable state machine. Atomic in-procedure advancement
+prevents the kind of subtle UI drift that two-step orchestrations cause. Inline notification via
+React Query cache and local state avoids the dependency / accessibility surface a toast library
+would add.
+
+**Alternatives considered:** A separate `advance_project_status` procedure called after `move_chunk`
+(rejected — non-atomic, two round-trips, drift risk); reversing the project status when chunks go
+backward (rejected — status thrashing, see decision body); adding sonner / radix toast for the
+advancement (rejected — extra dependency for one signal we already render inline elsewhere); a
+dedicated `chunk_transitions` history table (rejected — out of scope; the `updated_at`-based recent
+activity is good enough for MVP); pointing the `done` recommendation at `/export` (rejected — 404
+until Chunk 26).
+
+**Reversibility:** High on the frontend (the progress feature is additive; the `useMoveChunk`
+extension is backward-compatible via `Object.assign(mutation, …)`). Medium on the backend: the
+`move_chunk` redefinition is a forward migration; reverting requires re-applying the Chunk 19
+version, which is in the git history. No new tables means no schema rollback to worry about.

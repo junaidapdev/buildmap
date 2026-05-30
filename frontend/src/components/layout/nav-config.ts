@@ -1,4 +1,5 @@
 import {
+  Activity,
   AlertOctagon,
   ArrowLeft,
   BookOpen,
@@ -62,6 +63,12 @@ export const PROJECT_NAV: readonly NavItem[] = [
     label: 'Chunks',
     icon: KanbanSquare,
     to: ROUTES.PROJECT_CHUNKS,
+  },
+  {
+    id: 'progress',
+    label: 'Progress',
+    icon: Activity,
+    to: ROUTES.PROJECT_PROGRESS,
   },
   {
     id: 'issues',

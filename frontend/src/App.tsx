@@ -21,6 +21,7 @@ import { ArchitecturePage } from '@/features/projects/architecture/ArchitectureP
 import { ChunksPage } from '@/features/projects/chunks/ChunksPage';
 import { ContextFilesPage } from '@/features/projects/context-files/ContextFilesPage';
 import { ChunkDetailPage } from '@/features/projects/feature-specs/ChunkDetailPage';
+import { ProgressPage } from '@/features/projects/progress/ProgressPage';
 import { ProjectLayout } from '@/features/projects/layout/ProjectLayout';
 import { NewProjectPage } from '@/features/projects/new/NewProjectPage';
 import { OverviewPage } from '@/features/projects/overview/OverviewPage';
@@ -125,6 +126,7 @@ function AppRoutes() {
         <Route path={PROJECT_SUBROUTES.CONTEXT} element={<ContextFilesPage />} />
         <Route path={PROJECT_SUBROUTES.CHUNKS} element={<ChunksPage />} />
         <Route path={PROJECT_SUBROUTES.CHUNK_DETAIL} element={<ChunkDetailPage />} />
+        <Route path={PROJECT_SUBROUTES.PROGRESS} element={<ProgressPage />} />
         <Route path={PROJECT_SUBROUTES.CLARIFY} element={<ClarifyPage />} />
         <Route path="*" element={<NotFoundPage variant="signedIn" />} />
       </Route>

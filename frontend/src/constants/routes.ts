@@ -16,6 +16,7 @@ export const ROUTES = {
   PROJECT_CONTEXT: (id: string) => `/projects/${id}/context`,
   PROJECT_CHUNKS: (id: string) => `/projects/${id}/chunks`,
   PROJECT_CHUNK: (id: string, chunkId: string) => `/projects/${id}/chunks/${chunkId}`,
+  PROJECT_PROGRESS: (id: string) => `/projects/${id}/progress`,
   PROJECT_ISSUES: (id: string) => `/projects/${id}/issues`,
   PROJECT_KNOWLEDGE: (id: string) => `/projects/${id}/knowledge`,
   PROJECT_EXPORT: (id: string) => `/projects/${id}/export`,
@@ -32,5 +33,6 @@ export const PROJECT_SUBROUTES = {
   CONTEXT: 'context',
   CHUNKS: 'chunks',
   CHUNK_DETAIL: 'chunks/:chunkId',
+  PROGRESS: 'progress',
   CLARIFY: 'clarify',
 } as const;

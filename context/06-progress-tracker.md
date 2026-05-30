@@ -2,18 +2,18 @@
 
 ## Current Phase
 
-Phase 4 — Build (In Progress). Phases 1–3 complete. The chunk generator (Chunk 18) slices the approved
+Phase 4 — Build (complete). Phases 1–3 complete. The chunk generator (Chunk 18) slices the approved
 PRD + architecture into shippable chunks and advances the project from `planning` to `ready_to_build`
-on first generation. The chunk board (Chunk 19) now visualizes those chunks as a drag-and-drop Kanban
-with a column per status and persists moves via the `move_chunk` stored procedure. Next is Chunk 20 —
-Feature Specs (one detailed implementation spec per chunk), reached from each card's "Open" link. Those specs are now live (Chunk 20): every chunk has a
-structured seven-section feature spec, generated on first visit to its detail page and editable
-per section. Chunk 21 closed the artifact loop: every spec wraps into an agent-ready prompt (Claude Code, Cursor,
-or generic) via `generate-agent-prompt`, stored per (chunk_id, target_agent) in the new
-`coding_agent_prompts` table. The chunk detail page's Prompt tab is live — generate, copy, regenerate,
-switch targets. Next is Chunk 22 — the interactive progress tracker, which closes the workflow loop
-by making chunk-status transitions advance the project (`ready_to_build` -> `building` -> `completed`)
-and syncs progress into the Progress Tracker context file.
+on first generation. The chunk board (Chunk 19) visualizes those chunks as a drag-and-drop Kanban
+with a column per status and persists moves via the `move_chunk` stored procedure. Feature specs
+(Chunk 20) and per-target agent prompts (Chunk 21) close the artifact loop: every chunk has a
+seven-section spec and copy-pasteable prompts for Claude Code / Cursor / Generic. Chunk 22 closes
+the workflow loop: `move_chunk` now advances `projects.status` forward atomically
+(`ready_to_build` → `building` on the first `in_progress`; `building` → `completed` when every chunk
+is `completed`), the SPA surfaces those advancements inline on the board, and the new Progress page
+at `/projects/{id}/progress` shows live counts, per-status groups, recent activity, and a one-click
+"Sync to markdown" that rewrites the Progress Tracker context file from live state. Next is
+Phase 5, opening with Chunk 23 — the issue-to-spec converter.
 
 ## Completed Chunks
 
@@ -166,6 +166,30 @@ context files to be approved before recommending chunk generation.
 
 ## Notes for Next Agent
 
+- Phase 4 is complete. The project status state machine is fully wired (Chunk 22). `move_chunk`
+  (now redefined in `20260601100000_move_chunk_advance_project_status.sql`, same signature as the
+  Chunk 19 version) advances `projects.status` forward in the same transaction as the chunk update:
+  `ready_to_build` → `building` when any chunk reaches `in_progress`; `building` → `completed` when
+  every chunk is `completed`. Forward-only — reopening a `completed` chunk does NOT reverse the
+  project's status (that would require a manual settings action, out of scope). `paused` is
+  manual-only; no chunk transition lands there. The SPA mirrors the rules in
+  `predictProjectStatusAdvance` (pure helper at
+  `frontend/src/features/projects/chunks/board/predictProjectStatusAdvance.ts`); `useMoveChunk`
+  captures the pre-move project status from the React Query cache in `onMutate`, predicts the
+  advancement locally, then surfaces it as a dismissible inline `<Alert>` on `<ChunkBoard>` after the
+  server confirms (auto-dismiss after 6s; no toast library was added). `useMoveChunk` also
+  invalidates `projectQueryKey(projectId)` and `projectsQueryKey` so the status badge on every
+  surface updates. The whole progress feature lives in `frontend/src/features/projects/progress/`,
+  with a new page at `/projects/{id}/progress` (sidebar item live; the `Progress` nav entry was
+  added — the chunk spec wrongly described it as pre-existing). "Sync to markdown" rewrites the
+  `progress_tracker` context-file row via the EXISTING `update_context_file_content` stored
+  procedure (Chunk 17); no new Edge Function. Markdown is rendered deterministically by
+  `renderProgressTrackerMarkdown` in `backend/_shared/markdown/progress-tracker-markdown.ts` (pure).
+  The sync is one-way: the user can still edit the markdown manually via Chunk 17's editor, but Sync
+  overwrites those edits — the confirm dialog warns about this. The recommendation engine in
+  `recommend-next-action.ts` was NOT modified — its existing `first_chunk` / `continue` / `done`
+  clauses already cover the Phase 4 cases the chunk spec asked for; pointing `done` at the not-yet-
+  built export route would have produced dead UX.
 - Coding-agent prompts are generated, copyable, and regeneratable per target (Chunk 21). The chunk
   detail page's Prompt tab is now live; the tab state in `ChunkDetailPage` was lifted from
   uncontrolled (`defaultValue="spec"`) to controlled (`value`/`onValueChange`) so the Prompt tab's
