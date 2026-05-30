@@ -23,6 +23,7 @@ import { ContextFilesPage } from '@/features/projects/context-files/ContextFiles
 import { ChunkDetailPage } from '@/features/projects/feature-specs/ChunkDetailPage';
 import { IssueDetailPage } from '@/features/projects/issues/IssueDetailPage';
 import { IssuesListPage } from '@/features/projects/issues/IssuesListPage';
+import { KnowledgePage } from '@/features/projects/knowledge/KnowledgePage';
 import { ProgressPage } from '@/features/projects/progress/ProgressPage';
 import { ProjectLayout } from '@/features/projects/layout/ProjectLayout';
 import { NewProjectPage } from '@/features/projects/new/NewProjectPage';
@@ -131,6 +132,7 @@ function AppRoutes() {
         <Route path={PROJECT_SUBROUTES.PROGRESS} element={<ProgressPage />} />
         <Route path={PROJECT_SUBROUTES.ISSUES} element={<IssuesListPage />} />
         <Route path={PROJECT_SUBROUTES.ISSUE_DETAIL} element={<IssueDetailPage />} />
+        <Route path={PROJECT_SUBROUTES.KNOWLEDGE} element={<KnowledgePage />} />
         <Route path={PROJECT_SUBROUTES.CLARIFY} element={<ClarifyPage />} />
         <Route path="*" element={<NotFoundPage variant="signedIn" />} />
       </Route>

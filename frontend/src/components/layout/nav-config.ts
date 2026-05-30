@@ -81,7 +81,6 @@ export const PROJECT_NAV: readonly NavItem[] = [
     label: 'Knowledge',
     icon: BookOpen,
     to: ROUTES.PROJECT_KNOWLEDGE,
-    pendingChunk: 24,
   },
   {
     id: 'export',

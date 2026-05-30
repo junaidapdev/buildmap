@@ -37,5 +37,6 @@ export const PROJECT_SUBROUTES = {
   PROGRESS: 'progress',
   ISSUES: 'issues',
   ISSUE_DETAIL: 'issues/:issueId',
+  KNOWLEDGE: 'knowledge',
   CLARIFY: 'clarify',
 } as const;
