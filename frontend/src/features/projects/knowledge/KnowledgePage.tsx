@@ -87,7 +87,7 @@ export function KnowledgePage() {
     <div className="mx-auto max-w-4xl space-y-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">{KNOWLEDGE_MESSAGES.PAGE_TITLE}</h1>
+          <h1 className="text-[28px] font-semibold leading-[1.1] tracking-tight">{KNOWLEDGE_MESSAGES.PAGE_TITLE}</h1>
           <p className="mt-2 text-muted-foreground">{KNOWLEDGE_MESSAGES.PAGE_SUBTITLE}</p>
         </div>
         <Button onClick={() => setDialogOpen(true)}>{KNOWLEDGE_MESSAGES.ADD_NOTES_BUTTON}</Button>

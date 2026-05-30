@@ -88,9 +88,14 @@ export function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 py-8">
-      <header>
-        <h1 className="text-2xl font-semibold">{SETTINGS_MESSAGES.PAGE_TITLE}</h1>
-        <p className="mt-1 text-muted-foreground">{SETTINGS_MESSAGES.PAGE_SUBTITLE}</p>
+      <header className="border-b border-border-subtle pb-7">
+        <p className="page-eyebrow">ACCOUNT</p>
+        <h1 className="text-[28px] font-semibold leading-[1.1] tracking-tight">
+          {SETTINGS_MESSAGES.PAGE_TITLE}
+        </h1>
+        <p className="mt-2 max-w-2xl text-[14px] text-muted-foreground">
+          {SETTINGS_MESSAGES.PAGE_SUBTITLE}
+        </p>
       </header>
 
       <SettingsForm key={profile.updated_at} profile={profile} />

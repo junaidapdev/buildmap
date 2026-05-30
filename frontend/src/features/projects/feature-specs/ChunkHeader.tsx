@@ -48,7 +48,7 @@ export function ChunkHeader({ chunk, projectId }: ChunkHeaderProps) {
   return (
     <header className="space-y-3">
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-semibold">{chunk.title}</h1>
+        <h1 className="text-[28px] font-semibold leading-[1.1] tracking-tight">{chunk.title}</h1>
         <Badge variant={STATUS_BADGE_VARIANT[chunk.status]}>
           {CHUNKS_MESSAGES.STATUS_LABELS[chunk.status]}
         </Badge>
