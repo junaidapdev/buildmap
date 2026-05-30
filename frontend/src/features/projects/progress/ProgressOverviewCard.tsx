@@ -20,7 +20,7 @@ type StatProps = {
 function Stat({ label, value }: StatProps) {
   return (
     <div className="rounded-md border bg-muted/30 px-3 py-2">
-      <div className="text-2xl font-semibold">{value}</div>
+      <div className="text-[28px] font-semibold leading-[1.1] tracking-tight">{value}</div>
       <div className="text-xs text-muted-foreground">{label}</div>
     </div>
   );

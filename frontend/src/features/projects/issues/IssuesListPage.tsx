@@ -40,7 +40,7 @@ export function IssuesListPage() {
     <div className="mx-auto max-w-4xl">
       <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">{ISSUE_MESSAGES.PAGE_TITLE}</h1>
+          <h1 className="text-[28px] font-semibold leading-[1.1] tracking-tight">{ISSUE_MESSAGES.PAGE_TITLE}</h1>
           <p className="mt-2 text-muted-foreground">{ISSUE_MESSAGES.PAGE_SUBTITLE}</p>
         </div>
         <Button onClick={() => setDialogOpen(true)}>{ISSUE_MESSAGES.NEW_ISSUE_BUTTON}</Button>

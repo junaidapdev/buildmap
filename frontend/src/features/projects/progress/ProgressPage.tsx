@@ -70,7 +70,7 @@ export function ProgressPage() {
     <div className="mx-auto max-w-4xl">
       <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">{PROGRESS_MESSAGES.PAGE_TITLE}</h1>
+          <h1 className="text-[28px] font-semibold leading-[1.1] tracking-tight">{PROGRESS_MESSAGES.PAGE_TITLE}</h1>
           <p className="mt-2 text-muted-foreground">{PROGRESS_MESSAGES.PAGE_SUBTITLE}</p>
         </div>
         {hasChunks && (

@@ -1,9 +1,9 @@
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
-import { Badge } from '@/components/ui/badge';
 import { ChunkCard } from '@/features/projects/chunks/board/ChunkCard';
 import { columnDroppableId } from '@/features/projects/chunks/board/columns';
+import { STATUS_DOT_CLASS } from '@/features/projects/chunks/board/statusDotClass';
 import type { MoveChunkInput } from '@/features/projects/chunks/board/useMoveChunk';
 import { CHUNKS_MESSAGES } from '@/features/projects/chunks/messages';
 import type { ChunkRow } from '@/features/projects/chunks/useChunks';
@@ -18,27 +18,40 @@ type ChunkColumnProps = {
   onMove: (input: MoveChunkInput) => void;
 };
 
+/**
+ * One column on the chunk Kanban. Header shows a status-colored dot next to the label, a tight
+ * subtitle, and a tabular-nums count. The drop zone tints lightly when hovered with a card so the
+ * target column reads immediately during a drag.
+ */
 export function ChunkColumn({ status, chunks, projectId, onMove }: ChunkColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: columnDroppableId(status), data: { status } });
 
   return (
     <section
       aria-label={CHUNKS_MESSAGES.STATUS_LABELS[status]}
-      className="flex w-72 shrink-0 flex-col rounded-lg border bg-muted/30"
+      className="flex w-72 shrink-0 flex-col rounded-xl border bg-subtle"
     >
-      <header className="flex items-baseline justify-between gap-2 border-b px-3 py-2">
+      <header className="flex items-baseline justify-between gap-2 border-b border-border-subtle px-3 py-2.5">
         <div className="min-w-0">
-          <h2 className="text-sm font-semibold">{CHUNKS_MESSAGES.STATUS_LABELS[status]}</h2>
-          <p className="text-xs text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <span
+              aria-hidden="true"
+              className={cn('size-1.5 rounded-full', STATUS_DOT_CLASS[status])}
+            />
+            <h2 className="text-[11px] font-semibold uppercase tracking-wider">
+              {CHUNKS_MESSAGES.STATUS_LABELS[status]}
+            </h2>
+            <span className="font-mono text-[11px] tabular-nums text-faint">{chunks.length}</span>
+          </div>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">
             {CHUNKS_MESSAGES.COLUMN_DESCRIPTIONS[status]}
           </p>
         </div>
-        <Badge variant="secondary">{chunks.length}</Badge>
       </header>
 
       <div
+        className={cn('min-h-24 flex-1 p-2 transition-colors', isOver && 'bg-hover')}
         ref={setNodeRef}
-        className={cn('min-h-24 flex-1 p-2 transition-colors', isOver && 'bg-muted/60')}
       >
         <SortableContext
           items={chunks.map((chunk) => chunk.id)}

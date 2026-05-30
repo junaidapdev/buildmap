@@ -150,7 +150,7 @@ export function IssueDetailPage() {
       <header className="space-y-3">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-2">
-            <h1 className="text-2xl font-semibold">{issue.title}</h1>
+            <h1 className="text-[28px] font-semibold leading-[1.1] tracking-tight">{issue.title}</h1>
             <div className="flex flex-wrap items-center gap-2">
               <IssueStatusBadge status={issue.status} />
               <IssueSeverityBadge severity={issue.severity} />
