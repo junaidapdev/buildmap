@@ -2029,3 +2029,78 @@ when the default changes.
 redirects to `/` in `DangerZoneSection` and `DeleteAccountDialog`.
 
 **`useDocumentTitle`:** `frontend/src/lib/document-title.ts` — reused by Chunk 30 for the landing page.
+
+## 2026-06-08 - Landing Page (Chunk 30): Public `/` Surface, Tabbed Auth, Sign-out to `/`
+
+**Decision:** A public landing page mounts at `/`. The same Tailwind tokens, typography, and
+shadcn primitives as the rest of the product — no marketing-only chrome, no gradients, no
+animations, no hero imagery. Three sections: hero (single `<h1>` + supporting copy + twin CTAs),
+five-card features grid, final CTA. Wordmark header on top. Border-top separators between
+sections. Mobile stacks cleanly with full-width CTAs; tablet shows a 2-column grid; desktop shows
+3 columns. `useDocumentTitle` sets the page title for SEO basics.
+
+**Brand:** `buildmap`, not `SpecForge`. The Chunk 30 spec proposed `SpecForge` in the locked copy
+table, but every other surface in the SPA uses `buildmap` and the workflow rule in
+`context/04-ai-workflow-rules.md` says "Use the current product name, `buildmap`; do not
+reintroduce the retired name." The hero headline itself is unchanged from the spec ("Plan your
+project once. Ship it with any AI.") — only the wordmark and page title brand string differ. If
+the product is ever renamed to SpecForge, the change is one line in
+`features/landing/messages.ts` plus matching renames across `AUTH_MESSAGES` and copy elsewhere.
+
+**Authenticated-user redirect:** Synchronous `<Navigate to={ROUTES.DASHBOARD} replace />` rather
+than a `useEffect`-driven navigation. The redirect fires inside the render of `LandingPage`
+itself, so an already-authenticated visitor never sees marketing copy. A brief invisible
+`min-h-screen` placeholder covers the moment `useAuth.loading` is still true (session restore in
+flight); without that placeholder, the marketing copy would flash for one render before the
+redirect resolved. The placeholder is `aria-hidden` so screen readers don't announce it.
+
+**Auth surface collapsed: `/sign-up` removed, tabs on `/sign-in`.** The legacy `/sign-up` route was
+deleted in favor of a single `/sign-in` page hosting a `Tabs` primitive with "Sign in" and "Sign
+up" panes. Form bodies are extracted into sibling components (`SignInForm.tsx`, `SignUpForm.tsx`)
+so the page is a thin tab shell. The `?mode=signup` query param pre-selects the sign-up tab on
+mount: `searchParams.get('mode') === 'signup'` only — any other value (including `signin`,
+`garbage`, or absence) defaults to sign-in. The query param is read once on mount; subsequent tab
+switches are local state and do NOT update the URL. Inbound `/sign-up` links are caught by a
+`<Navigate>` route that redirects to `/sign-in?mode=signup` so old bookmarks and email links still
+work. The footer links inside each form ("Don't have an account? Create one" / "Already have an
+account? Sign in") switch tabs via an `onRequestSignUp`/`onRequestSignIn` callback instead of
+navigating — the URL stays put.
+
+**Untrusted query param handling.** The mode selector treats `?mode=` as untrusted: the literal
+string `'signup'` is the only value that opts into the sign-up tab. This guards against an
+attacker crafting a URL that selects an unintended internal state — though in this MVP the only
+two valid states are the two tabs and neither is privileged.
+
+**Sign-out and unauthenticated-redirect targets all change to `/`.** Updated:
+- `RequireAuth` — unauthenticated visitors to protected routes now Navigate to `ROUTES.HOME`
+  (preserving the `from` state for post-sign-in return).
+- `DangerZoneSection.handleSignOut` — settings sign-out lands on `/`.
+- `DeleteAccountDialog.handleConfirm` — post-account-deletion lands on `/`.
+- `UserMenu.handleSignOut` — header-menu sign-out lands on `/`.
+- App-shell unknown-URL fallback for unauthenticated visitors — now `Navigate` to `/` instead of
+  the not-found card.
+
+The principle: `/` is the single re-entry point for anyone without a session. The previous
+behavior shoved unauthenticated visitors at the sign-in form regardless of whether they had ever
+heard of the product; the new behavior gives every unauthenticated path a chance to read what
+buildmap is first.
+
+**No footer, no analytics, no third-party scripts.** Carved out explicitly. Privacy and terms
+pages don't exist yet; adding empty footer links would be worse than no footer. If analytics ever
+land, it's a future chunk — picking a vendor, writing a privacy policy, and wiring consent are all
+out of scope. The landing page loads zero third-party assets — no CDN fonts, no tracking pixels,
+no marketing widgets. All rendering uses React's default JSX escaping; no
+`dangerouslySetInnerHTML`.
+
+**No icons on the feature cards.** Adding icons would invite a multi-hour debate over which Lucide
+glyph represents "Kanban board" or "agent-ready prompts" and would not improve comprehension. The
+page is intentionally text-driven.
+
+**Files removed.**
+- `frontend/src/features/auth/SignUpPage.tsx` — folded into `SignInPage`'s sign-up tab.
+- `frontend/src/pages/HomePage.tsx` — the "buildmap — coming soon" placeholder is replaced by the
+  landing page at `/`.
+
+**Reversibility:** High. Reinstating a separate `/sign-up` route is a few lines if a future
+decision wants it back (the form body in `SignUpForm.tsx` is already a standalone component). The
+sign-out redirect change is a one-line revert in three files.

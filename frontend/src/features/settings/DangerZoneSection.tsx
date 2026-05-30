@@ -35,7 +35,9 @@ export function DangerZoneSection() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate(ROUTES.SIGN_IN, { replace: true });
+    // Chunk 30: post-sign-out redirects land on the public landing page (`/`), not the sign-in
+    // form. A returning user can re-enter via the landing page's "Sign in" CTA.
+    navigate(ROUTES.HOME, { replace: true });
   };
 
   return (
