@@ -1,5 +1,15 @@
 # buildmap Decision Log
 
+## 2026-05-30 - Telemetry Logging Best-Effort
+
+**Decision:** Generation telemetry writes via `logGeneration` swallow internal Supabase insertion errors and log them via `logger.error` rather than throwing.
+
+**Reason:** Telemetry is non-critical path; an analytics insert failure should not fail a successful and costly AI generation returning to the user.
+
+**Alternatives considered:** Throwing and failing the Edge Function (rejected — harms UX for observability).
+
+**Reversibility:** Easy.
+
 ## 2026-05-25 - Single Repository with Frontend and Backend Folders
 
 **Decision:** Use one repository with two top-level application folders: `frontend/` and `backend/`.
