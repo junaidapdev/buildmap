@@ -31,7 +31,12 @@ export function ClarifyPage() {
       </header>
       {isWorking && <ClarifyPending />}
       {!isWorking && generation.isError && (
-        <ClarifyError canRetry={!retryUsed} onRetry={retryGeneration} projectId={projectId} />
+        <ClarifyError
+          canRetry={!retryUsed}
+          error={generation.error}
+          onRetry={retryGeneration}
+          projectId={projectId}
+        />
       )}
       {!isWorking && generation.isSuccess && (
         <ClarifyForm projectId={projectId} questions={generation.data} />

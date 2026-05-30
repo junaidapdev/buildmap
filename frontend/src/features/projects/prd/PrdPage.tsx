@@ -65,15 +65,15 @@ export function PrdPage() {
     // An existing PRD renders regardless of brief state; the brief only gates generation.
     body = <PrdView prd={prd.data} projectId={projectId} />;
   } else if (prd.isError) {
-    body = <PrdError onRetry={() => void prd.refetch()} />;
+    body = <PrdError error={prd.error} onRetry={() => void prd.refetch()} />;
   } else if (brief.isPending) {
     body = <PrdPending />;
   } else if (brief.isError) {
-    body = <PrdError onRetry={() => void brief.refetch()} />;
+    body = <PrdError error={brief.error} onRetry={() => void brief.refetch()} />;
   } else if (!briefApproved) {
     body = <PrdGatingState projectId={projectId} />;
   } else if (generate.isError) {
-    body = <PrdError onRetry={() => generatePrd()} />;
+    body = <PrdError error={generate.error} onRetry={() => generatePrd()} />;
   } else {
     // Brief approved, no PRD yet: generation is idle or in flight.
     body = <PrdPending />;

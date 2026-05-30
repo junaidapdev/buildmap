@@ -3,15 +3,31 @@ import { Link } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/constants/routes';
+import { AiErrorState } from '@/features/_shared/AiErrorState';
 import { CLARIFY_MESSAGES } from '@/features/projects/clarify/messages';
+import { EdgeFunctionError } from '@/lib/edge';
+import { RATE_LIMIT_ERROR_CODE } from '@/lib/rate-limit';
 
 type ClarifyErrorProps = {
   canRetry: boolean;
+  error: unknown;
   onRetry: () => void;
   projectId: string;
 };
 
-export function ClarifyError({ canRetry, onRetry, projectId }: ClarifyErrorProps) {
+export function ClarifyError({ canRetry, error, onRetry, projectId }: ClarifyErrorProps) {
+  if (error instanceof EdgeFunctionError && error.code === RATE_LIMIT_ERROR_CODE) {
+    return (
+      <AiErrorState
+        error={error}
+        fallbackBody={CLARIFY_MESSAGES.ERROR_BODY}
+        fallbackTitle={CLARIFY_MESSAGES.ERROR_TITLE}
+        onRetry={onRetry}
+        retryLabel={CLARIFY_MESSAGES.ERROR_RETRY}
+      />
+    );
+  }
+
   return (
     <section className="flex flex-col items-center py-16 text-center" role="alert">
       <div className="mb-4 rounded-full bg-destructive/10 p-3 text-destructive">

@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getAiErrorCopy } from '@/features/_shared/ai-error-copy';
 import { ContextDocActions } from '@/features/projects/context-files/ContextDocActions';
 import { ContextDocApprovalBanner } from '@/features/projects/context-files/ContextDocApprovalBanner';
 import { ContextDocEditor } from '@/features/projects/context-files/ContextDocEditor';
@@ -90,7 +91,7 @@ export function ContextDocPanel({ projectId, meta, onDirtyChange }: ContextDocPa
           {(approve.isError || regenerate.isError) && (
             <p className="text-sm text-destructive">
               {regenerate.isError
-                ? CONTEXT_FILES_MESSAGES.REGENERATE_FAILED
+                ? getAiErrorCopy(regenerate.error, CONTEXT_FILES_MESSAGES.REGENERATE_FAILED)
                 : CONTEXT_FILES_MESSAGES.APPROVE_FAILED}
             </p>
           )}

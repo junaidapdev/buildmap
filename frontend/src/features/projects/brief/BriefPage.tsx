@@ -95,11 +95,11 @@ export function BriefPage() {
   if (existing.isPending) {
     body = <BriefPending />;
   } else if (existing.isError) {
-    body = <BriefError onRetry={() => void existing.refetch()} />;
+    body = <BriefError error={existing.error} onRetry={() => void existing.refetch()} />;
   } else if (existing.data) {
     body = <BriefView brief={existing.data} projectId={projectId} />;
   } else if (generate.isError) {
-    body = <BriefError onRetry={retryGeneration} />;
+    body = <BriefError error={generate.error} onRetry={retryGeneration} />;
   } else {
     // No brief exists yet and generation is idle or in flight.
     body = <BriefPending />;

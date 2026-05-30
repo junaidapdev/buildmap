@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { GENERATION_FUNCTION_NAMES } from '@shared/telemetry/function-names.ts';
 import { logGeneration } from '@shared/telemetry/log-generation.ts';
+import { checkRateLimit } from '@shared/rate-limit/check-rate-limit.ts';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { AiInvalidOutputError, AiProviderError, generate } from '@shared/ai/index.ts';
@@ -94,6 +95,42 @@ export async function handler(req: Request): Promise<Response> {
     userId = auth.userId;
 
     const jwt = auth.jwt;
+
+    supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+      global: { headers: { Authorization: `Bearer ${jwt}` } },
+    });
+
+    const rateLimitCheck = await checkRateLimit(
+      supabase,
+      userId,
+      GENERATION_FUNCTION_NAMES.REGENERATE_PRD_SECTION,
+    );
+
+    if (!rateLimitCheck.allowed) {
+      logger.info('rate_limit_blocked', {
+        userId,
+        functionName: GENERATION_FUNCTION_NAMES.REGENERATE_PRD_SECTION,
+        reason: rateLimitCheck.reason,
+        retryAfterSeconds: rateLimitCheck.retryAfterSeconds,
+      });
+
+      return fail(
+        ERROR_CODES.RATE_LIMIT_EXCEEDED,
+        ERROR_MESSAGES.RATE_LIMIT_EXCEEDED,
+        HTTP_STATUS.TOO_MANY_REQUESTS,
+        req,
+        {
+          retryAfterSeconds: rateLimitCheck.retryAfterSeconds,
+          reason: rateLimitCheck.reason,
+        },
+        { 'Retry-After': String(rateLimitCheck.retryAfterSeconds) },
+      );
+    }
+
     let body: unknown;
 
     try {
@@ -120,11 +157,6 @@ export async function handler(req: Request): Promise<Response> {
 
     const { projectId: parsedProjectId, sectionKey } = parsedRequest.data;
     projectId = parsedProjectId;
-    supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
-      auth: { autoRefreshToken: false, persistSession: false },
-      global: { headers: { Authorization: `Bearer ${jwt}` } },
-    });
-
     // RLS scopes all three reads to the signed-in user.
     const [projectRes, briefRes, prdRes] = await Promise.all([
       supabase

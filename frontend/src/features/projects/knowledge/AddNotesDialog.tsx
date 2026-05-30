@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { getAiErrorCopy } from '@/features/_shared/ai-error-copy';
 import { KNOWLEDGE_MESSAGES } from '@/features/projects/knowledge/messages';
 import { useExtractLearnings } from '@/features/projects/knowledge/useExtractLearnings';
 
@@ -89,9 +90,7 @@ export function AddNotesDialog({ projectId, open, onOpenChange, onSuccess }: Add
               value={sourceLabel}
             />
             {labelTooLong && (
-              <p className="text-xs text-destructive">
-                {KNOWLEDGE_MESSAGES.FIELD_SOURCE_TOO_LONG}
-              </p>
+              <p className="text-xs text-destructive">{KNOWLEDGE_MESSAGES.FIELD_SOURCE_TOO_LONG}</p>
             )}
           </div>
 
@@ -127,7 +126,9 @@ export function AddNotesDialog({ projectId, open, onOpenChange, onSuccess }: Add
           )}
 
           {extract.isError && (
-            <p className="text-sm text-destructive">{KNOWLEDGE_MESSAGES.EXTRACT_FAILED}</p>
+            <p className="text-sm text-destructive">
+              {getAiErrorCopy(extract.error, KNOWLEDGE_MESSAGES.EXTRACT_FAILED)}
+            </p>
           )}
 
           <DialogFooter>

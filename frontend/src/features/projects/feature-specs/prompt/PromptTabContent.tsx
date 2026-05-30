@@ -37,13 +37,13 @@ export function PromptTabContent({ chunk, chunkId, onOpenSpec }: PromptTabConten
   if (specQuery.isPending) {
     body = <PromptPending />;
   } else if (specQuery.isError) {
-    body = <PromptError onRetry={() => void specQuery.refetch()} />;
+    body = <PromptError error={specQuery.error} onRetry={() => void specQuery.refetch()} />;
   } else if (!specQuery.data) {
     body = <SpecRequiredState onOpenSpec={onOpenSpec} />;
   } else if (promptsQuery.isPending) {
     body = <PromptPending />;
   } else if (promptsQuery.isError) {
-    body = <PromptError onRetry={() => void promptsQuery.refetch()} />;
+    body = <PromptError error={promptsQuery.error} onRetry={() => void promptsQuery.refetch()} />;
   } else {
     const promptsByTarget = promptsQuery.data ?? {};
     const currentPrompt = promptsByTarget[target];
@@ -76,7 +76,10 @@ export function PromptTabContent({ chunk, chunkId, onOpenSpec }: PromptTabConten
         <AgentTargetSelector onChange={setTarget} value={target} />
         {inner}
         {generate.isError && (
-          <PromptError onRetry={() => generate.mutate({ targetAgent: target })} />
+          <PromptError
+            error={generate.error}
+            onRetry={() => generate.mutate({ targetAgent: target })}
+          />
         )}
       </div>
     );

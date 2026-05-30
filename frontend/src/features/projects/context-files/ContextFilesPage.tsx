@@ -65,15 +65,19 @@ export function ContextFilesPage() {
     // An existing set renders regardless of architecture state; architecture only gates generation.
     body = <ContextFilesView projectId={projectId} state={contextFiles.data} />;
   } else if (contextFiles.isError) {
-    body = <ContextFilesError onRetry={() => void contextFiles.refetch()} />;
+    body = (
+      <ContextFilesError error={contextFiles.error} onRetry={() => void contextFiles.refetch()} />
+    );
   } else if (architecture.isPending) {
     body = <ContextFilesPending />;
   } else if (architecture.isError) {
-    body = <ContextFilesError onRetry={() => void architecture.refetch()} />;
+    body = (
+      <ContextFilesError error={architecture.error} onRetry={() => void architecture.refetch()} />
+    );
   } else if (!architectureApproved) {
     body = <ContextFilesGatingState projectId={projectId} />;
   } else if (generate.isError) {
-    body = <ContextFilesError onRetry={() => generateContextFiles()} />;
+    body = <ContextFilesError error={generate.error} onRetry={() => generateContextFiles()} />;
   } else {
     // Architecture approved, no context files yet: generation is idle or in flight.
     body = <ContextFilesPending />;

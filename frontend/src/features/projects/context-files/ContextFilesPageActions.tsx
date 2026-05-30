@@ -13,6 +13,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { getAiErrorCopy } from '@/features/_shared/ai-error-copy';
 import { CONTEXT_FILES_MESSAGES } from '@/features/projects/context-files/messages';
 import { useGenerateContextFiles } from '@/features/projects/context-files/useGenerateContextFiles';
 
@@ -71,7 +72,9 @@ export function ContextFilesPageActions({
         </AlertDialog>
       </div>
       {generate.isError && (
-        <p className="text-right text-sm text-destructive">{CONTEXT_FILES_MESSAGES.ERROR_BODY}</p>
+        <p className="text-right text-sm text-destructive">
+          {getAiErrorCopy(generate.error, CONTEXT_FILES_MESSAGES.ERROR_BODY)}
+        </p>
       )}
     </div>
   );
