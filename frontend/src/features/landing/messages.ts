@@ -1,13 +1,15 @@
 /**
  * Copy for the public landing page at `/`. Brand stays "buildmap" — the canonical product name in
- * use everywhere else in the SPA (sign-in, settings, etc.). The chunk spec proposed "SpecForge",
- * but the workflow rule in `context/04-ai-workflow-rules.md` ("Use the current product name,
- * buildmap; do not reintroduce the retired name") and every other surface in the app override the
- * spec on the brand string. The hero headline itself stays as-locked in the spec.
+ * use everywhere else in the SPA (sign-in, settings, etc.) and required by the workflow rule in
+ * `context/04-ai-workflow-rules.md`.
  *
- * The design redesign (off the Claude Design handoff) expands the landing with a sticky nav, a
- * NEW pill, twin CTAs, a "How it works" steps row, a "What you get" grid, and an inverted dark
- * final CTA. All copy lives here.
+ * The v2 redesign (off the Claude Design landing handoff) expands the page with:
+ *   - 9 deliverables on "What you get" (up from 6), matching the design's full list verbatim.
+ *   - "The loop" section with 4 FlowCards each carrying a mini-product preview.
+ *   - Hero secondary CTA changes from "Sign in" → "Open a demo" (→ /dashboard).
+ *   - Hero gains a ProductPreview mock below the copy.
+ *
+ * All copy below is pulled directly from the Claude Design handoff README §6.
  */
 export const LANDING_MESSAGES = {
   PAGE_TITLE: 'buildmap — Spec-driven project planning for AI builders',
@@ -16,35 +18,36 @@ export const LANDING_MESSAGES = {
   BETA_PILL: 'Beta',
 
   HEADER_SIGN_IN_LINK: 'Sign in',
-  HEADER_PRIMARY_CTA: 'Get started',
+  HEADER_PRIMARY_CTA: 'Start a project',
   HEADER_NAV: [
     { label: 'How it works', href: '#how' },
     { label: 'What you get', href: '#deliverables' },
+    { label: 'The flow', href: '#flow' },
     { label: 'For who', href: '#for' },
   ],
 
   NEW_PILL: 'NEW',
   NEW_PILL_MESSAGE: 'Knowledge ingestion — paste a transcript, get engineering lessons.',
 
-  HERO_HEADLINE_PRIMARY: 'Plan your project once.',
-  HERO_HEADLINE_SECONDARY: 'Ship it with any AI.',
+  HERO_HEADLINE_PRIMARY: 'Plan the project',
+  HERO_HEADLINE_SECONDARY: 'so the agent can ship it.',
   HERO_SUBHEAD:
-    'buildmap turns a raw idea into PRDs, architecture docs, shippable chunks, and ready-to-paste prompts for Claude Code, Cursor, or any other AI coding tool.',
-  HERO_PRIMARY_CTA: 'Get started',
-  HERO_SECONDARY_CTA: 'Sign in',
+    'buildmap turns a raw idea into a brief, a PRD, an architecture doc, and a queue of small, ship-on-their-own chunks — each one wrapped in a prompt your coding agent can actually execute.',
+  HERO_PRIMARY_CTA: 'Start a project',
+  HERO_SECONDARY_CTA: 'Open a demo',
   HERO_CHECKS: [
     'Solo-builder workspace',
     'Works with Claude Code, Cursor, Codex',
     'Exports to plain markdown',
   ],
 
-  HOW_TITLE: 'How it works',
+  HOW_TITLE: 'HOW IT WORKS',
   HOW_SUBTITLE: 'From a one-line idea to a folder of agent-ready prompts.',
   HOW_STEPS: [
     {
       number: '01',
       title: 'Clarify',
-      body: 'Answer five sharp questions the AI asks. The idea sharpens into a real brief.',
+      body: 'Answer 5 sharp questions the AI asks. Sharpens the idea into a brief.',
     },
     {
       number: '02',
@@ -54,54 +57,98 @@ export const LANDING_MESSAGES = {
     {
       number: '03',
       title: 'Slice',
-      body: 'Cut the project into shippable chunks. Each chunk gets its own implementation spec.',
+      body: 'Cut the project into shippable chunks. Each chunk gets a spec.',
     },
     {
       number: '04',
       title: 'Hand off',
-      body: "Copy a chunk's prompt into Claude Code or Cursor. Track what's done on a board.",
+      body: "Copy a chunk's prompt into Claude Code or Cursor. Track what's done.",
     },
   ],
 
   FEATURES_EYEBROW: 'WHAT YOU GET',
-  FEATURES_TITLE: 'Concrete artifacts, not abstract benefits.',
+  FEATURES_TITLE: 'Twelve outputs, one per project. All as plain markdown.',
   FEATURES_LIST: [
     {
-      title: 'Clarified ideas, structured plans',
-      body:
-        'Walk through a short clarifier and end up with a real PRD — goals, users, features, acceptance criteria.',
+      icon: 'spark',
+      title: 'Project brief',
+      body: "Top-of-funnel summary. The thing you'd hand to a co-founder over coffee.",
     },
     {
-      title: 'Architecture you can defend',
-      body:
-        'Generate a system overview, component map, and decision log scoped to your project, not a generic template.',
+      icon: 'doc',
+      title: 'PRD',
+      body: "What you're building, for whom, the goals, and the explicit non-goals.",
     },
     {
-      title: 'Shippable chunks, not vague tickets',
-      body:
-        'Your project sliced into small units, each with a feature spec detailed enough for an AI agent to implement.',
+      icon: 'layers',
+      title: 'Architecture',
+      body: 'System shape, major components, and a running decision log.',
     },
     {
-      title: 'Agent-ready prompts',
-      body:
-        'One click produces a complete, copy-pasteable prompt sized for Claude Code, Cursor, or a generic agent.',
+      icon: 'fileText',
+      title: 'Seven context files',
+      body: 'PROJECT_OVERVIEW, AGENTS.md, CLAUDE.md, code standards — pasted into your repo.',
     },
     {
-      title: 'Progress tracking and exports',
-      body:
-        'Move chunks through a Kanban board as you ship. Export everything as a ZIP, ready to drop into your codebase.',
+      icon: 'kanban',
+      title: 'Chunks',
+      body: 'Shippable units of work. Reorderable on a Kanban board.',
     },
     {
-      title: 'Issue → corrective prompt',
-      body:
-        'Paste a bug report, get a focused corrective prompt sized for your agent. The fix becomes part of the spec.',
+      icon: 'package',
+      title: 'Feature specs',
+      body: 'One detailed spec per chunk: context, acceptance, files, tests, out-of-scope.',
+    },
+    {
+      icon: 'terminal',
+      title: 'Agent prompts',
+      body: 'Ready-to-paste prompt per chunk. Pick Claude Code, Cursor, or generic.',
+    },
+    {
+      icon: 'checkCircle',
+      title: 'Progress tracker',
+      body: 'Kanban that mirrors back into PROGRESS.md when you sync.',
+    },
+    {
+      icon: 'bug',
+      title: 'Issue → prompt',
+      body: 'Paste a bug report, get a corrective prompt sized for your agent.',
     },
   ],
+
+  LOOP_EYEBROW: 'THE LOOP',
+  LOOP_TITLE: 'Plan → ship a chunk → tracker updates → plan the next one.',
+  LOOP_CARDS: {
+    clarifier: {
+      label: '01 · Clarifier',
+      title: 'Five questions, asked one at a time.',
+      body:
+        'Answer in your own words. The AI digests them into a brief you can approve or rewrite.',
+    },
+    prd: {
+      label: '02 · PRD + Architecture',
+      title: 'Long-form documents you can actually edit.',
+      body:
+        'Every section has Edit, Regenerate, and Approve. Sections you approve get a green corner — you can see the doc tightening.',
+    },
+    kanban: {
+      label: '03 · Chunks board',
+      title: 'Drag chunks across columns as they ship.',
+      body:
+        'Each chunk has a status, effort, and the chunk number that matches the markdown filename. Drag from Backlog to In Progress when you start.',
+    },
+    prompt: {
+      label: '04 · Chunk prompt',
+      title: 'Pick your agent. Copy the prompt. Paste it.',
+      body:
+        'Prompts adapt to Claude Code, Cursor, or a generic shape. The Spec tab is the source of truth — the Prompt tab is a wrapper.',
+    },
+  },
 
   FOR_EYEBROW: 'FOR WHO',
   FOR_TITLE: 'Built for one person shipping with an agent.',
   FOR_BODY:
-    "No team features. No multiplayer. No Slack integration. buildmap is the missing planning step between \"I have an idea\" and \"please implement chunk 6.\"",
+    "No team features. No multiplayer. No Slack integration. buildmap is the missing planning step between \"I have an idea\" and \"Claude Code, please implement chunk 6.\"",
   FOR_BULLETS: [
     'Technical founders prototyping in evenings.',
     'Solo developers who paid for Cursor and feel they’re under-using it.',
@@ -112,8 +159,12 @@ export const LANDING_MESSAGES = {
   FINAL_CTA_TITLE: 'You already have the idea.',
   FINAL_CTA_BODY:
     'Stop staring at a blank Notion page. Start a buildmap and have a queue of chunks by lunch.',
-  FINAL_CTA_PRIMARY: 'Get started',
+  FINAL_CTA_PRIMARY: 'Start a project',
 
   FOOTER_TAGLINE: 'A solo-builder workspace.',
   FOOTER_VERSION: 'v0.1 · made in a quiet room',
 } as const;
+
+/** Discriminating string union of supported feature icons (resolved in FeaturesSection). */
+export type FeatureIconName =
+  (typeof LANDING_MESSAGES.FEATURES_LIST)[number]['icon'];

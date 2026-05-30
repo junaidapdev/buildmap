@@ -11,6 +11,7 @@ import { ForWhoSection } from '@/features/landing/ForWhoSection';
 import { HeroSection } from '@/features/landing/HeroSection';
 import { HowItWorksSection } from '@/features/landing/HowItWorksSection';
 import { LANDING_MESSAGES } from '@/features/landing/messages';
+import { TheLoopSection } from '@/features/landing/TheLoopSection';
 import { useDocumentTitle } from '@/lib/document-title';
 
 /**
@@ -20,12 +21,13 @@ import { useDocumentTitle } from '@/lib/document-title';
  *
  * The page is a stack of focused sections, each owning its own padding + max-width:
  *   1. Sticky blurred nav with brand mark + anchor links + auth CTAs.
- *   2. Hero with NEW pill, twin headlines, twin CTAs, reassurance chips.
+ *   2. Hero with NEW pill, twin headlines, twin CTAs, reassurance chips, and a ProductPreview.
  *   3. "How it works" 4-step row.
- *   4. "What you get" 6-card grid.
- *   5. "For who" two-column split.
- *   6. Inverted dark final CTA.
- *   7. Thin footer.
+ *   4. "What you get" 9-deliverable grid.
+ *   5. "The loop" 2×2 FlowCards with mini-previews of the product surface.
+ *   6. "For who" two-column split.
+ *   7. Inverted dark final CTA.
+ *   8. Thin footer.
  *
  * Brand wordmark is "buildmap" — the canonical product name used everywhere else in the SPA.
  */
@@ -87,6 +89,7 @@ export function LandingPage() {
         <HeroSection />
         <HowItWorksSection />
         <FeaturesSection />
+        <TheLoopSection />
         <ForWhoSection />
         <FinalCtaSection />
       </main>
