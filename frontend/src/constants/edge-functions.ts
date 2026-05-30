@@ -10,4 +10,7 @@ export const EDGE_FUNCTIONS = {
   GENERATE_CONTEXT_FILES: 'generate-context-files',
   REGENERATE_CONTEXT_DOC: 'regenerate-context-doc',
   GENERATE_CHUNKS: 'generate-chunks',
+  GENERATE_FEATURE_SPEC: 'generate-feature-spec',
+  REGENERATE_FEATURE_SPEC_SECTION: 'regenerate-feature-spec-section',
+  SAVE_FEATURE_SPEC_CONTENT: 'save-feature-spec-content',
 } as const;

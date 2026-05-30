@@ -31,5 +31,6 @@ export const PROJECT_SUBROUTES = {
   ARCHITECTURE: 'architecture',
   CONTEXT: 'context',
   CHUNKS: 'chunks',
+  CHUNK_DETAIL: 'chunks/:chunkId',
   CLARIFY: 'clarify',
 } as const;

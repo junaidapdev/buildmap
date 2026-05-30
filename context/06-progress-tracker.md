@@ -6,7 +6,10 @@ Phase 4 — Build (In Progress). Phases 1–3 complete. The chunk generator (Chu
 PRD + architecture into shippable chunks and advances the project from `planning` to `ready_to_build`
 on first generation. The chunk board (Chunk 19) now visualizes those chunks as a drag-and-drop Kanban
 with a column per status and persists moves via the `move_chunk` stored procedure. Next is Chunk 20 —
-Feature Specs (one detailed implementation spec per chunk), reached from each card's "Open" link.
+Feature Specs (one detailed implementation spec per chunk), reached from each card's "Open" link. Those specs are now live (Chunk 20): every chunk has a
+structured seven-section feature spec, generated on first visit to its detail page and editable
+per section. Next is Chunk 21 — the agent prompt generator, which wraps the spec into a copy-paste
+prompt for Claude Code or Cursor.
 
 ## Completed Chunks
 
@@ -30,6 +33,7 @@ Feature Specs (one detailed implementation spec per chunk), reached from each ca
 - [x] Chunk 17 — Context Files Generator
 - [x] Chunk 18 — Shippable Chunk Generator
 - [x] Chunk 19 — Chunk Board (Kanban)
+- [x] Chunk 20 — Feature Spec Generator
 
 ## In Progress
 
@@ -37,7 +41,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 20 — Feature Specs
+- [ ] Chunk 21 — Agent Prompt Generator
 
 ## Blocked
 
@@ -157,6 +161,33 @@ context files to be approved before recommending chunk generation.
 
 ## Notes for Next Agent
 
+- Feature specs are generated and editable per section (Chunk 20). The chunk detail page lives at
+  `/projects/{id}/chunks/{chunkId}` (the board's "Open" link now works) and has three tabs: Spec,
+  Prompt, Notes. The Prompt tab is a placeholder until Chunk 21; the Notes tab is a placeholder for a
+  future update. The whole feature is in `frontend/src/features/projects/feature-specs/`. The spec
+  `content_json` is SEVEN markdown-string sections (goal, scope, out_of_scope, technical_requirements,
+  ui_requirements, security_requirements, acceptance_criteria) — flat strings, NOT the deeply
+  structured fields of the PRD/architecture, because spec content is dense prose. Per-section edit is a
+  single textarea (mirrors the Chunk 17 context-file editor, NOT Chunk 14's structured editors); per-
+  section regenerate returns new markdown for one section (with an optional user instruction), and the
+  SPA stitches and saves the full `content_json`. Server renders combined markdown deterministically
+  from `content_json` via `feature-spec-markdown.ts` (the AI's content_markdown is discarded). Specs
+  gate on PRD + architecture EXISTENCE (412 PRD_NOT_FOUND / ARCHITECTURE_NOT_FOUND), auto-generate on
+  first visit, and do NOT advance project status (Chunk 22 owns that). Approval is per-spec and
+  optional (`is_final`). The `feature_specs` table was realigned from the Chunk 04 placeholder (added
+  `title`, `content_json`, `is_final`; the existing composite FK, unique `chunk_id`, and RLS were
+  reused). Three Edge Functions back it: `generate-feature-spec`, `regenerate-feature-spec-section`,
+  `save-feature-spec-content`; two stored procedures: `update_feature_spec_content`,
+  `approve_feature_spec`. The `feature_specs.agent_prompts` jsonb column is reserved for Chunk 21.
+- Chunk 21 (Agent Prompt Generator) is next: it replaces the `PromptTab` placeholder body with a
+  copy-paste, agent-ready prompt built by wrapping the (now-existing) feature spec. The spec is the
+  source of truth; the prompt wraps it. Chunk 22 owns chunk status transitions and the next project
+  status advancement (`ready_to_build`->`building`->`completed`) — wrap `move_chunk`, do not
+  re-implement it. Backend live paths (the two procedures + three Edge Functions) are verified here
+  only by static gates; exercising them needs a live Supabase project + `OPENAI_API_KEY`. The two
+  Chunk 20 migrations (`20260530100000_align_feature_specs_for_generator.sql`,
+  `20260530110000_feature_spec_content_and_approval_procedures.sql`) and the three Edge Functions
+  apply/deploy OUT-OF-BAND post-merge — do NOT run `supabase db push`.
 - The chunk board (Chunk 19) is the live chunks surface. It is a `@dnd-kit` Kanban with a column per
   canonical status (`backlog`/`ready`/`in_progress`/`needs_review`/`completed`/`blocked`, fixed order in
   `board/columns.ts`). All board code is in `frontend/src/features/projects/chunks/board/`;
