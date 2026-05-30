@@ -484,6 +484,11 @@ verify_jwt = false
 entrypoint = "../functions/generate-issue-prompt/index.ts"
 import_map = "../functions/generate-issue-prompt/deno.json"
 
+[functions.extract-learnings]
+verify_jwt = false
+entrypoint = "../functions/extract-learnings/index.ts"
+import_map = "../functions/extract-learnings/deno.json"
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 

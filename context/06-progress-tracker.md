@@ -12,12 +12,13 @@ the workflow loop: `move_chunk` now advances `projects.status` forward atomicall
 (`ready_to_build` → `building` on the first `in_progress`; `building` → `completed` when every chunk
 is `completed`), the SPA surfaces those advancements inline on the board, and the new Progress page
 at `/projects/{id}/progress` shows live counts, per-status groups, recent activity, and a one-click
-"Sync to markdown" that rewrites the Progress Tracker context file from live state. Next is
-Phase 5 has now opened with Chunk 23 — the issue-to-spec converter. Each bug is persisted as a
-`project_issues` row with its own AI-generated corrective markdown prompt; an optional linked chunk
-enriches the prompt with the spec body. Issues are first-class but kept separate from the Kanban,
-chunks, specs, and the project status state machine. Next is Chunk 24 — knowledge ingestion: pasted
-transcripts and articles extracted into `project_learnings`.
+"Sync to markdown" that rewrites the Progress Tracker context file from live state. Phase 5 is now
+underway: Chunk 23 added the issue-to-spec converter (each bug is a `project_issues` row with its
+own AI-generated corrective markdown prompt; optional chunk linkage enriches the prompt with the
+spec body), and Chunk 24 added knowledge ingestion — pasted transcripts and notes are extracted by
+`extract-learnings` into structured `project_learnings` rows grouped by `lesson | decision | gotcha
+| open_question`, with a new Knowledge page at `/projects/{id}/knowledge` and a "Recent learnings"
+panel on the project overview. Next is Chunk 25 — per-document markdown export.
 
 ## Completed Chunks
 
@@ -45,6 +46,7 @@ transcripts and articles extracted into `project_learnings`.
 - [x] Chunk 21 — Coding-Agent Prompt Generator
 - [x] Chunk 22 — Interactive Progress Tracker
 - [x] Chunk 23 — Issue-to-Spec Converter
+- [x] Chunk 24 — Knowledge Ingestion
 
 ## In Progress
 
@@ -52,7 +54,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 24 — Knowledge Ingestion
+- [ ] Chunk 25 — Per-Document Markdown Export
 
 ## Blocked
 
@@ -172,6 +174,50 @@ context files to be approved before recommending chunk generation.
 
 ## Notes for Next Agent
 
+- Knowledge ingestion is live (Chunk 24). The whole feature lives in
+  `frontend/src/features/projects/knowledge/`. The page is at `/projects/{id}/knowledge` (sidebar
+  Knowledge entry activated this chunk by removing its `pendingChunk: 24` marker); the new "Recent
+  learnings" panel on the overview surfaces the latest five entries. The flow: the user opens "Add
+  notes", optionally types a short source label, pastes content (≥20 chars, ≤50000), and submits.
+  `extract-learnings` (Edge Function) calls `generate('knowledge_extraction', …)` for the AI to
+  return `{ learnings: [...] }` with each entry's `type` (`lesson | decision | gotcha |
+  open_question`), `title`, and `content`; the function truncates the paste to 5000 chars and
+  invokes `create_learnings_batch` (security invoker) to insert one row per learning, all sharing a
+  single `ingest_id`. Empty extractions return `{ ingest_id: null, count: 0 }` and the page shows
+  the inline empty-extraction banner — they are NOT errors. The success banner ("Extracted N
+  learnings.") auto-dismisses after 6s — same pattern as Chunk 22's status-advanced alert (no toast
+  library was added).
+- Backend: three stored procedures (`create_learnings_batch`, `update_learning`, `delete_learning`,
+  all security invoker with ownership via the project chain) and one Edge Function
+  (`extract-learnings`, declared in `config.toml` with `verify_jwt = false`). The Chunk 04
+  `project_learnings` table was realigned via
+  `20260603100000_align_project_learnings_for_knowledge_ingestion.sql`: added `type`, `content`,
+  `source_label`, `source_raw`, `ingest_id`; dropped NOT NULL on the legacy `source_type` and
+  `raw_text` columns so the new write path can succeed. Legacy `extracted_insights` /
+  `suggested_rules` / `suggested_chunks` columns are still on the table but unused — same Chunk 23
+  precedent of preserving placeholders to avoid destructive drops on an existing client.
+- The `knowledge_extraction` slot in the `GenerationType` union and `GENERATION_CONFIG` map was
+  preserved from the Chunk 04 schema's `generation_logs.generation_type` CHECK. The chunk spec
+  called for `learnings_extraction` but the canonical name was kept — same Chunk 23 precedent.
+- Learnings are NOT fed back into other AI generations in MVP. The Edge Function does not read
+  existing learnings; they exist purely as institutional memory for the human. A future enhancement
+  could surface them as additional context for feature spec / agent prompt / issue prompt
+  generation; out of scope here.
+- Source paste is truncated at 5000 chars for the persisted `source_raw` (with `\n…[truncated]`
+  marker). The full text was already consumed by the AI; the persisted copy is for the UI's
+  "View original" toggle on each card. The toggle is a plain `useState` + conditional `<pre>` — no
+  Radix Collapsible was added.
+- `LearningEditDialog` is mounted CONDITIONALLY by `LearningCard` (`{editOpen && <…/>}`) so its
+  initial `useState(learning.title/content)` re-seeds naturally on each open — avoiding the lint-
+  flagged setState-in-useEffect pattern. The edit dialog deliberately omits `type` editing (re-
+  typing would muddy the section grouping).
+- The two Chunk 24 migrations (`20260603100000_align_project_learnings_for_knowledge_ingestion.sql`,
+  `20260603110000_learnings_lifecycle_procedures.sql`) and the new Edge Function (`extract-
+  learnings`) apply/deploy OUT-OF-BAND post-merge — do NOT run `supabase db push`.
+- Phase 5 continues with Chunks 25 and 26 — per-document markdown export and full project ZIP
+  export. Both should include the knowledge learnings under a `knowledge/` folder (each type as a
+  separate markdown file, ordered by `created_at desc`). The exports do NOT need to include the
+  `source_raw` provenance unless that's confirmed valuable; default to the rendered learning only.
 - Issues are live (Chunk 23). The whole feature lives in
   `frontend/src/features/projects/issues/`. The list page is at `/projects/{id}/issues` and a single
   issue is at `/projects/{id}/issues/{issueId}`; the sidebar Issues entry activated this chunk. The

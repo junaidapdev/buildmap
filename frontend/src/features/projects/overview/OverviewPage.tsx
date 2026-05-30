@@ -6,6 +6,7 @@ import { NextActionPanel } from '@/features/projects/overview/NextActionPanel';
 import { OpenIssuesPanel } from '@/features/projects/overview/OpenIssuesPanel';
 import { ProjectSummaryPanel } from '@/features/projects/overview/ProjectSummaryPanel';
 import { RecentDecisionsPanel } from '@/features/projects/overview/RecentDecisionsPanel';
+import { RecentLearningsPanel } from '@/features/projects/overview/RecentLearningsPanel';
 
 export function OverviewPage() {
   const { project } = useProject();
@@ -19,6 +20,7 @@ export function OverviewPage() {
         <BriefStatusPanel projectId={project.id} />
         <OpenIssuesPanel projectId={project.id} />
         <RecentDecisionsPanel projectId={project.id} />
+        <RecentLearningsPanel projectId={project.id} />
         <ExportShortcutPanel />
       </div>
     </div>
