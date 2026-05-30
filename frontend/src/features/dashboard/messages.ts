@@ -1,7 +1,10 @@
 export const DASHBOARD_MESSAGES = {
-  PAGE_TITLE: 'Your projects',
-  PAGE_SUBTITLE: 'Pick up where you left off, or start something new.',
-  NEW_PROJECT_BUTTON: '+ New Project',
+  PAGE_EYEBROW: 'YOUR WORKSPACE',
+  PAGE_TITLE: 'Projects',
+  PAGE_SUBTITLE: 'Every plan you have started. Pick one up where you left it, or start a new one.',
+  NEW_PROJECT_BUTTON: 'New project',
+  NEW_PROJECT_TILE_TITLE: 'Start a new project',
+  NEW_PROJECT_TILE_BODY: 'Idea to chunk queue in about 30 minutes.',
   EMPTY_TITLE: 'No projects yet',
   EMPTY_BODY: 'Create your first project to start turning ideas into specs.',
   EMPTY_CTA: 'Create your first project',
