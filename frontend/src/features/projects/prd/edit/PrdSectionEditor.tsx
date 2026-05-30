@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getAiErrorCopy } from '@/features/_shared/ai-error-copy';
 import { PrdSection } from '@/features/projects/prd/PrdSection';
 import { PRD_EDIT_MESSAGES } from '@/features/projects/prd/edit/messages';
 import { getPrdSectionIssues } from '@/features/projects/prd/edit/section-validation';
@@ -150,7 +151,11 @@ export function PrdSectionEditor<K extends PrdSectionKey>({
         <>
           {renderView()}
           {(regenerate.isError || save.isError) && (
-            <p className="mt-2 text-sm text-destructive">{PRD_EDIT_MESSAGES.REGENERATE_FAILED}</p>
+            <p className="mt-2 text-sm text-destructive">
+              {regenerate.isError
+                ? getAiErrorCopy(regenerate.error, PRD_EDIT_MESSAGES.REGENERATE_FAILED)
+                : PRD_EDIT_MESSAGES.REGENERATE_FAILED}
+            </p>
           )}
         </>
       ) : (

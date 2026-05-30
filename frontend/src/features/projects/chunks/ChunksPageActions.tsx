@@ -13,6 +13,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { getAiErrorCopy } from '@/features/_shared/ai-error-copy';
 import { CHUNKS_MESSAGES } from '@/features/projects/chunks/messages';
 import { useGenerateChunks } from '@/features/projects/chunks/useGenerateChunks';
 
@@ -56,7 +57,9 @@ export function ChunksPageActions({ projectId }: ChunksPageActionsProps) {
         </AlertDialogContent>
       </AlertDialog>
       {generate.isError && (
-        <p className="text-right text-sm text-destructive">{CHUNKS_MESSAGES.ERROR_BODY}</p>
+        <p className="text-right text-sm text-destructive">
+          {getAiErrorCopy(generate.error, CHUNKS_MESSAGES.ERROR_BODY)}
+        </p>
       )}
     </div>
   );

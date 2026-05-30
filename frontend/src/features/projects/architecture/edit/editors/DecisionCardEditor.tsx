@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { getAiErrorCopy } from '@/features/_shared/ai-error-copy';
 import {
   Select,
   SelectContent,
@@ -201,7 +202,10 @@ export function DecisionCardEditor({
 
         {regenerate.isError && (
           <p className="text-sm text-destructive">
-            {ARCHITECTURE_EDIT_MESSAGES.DECISION_REGENERATE_FAILED}
+            {getAiErrorCopy(
+              regenerate.error,
+              ARCHITECTURE_EDIT_MESSAGES.DECISION_REGENERATE_FAILED,
+            )}
           </p>
         )}
       </CardContent>

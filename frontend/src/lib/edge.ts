@@ -6,11 +6,27 @@ const EdgeEnvelopeSchema = z.discriminatedUnion('ok', [
   z.object({ ok: z.literal(true), data: z.unknown() }),
   z.object({
     ok: z.literal(false),
-    error: z.object({ code: z.string(), message: z.string() }),
+    error: z.object({
+      code: z.string(),
+      message: z.string(),
+      metadata: z.record(z.string(), z.unknown()).optional(),
+    }),
   }),
 ]);
 
 const EDGE_RESPONSE_INVALID = 'EDGE_RESPONSE_INVALID';
+
+export class EdgeFunctionError extends Error {
+  constructor(
+    public readonly code: string,
+    public readonly httpStatus: number,
+    public readonly metadata: Record<string, unknown> | null,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'EdgeFunctionError';
+  }
+}
 
 export async function callEdgeFunction(
   name: string,
@@ -30,11 +46,30 @@ export async function callEdgeFunction(
   const envelope = EdgeEnvelopeSchema.safeParse(await response.json().catch(() => null));
 
   if (!envelope.success) {
-    throw new Error(EDGE_RESPONSE_INVALID);
+    throw new EdgeFunctionError(
+      EDGE_RESPONSE_INVALID,
+      response.status,
+      null,
+      EDGE_RESPONSE_INVALID,
+    );
   }
 
   if (!response.ok || !envelope.data.ok) {
-    throw new Error(envelope.data.ok ? EDGE_RESPONSE_INVALID : envelope.data.error.code);
+    if (envelope.data.ok) {
+      throw new EdgeFunctionError(
+        EDGE_RESPONSE_INVALID,
+        response.status,
+        null,
+        EDGE_RESPONSE_INVALID,
+      );
+    }
+
+    throw new EdgeFunctionError(
+      envelope.data.error.code,
+      response.status,
+      envelope.data.error.metadata ?? null,
+      envelope.data.error.message,
+    );
   }
 
   return envelope.data.data;

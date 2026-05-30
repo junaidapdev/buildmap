@@ -1965,3 +1965,40 @@ AI-generated README — rejected (template is sufficient). Export configuration 
 
 **Reversibility:** Moderate. Removing the feature means deleting the Edge Function, shared export
 helpers, and overview card; Chunk 25 imports must keep pointing at `@shared/export/filenames`.
+
+## 2026-05-30 - AI Rate Limiting (Chunk 28)
+
+**Decision:** AI Edge Functions enforce two rolling-window limits: 200 AI calls per user per
+24 hours globally, and 20 calls per user per function per hour.
+
+**Reason:** The global limit protects project costs from runaway usage across the product. The
+per-function limit protects against tight retry loops on one expensive generation path. Together
+they allow normal heavy use while putting a hard ceiling on accidental or abusive bursts.
+
+**Implementation:** `public.check_rate_limit(p_user_id, p_function_name)` counts rows in
+`generation_logs`, returns `{ allowed, retry_after_seconds, reason }`, and is called through
+`backend/_shared/rate-limit/check-rate-limit.ts`. Every AI Edge Function calls `checkRateLimit`
+immediately after `requireAuth` and before request parsing or Zod validation.
+
+**Constants:** Runtime limits are duplicated in the Postgres function and
+`backend/_shared/rate-limit/limits.ts`. The SQL function is authoritative at runtime; the TypeScript
+file documents the values for code reviewers and future UI. Both must stay in sync.
+
+**Failure posture:** Rate-limit infrastructure fails open. If the RPC errors or returns an invalid
+shape, the helper logs a structured diagnostic and allows the AI request to continue. Telemetry
+problems should be visible, but they should not block legitimate users.
+
+**Counting rules:** Failed AI calls count toward the limit because they still consume time and a user
+slot. Rate-limit rejections do not write to `generation_logs` because they never reach the AI layer.
+Authentication failures do not count. Validation failures do not write telemetry rows; if a user is
+already over limit, they may receive `429` before their malformed payload is parsed.
+
+**No bypass:** There is no header, env var, or admin flag to bypass limits in the MVP. Changing limits
+or adding bypass behavior requires a reviewed code change.
+
+**Frontend behavior:** `frontend/src/features/_shared/AiErrorState.tsx` is the canonical AI error
+component. It detects `RATE_LIMIT_EXCEEDED`, shows a retry-after message, and omits the retry button
+for rate-limit errors. Generic AI failures still show the normal retry action.
+
+**Deferred:** No usage dashboard, approaching-limit warning, per-project cap, token-budget cap, Redis
+cache, or admin bypass in MVP.

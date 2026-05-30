@@ -100,6 +100,10 @@ enforced, that gap is stated explicitly rather than presented as completed work.
   excluded. The `logGeneration` helper handles its own internal errors so telemetry issues never
   fail the user-facing generation. Log payloads must never include user-provided prompts or
   AI-generated body text.
+- **AI rate limiting.** Every AI Edge Function must call `checkRateLimit` immediately after
+  `requireAuth` using a JWT-scoped Supabase client and the matching `GENERATION_FUNCTION_NAMES`
+  constant. The check runs before input parsing or validation, returns `429 RATE_LIMIT_EXCEEDED`
+  with `Retry-After` metadata when blocked, and must not write to `generation_logs`.
 
 ## REST Conventions
 

@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
+import { getAiErrorCopy } from '@/features/_shared/ai-error-copy';
 import { FeatureSpecSection } from '@/features/projects/feature-specs/FeatureSpecSection';
 import { FEATURE_SPEC_EDIT_MESSAGES } from '@/features/projects/feature-specs/edit/messages';
 import { getFeatureSpecSectionIssue } from '@/features/projects/feature-specs/edit/section-validation';
@@ -57,7 +58,8 @@ export function FeatureSpecSectionEditor({
 
   // Validate the section's draft before allowing Save, so a too-short/too-long field is caught inline
   // with a field-level message instead of failing opaquely on save (feature_spec_save_invalid_local).
-  const sectionError = mode === 'edit' ? getFeatureSpecSectionIssue(draft, sectionKey, label) : null;
+  const sectionError =
+    mode === 'edit' ? getFeatureSpecSectionIssue(draft, sectionKey, label) : null;
 
   useEffect(() => {
     onDirtyChange(sectionKey, isDirty);
@@ -176,7 +178,9 @@ export function FeatureSpecSectionEditor({
           <FeatureSpecSection markdown={value} />
           {(regenerate.isError || save.isError) && (
             <p className="mt-2 text-sm text-destructive">
-              {FEATURE_SPEC_EDIT_MESSAGES.REGENERATE_FAILED}
+              {regenerate.isError
+                ? getAiErrorCopy(regenerate.error, FEATURE_SPEC_EDIT_MESSAGES.REGENERATE_FAILED)
+                : FEATURE_SPEC_EDIT_MESSAGES.REGENERATE_FAILED}
             </p>
           )}
         </>

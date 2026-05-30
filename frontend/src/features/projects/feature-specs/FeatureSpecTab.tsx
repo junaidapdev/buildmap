@@ -44,9 +44,9 @@ export function FeatureSpecTab({ chunk, chunkId }: FeatureSpecTabProps) {
   } else if (spec.data) {
     body = <FeatureSpecView chunk={chunk} chunkId={chunkId} spec={spec.data} />;
   } else if (spec.isError) {
-    body = <FeatureSpecError onRetry={() => void spec.refetch()} />;
+    body = <FeatureSpecError error={spec.error} onRetry={() => void spec.refetch()} />;
   } else if (generate.isError) {
-    body = <FeatureSpecError onRetry={() => generateSpec()} />;
+    body = <FeatureSpecError error={generate.error} onRetry={() => generateSpec()} />;
   } else {
     // No spec yet: generation is idle or in flight.
     body = <FeatureSpecPending />;

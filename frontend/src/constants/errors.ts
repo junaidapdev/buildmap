@@ -6,6 +6,7 @@ export const ERROR_MESSAGES = {
   NOT_FOUND: 'We could not find what you were looking for.',
   VALIDATION: 'Some of the information you entered is invalid.',
   RATE_LIMITED: 'You are doing that too often. Try again in a moment.',
+  RATE_LIMIT_EXCEEDED: 'You have hit your usage limit. Please wait and try again.',
   AUTH_GENERIC: 'We could not complete authentication. Try again.',
   INVALID_CREDENTIALS: 'Email or password is incorrect.',
   EMAIL_ALREADY_REGISTERED: 'An account with this email already exists.',

@@ -67,13 +67,13 @@ export function ChunksPage() {
   } else if (chunksExist) {
     body = <ChunkBoard chunks={chunks} projectId={projectId} />;
   } else if (chunksQuery.isError) {
-    body = <ChunksError onRetry={() => void chunksQuery.refetch()} />;
+    body = <ChunksError error={chunksQuery.error} onRetry={() => void chunksQuery.refetch()} />;
   } else if (contextFiles.isPending) {
     body = <ChunksPending />;
   } else if (!contextFilesExist) {
     body = <ChunksGatingState projectId={projectId} />;
   } else if (generate.isError) {
-    body = <ChunksError onRetry={() => generateChunks()} />;
+    body = <ChunksError error={generate.error} onRetry={() => generateChunks()} />;
   } else {
     // Context files exist, no chunks yet: generation is idle or in flight.
     body = <ChunksPending />;

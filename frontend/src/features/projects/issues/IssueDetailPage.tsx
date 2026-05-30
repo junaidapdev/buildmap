@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes';
+import { getAiErrorCopy } from '@/features/_shared/ai-error-copy';
 import { useChunks } from '@/features/projects/chunks/useChunks';
 import { IssueSeverityBadge } from '@/features/projects/issues/IssueSeverityBadge';
 import { IssueStatusBadge } from '@/features/projects/issues/IssueStatusBadge';
@@ -196,7 +197,9 @@ export function IssueDetailPage() {
         <h2 className="text-lg font-semibold">{ISSUE_MESSAGES.PROMPT_HEADER}</h2>
         {generate.isError && (
           <Alert variant="destructive">
-            <AlertDescription>{ISSUE_MESSAGES.PROMPT_FAILED}</AlertDescription>
+            <AlertDescription>
+              {getAiErrorCopy(generate.error, ISSUE_MESSAGES.PROMPT_FAILED)}
+            </AlertDescription>
           </Alert>
         )}
         {promptBody}

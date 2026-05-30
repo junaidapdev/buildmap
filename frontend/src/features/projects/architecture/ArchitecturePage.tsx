@@ -76,15 +76,17 @@ export function ArchitecturePage() {
     // An existing architecture renders regardless of PRD state; the PRD only gates generation.
     body = <ArchitectureView arch={architecture.data} projectId={projectId} />;
   } else if (architecture.isError) {
-    body = <ArchitectureError onRetry={() => void architecture.refetch()} />;
+    body = (
+      <ArchitectureError error={architecture.error} onRetry={() => void architecture.refetch()} />
+    );
   } else if (prd.isPending) {
     body = <ArchitecturePending />;
   } else if (prd.isError) {
-    body = <ArchitectureError onRetry={() => void prd.refetch()} />;
+    body = <ArchitectureError error={prd.error} onRetry={() => void prd.refetch()} />;
   } else if (!prdApproved) {
     body = <ArchitectureGatingState projectId={projectId} />;
   } else if (generate.isError) {
-    body = <ArchitectureError onRetry={() => generateArchitecture()} />;
+    body = <ArchitectureError error={generate.error} onRetry={() => generateArchitecture()} />;
   } else {
     // PRD approved, no architecture yet: generation is idle or in flight.
     body = <ArchitecturePending />;

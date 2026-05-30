@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getAiErrorCopy } from '@/features/_shared/ai-error-copy';
 import { ArchitectureSection } from '@/features/projects/architecture/ArchitectureSection';
 import { ARCHITECTURE_EDIT_MESSAGES } from '@/features/projects/architecture/edit/messages';
 import { getArchitectureSectionIssues } from '@/features/projects/architecture/edit/section-validation';
@@ -58,9 +59,8 @@ export function ArchitectureSectionEditor<K extends ArchitectureSectionKey>({
 
   // Validate the edited section before allowing Save, so an empty/too-short field is caught inline
   // with a field-level message instead of failing opaquely on save (architecture_save_invalid_local).
-  const sectionIssues = mode === 'edit'
-    ? getArchitectureSectionIssues(stitch(draft), sectionKey, label)
-    : [];
+  const sectionIssues =
+    mode === 'edit' ? getArchitectureSectionIssues(stitch(draft), sectionKey, label) : [];
   const sectionInvalid = sectionIssues.length > 0;
 
   useEffect(() => {
@@ -159,7 +159,9 @@ export function ArchitectureSectionEditor<K extends ArchitectureSectionKey>({
           {renderView()}
           {(regenerate.isError || save.isError) && (
             <p className="mt-2 text-sm text-destructive">
-              {ARCHITECTURE_EDIT_MESSAGES.REGENERATE_FAILED}
+              {regenerate.isError
+                ? getAiErrorCopy(regenerate.error, ARCHITECTURE_EDIT_MESSAGES.REGENERATE_FAILED)
+                : ARCHITECTURE_EDIT_MESSAGES.REGENERATE_FAILED}
             </p>
           )}
         </>

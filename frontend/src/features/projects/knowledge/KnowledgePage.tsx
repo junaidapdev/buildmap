@@ -60,7 +60,9 @@ export function KnowledgePage() {
   if (learningsQuery.isPending) {
     body = <KnowledgePending />;
   } else if (learningsQuery.isError) {
-    body = <KnowledgeError onRetry={() => void learningsQuery.refetch()} />;
+    body = (
+      <KnowledgeError error={learningsQuery.error} onRetry={() => void learningsQuery.refetch()} />
+    );
   } else {
     const learnings = learningsQuery.data ?? [];
     if (learnings.length === 0) {
@@ -88,9 +90,7 @@ export function KnowledgePage() {
           <h1 className="text-2xl font-semibold">{KNOWLEDGE_MESSAGES.PAGE_TITLE}</h1>
           <p className="mt-2 text-muted-foreground">{KNOWLEDGE_MESSAGES.PAGE_SUBTITLE}</p>
         </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          {KNOWLEDGE_MESSAGES.ADD_NOTES_BUTTON}
-        </Button>
+        <Button onClick={() => setDialogOpen(true)}>{KNOWLEDGE_MESSAGES.ADD_NOTES_BUTTON}</Button>
       </header>
 
       {lastResult && (

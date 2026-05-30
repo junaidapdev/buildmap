@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase 5 — Export & Knowledge (complete). Phases 1–4 complete. The chunk generator (Chunk 18) slices the approved
+Phase 6 — Operations & Polish (in progress). Phases 1–5 complete. The chunk generator (Chunk 18) slices the approved
 PRD + architecture into shippable chunks and advances the project from `planning` to `ready_to_build`
 on first generation. The chunk board (Chunk 19) visualizes those chunks as a drag-and-drop Kanban
 with a column per status and persists moves via the `move_chunk` stored procedure. Feature specs
@@ -22,7 +22,9 @@ panel on the project overview. Chunk 25 added per-document markdown downloads ac
 architecture, context files, feature specs, agent prompts, and issue prompts. Chunk 26 added full
 project ZIP export via the `export-project-zip` Edge Function (`jszip` server-side) with a shared
 `backend/_shared/export/` module for filenames and README templating; the Export project card on the
-overview triggers a confirmed browser download. Phase 6 starts with Chunk 27 — `generation_logs` writes across AI Edge Functions (complete).
+overview triggers a confirmed browser download. Phase 6 started with Chunk 27 — `generation_logs`
+writes across AI Edge Functions — and Chunk 28 now enforces AI rate limits from that telemetry:
+200 AI calls per user per rolling 24 hours and 20 calls per AI function per user per rolling hour.
 
 ## Completed Chunks
 
@@ -54,6 +56,7 @@ overview triggers a confirmed browser download. Phase 6 starts with Chunk 27 —
 - [x] Chunk 25 — Per-Document Markdown Export
 - [x] Chunk 26 — Full Project ZIP Export
 - [x] Chunk 27 — Generation Logging
+- [x] Chunk 28 — Rate Limiting
 
 ## In Progress
 
@@ -61,7 +64,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 28
+- [ ] Chunk 29
 
 ## Blocked
 
@@ -194,6 +197,14 @@ deterministic mappings.
   the ZIP. Phase 6 starts with Chunk 27 — replace every `// TODO(chunk-27)` in AI Edge Functions
   with real `generation_logs` inserts.
 - Chunk 27 (Generation Logging) is complete. The `generation_logs` table schema was updated to align with the telemetry helper. A shared helper `logGeneration` at `backend/_shared/telemetry/log-generation.ts` was implemented to wrap `supabase.from('generation_logs').insert()`. All 14 AI Edge functions were instrumented to write to the telemetry table upon success and error (AI-related). The `TODO(chunk-27)` markers were removed.
+- Chunk 28 (Rate Limiting) is complete. Every AI Edge Function now calls `checkRateLimit`
+  immediately after `requireAuth` and before request parsing. Limits are enforced by the
+  `check_rate_limit` Postgres function using `generation_logs` as the source of truth. Keep
+  `backend/_shared/rate-limit/limits.ts` and the SQL function constants in sync: 200/day global,
+  20/hour per function. Rate-limit rejections return `429 RATE_LIMIT_EXCEEDED` with `Retry-After`
+  and do not write to `generation_logs`. Frontend AI error surfaces now use
+  `frontend/src/features/_shared/AiErrorState.tsx` for rate-limit-specific copy. Chunk 29 can build
+  settings on top of this; usage dashboards remain optional future work.
 - Knowledge ingestion is live (Chunk 24). The whole feature lives in
   `frontend/src/features/projects/knowledge/`. The page is at `/projects/{id}/knowledge` (sidebar
   Knowledge entry activated this chunk by removing its `pendingChunk: 24` marker); the new "Recent
