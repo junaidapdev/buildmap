@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 
 import type { FeatureSpecContent, FeatureSpecSectionKey } from '@shared/schemas/feature-spec';
 import { Badge } from '@/components/ui/badge';
+import type { ChunkRow } from '@/features/projects/chunks/useChunks';
 import { useDirtyGuard } from '@/features/projects/_shared/edit/useDirtyGuard';
 import {
   FEATURE_SPEC_SECTION_LABELS,
@@ -15,10 +16,11 @@ import { formatRelativeTime } from '@/lib/relative-time';
 
 type FeatureSpecViewProps = {
   spec: FeatureSpecRow;
+  chunk: Pick<ChunkRow, 'ref' | 'title'>;
   chunkId: string;
 };
 
-export function FeatureSpecView({ spec, chunkId }: FeatureSpecViewProps) {
+export function FeatureSpecView({ spec, chunk, chunkId }: FeatureSpecViewProps) {
   const content = spec.content_json;
 
   const [dirtyMap, setDirtyMap] = useState<Partial<Record<FeatureSpecSectionKey, boolean>>>({});
@@ -58,7 +60,7 @@ export function FeatureSpecView({ spec, chunkId }: FeatureSpecViewProps) {
         ))}
       </div>
 
-      <FeatureSpecActions chunkId={chunkId} spec={spec} />
+      <FeatureSpecActions chunk={chunk} chunkId={chunkId} spec={spec} />
     </article>
   );
 }

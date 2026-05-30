@@ -1,4 +1,4 @@
-import { CheckCircle2, RefreshCw } from 'lucide-react';
+import { CheckCircle2, Download, RefreshCw } from 'lucide-react';
 
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import {
@@ -13,19 +13,25 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import type { ChunkRow } from '@/features/projects/chunks/useChunks';
 import { FEATURE_SPEC_MESSAGES } from '@/features/projects/feature-specs/messages';
 import { useApproveFeatureSpec } from '@/features/projects/feature-specs/useApproveFeatureSpec';
 import type { FeatureSpecRow } from '@/features/projects/feature-specs/useExistingFeatureSpec';
 import { useGenerateFeatureSpec } from '@/features/projects/feature-specs/useGenerateFeatureSpec';
+import { useDownloadMarkdown } from '@/hooks/useDownloadMarkdown';
+import { FILENAMES } from '@/lib/filenames';
 
 type FeatureSpecActionsProps = {
   spec: FeatureSpecRow;
+  chunk: Pick<ChunkRow, 'ref' | 'title'>;
   chunkId: string;
 };
 
-export function FeatureSpecActions({ spec, chunkId }: FeatureSpecActionsProps) {
+export function FeatureSpecActions({ spec, chunk, chunkId }: FeatureSpecActionsProps) {
   const approve = useApproveFeatureSpec(chunkId);
   const generate = useGenerateFeatureSpec(chunkId);
+  const downloadMarkdown = useDownloadMarkdown();
+  const canDownload = spec.content.trim().length > 0;
 
   return (
     <div className="space-y-4 border-t pt-6">
@@ -74,13 +80,29 @@ export function FeatureSpecActions({ spec, chunkId }: FeatureSpecActionsProps) {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>{FEATURE_SPEC_MESSAGES.REGENERATE_CONFIRM_CANCEL}</AlertDialogCancel>
+              <AlertDialogCancel>
+                {FEATURE_SPEC_MESSAGES.REGENERATE_CONFIRM_CANCEL}
+              </AlertDialogCancel>
               <AlertDialogAction onClick={() => generate.mutate()}>
                 {FEATURE_SPEC_MESSAGES.REGENERATE_CONFIRM_CONFIRM}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <Button
+          disabled={!canDownload}
+          onClick={() =>
+            downloadMarkdown({
+              filename: FILENAMES.featureSpec(chunk.ref, chunk.title),
+              content: spec.content,
+            })
+          }
+          variant="outline"
+        >
+          <Download aria-hidden="true" className="h-4 w-4" />
+          {FEATURE_SPEC_MESSAGES.DOWNLOAD_BUTTON}
+        </Button>
       </div>
 
       <p className="text-right text-xs text-muted-foreground">

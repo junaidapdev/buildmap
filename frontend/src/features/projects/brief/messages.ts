@@ -13,6 +13,7 @@ export const BRIEF_MESSAGES = {
   REGENERATE_CONFIRM_CONFIRM: 'Yes, regenerate',
   REGENERATE_CONFIRM_CANCEL: 'Cancel',
   REGENERATE_HINT: 'Regenerating will reset the approved state.',
+  DOWNLOAD_BUTTON: 'Download',
   APPROVE_BUTTON: 'Approve brief',
   APPROVE_BUTTON_BUSY: 'Approving…',
   APPROVED_BANNER: 'Brief approved.',

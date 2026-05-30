@@ -78,12 +78,14 @@ export function ContextDocPanel({ projectId, meta, onDirtyChange }: ContextDocPa
         <>
           <ContextDocViewer content={doc.content} />
           <ContextDocActions
+            content={doc.content}
             isApproving={approve.isPending}
             isFinal={doc.is_final}
             isRegenerating={regenerate.isPending}
             onApprove={() => approve.mutate({ type: meta.type })}
             onEdit={() => setMode('edit')}
             onRegenerate={() => regenerate.mutate({ type: meta.type })}
+            type={meta.type}
           />
           {(approve.isError || regenerate.isError) && (
             <p className="text-sm text-destructive">

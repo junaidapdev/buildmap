@@ -1,6 +1,7 @@
-import { CheckCircle2, Pencil, RefreshCw } from 'lucide-react';
+import { CheckCircle2, Download, Pencil, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 
+import type { ContextFileType } from '@shared/schemas/context-files';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,8 +15,12 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { CONTEXT_FILES_MESSAGES } from '@/features/projects/context-files/messages';
+import { useDownloadMarkdown } from '@/hooks/useDownloadMarkdown';
+import { FILENAMES } from '@/lib/filenames';
 
 type ContextDocActionsProps = {
+  type: ContextFileType;
+  content: string;
   isFinal: boolean;
   onEdit: () => void;
   onApprove: () => void;
@@ -25,6 +30,8 @@ type ContextDocActionsProps = {
 };
 
 export function ContextDocActions({
+  type,
+  content,
   isFinal,
   onEdit,
   onApprove,
@@ -33,7 +40,9 @@ export function ContextDocActions({
   isRegenerating,
 }: ContextDocActionsProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const downloadMarkdown = useDownloadMarkdown();
   const busy = isApproving || isRegenerating;
+  const canDownload = content.trim().length > 0;
 
   function handleRegenerate(): void {
     setConfirmOpen(false);
@@ -74,10 +83,22 @@ export function ContextDocActions({
         </AlertDialogContent>
       </AlertDialog>
 
+      <Button
+        disabled={!canDownload}
+        onClick={() => downloadMarkdown({ filename: FILENAMES.contextDoc(type), content })}
+        size="sm"
+        variant="outline"
+      >
+        <Download aria-hidden="true" className="h-4 w-4" />
+        {CONTEXT_FILES_MESSAGES.DOWNLOAD_BUTTON}
+      </Button>
+
       {!isFinal && (
         <Button aria-busy={isApproving} disabled={busy} onClick={onApprove} size="sm">
           <CheckCircle2 aria-hidden="true" className="h-4 w-4" />
-          {isApproving ? CONTEXT_FILES_MESSAGES.APPROVE_BUSY : CONTEXT_FILES_MESSAGES.APPROVE_BUTTON}
+          {isApproving
+            ? CONTEXT_FILES_MESSAGES.APPROVE_BUSY
+            : CONTEXT_FILES_MESSAGES.APPROVE_BUTTON}
         </Button>
       )}
     </div>

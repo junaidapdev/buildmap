@@ -1050,7 +1050,7 @@ defaults and no `rehype-raw`, so the dependency does not add an HTML-injection s
 the others, and code standards and UI context overlap — which seven independent calls could not
 guarantee. Per-row storage lets each doc be approved and regenerated on its own and maps cleanly to the
 eventual export pack (one file per doc). Skipping `content_json` and the server-side renderer is correct
-*because* these artifacts are markdown by nature: a structured intermediate plus a renderer would add
+_because_ these artifacts are markdown by nature: a structured intermediate plus a renderer would add
 round-tripping with no payoff. Saving markdown directly via `rpc` (no Edge Function) is the simplest
 safe path since there is nothing to validate or render server-side beyond ownership and type, which the
 stored procedure already enforces. Rendering without `rehype-raw` removes the obvious XSS vector for
@@ -1548,6 +1548,7 @@ client-orchestrated two-step call (non-atomic) or a server-side transaction wrap
 in-procedure approach is cleaner.
 
 **Forward-only project status.** Two rules fire, both forward-only:
+
 1. `ready_to_build` → `building` when the post-move state has any chunk at `in_progress`.
 2. `building` → `completed` when the post-move state has at least one chunk AND every chunk is
    `completed`.
@@ -1897,3 +1898,32 @@ Quality rules:
 Expected JSON shape (illustrative and abbreviated):
 {"learnings":[{"type":"lesson","title":"Always Zod-validate AI output before persisting","content":"The model occasionally returns extra fields; rejecting at the boundary caught two regressions before they reached the database."},{"type":"decision","title":"Picked OpenAI gpt-4o-mini over Anthropic for chunk generation","content":"Cost was the deciding factor; we can swap providers in one config line when Anthropic's key returns."},{"type":"gotcha","title":"Supabase Edge Functions reject the preflight without verify_jwt=false","content":"Browser OPTIONS requests carry no Authorization header, so the platform rejects them before the handler runs. Set verify_jwt=false and authenticate inside the function."},{"type":"open_question","title":"Should we let users export the learnings as their own context file?","content":"Surfacing learnings as institutional memory only is the current scope, but downstream agent prompts could benefit from including them. Decide before export ships."}]}
 ```
+
+## 2026-05-30 - Per-Document Markdown Export
+
+**Decision:** Per-document markdown downloads are client-side only. The SPA creates a markdown
+`Blob`, generates an object URL, triggers the browser's standard `<a download>` flow, removes the
+temporary anchor, and revokes the object URL after a short delay.
+
+**Reason:** The document markdown is already in client memory on each view, so adding a server
+endpoint would create another authorization and data-access surface without adding value. The
+browser download pattern keeps the feature small and reuses the existing RLS-protected reads.
+
+**Filename mapping:** Deterministic filenames are centralized in `frontend/src/lib/filenames.ts`.
+Project-level docs use fixed names (`brief.md`, `prd.md`, `architecture.md`, the seven context file
+names). Chunk-derived docs include the chunk `ref` when available (`feature-spec-{ref}.md`,
+`prompt-{ref}-{target}.md`). Issue prompts include a title slug and short id
+(`issue-{title-slug}-{short-id}.md`). `slugForFilename()` lowercases names, replaces unsafe
+characters with hyphens, collapses runs, trims edges, and falls back to `untitled`.
+
+**Shared hook:** All UI surfaces call `useDownloadMarkdown({ filename, content })`, which delegates
+to `downloadMarkdown()` and ignores empty content. This keeps document views from duplicating DOM
+download code and gives Chunk 26 one filename source to reuse for ZIP entries.
+
+**Alternatives considered:** (a) Edge Function download endpoint — rejected because it would
+duplicate data reads and widen the backend surface for no benefit. (b) Per-view ad hoc download
+logic — rejected because filename and object URL cleanup rules would drift. (c) ZIP export now —
+rejected; full project ZIP packaging is Chunk 26.
+
+**Reversibility:** Easy. The feature is additive frontend code; removing it means deleting the
+button wiring plus the shared helper files.

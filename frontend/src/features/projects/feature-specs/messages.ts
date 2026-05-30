@@ -23,6 +23,7 @@ export const FEATURE_SPEC_MESSAGES = {
   REGENERATE_CONFIRM_CONFIRM: 'Yes, regenerate',
   REGENERATE_CONFIRM_CANCEL: 'Cancel',
   REGENERATE_HINT: 'Edit or regenerate any section above, or regenerate the whole spec.',
+  DOWNLOAD_BUTTON: 'Download',
 
   APPROVE_BUTTON: 'Approve spec',
   APPROVE_BUTTON_BUSY: 'Approving…',

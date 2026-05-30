@@ -227,6 +227,7 @@ export function ArchitectureView({ arch, projectId }: ArchitectureViewProps) {
       </div>
 
       <ArchitectureActions
+        content={arch.content}
         isApproving={approve.isPending}
         isFinal={arch.is_final}
         isRegenerating={generate.isPending}
