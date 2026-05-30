@@ -12,8 +12,8 @@ import { EmailConfirmPage } from '@/features/auth/EmailConfirmPage';
 import { OAuthCallbackPage } from '@/features/auth/OAuthCallbackPage';
 import { RequireAuth } from '@/features/auth/RequireAuth';
 import { SignInPage } from '@/features/auth/SignInPage';
-import { SignUpPage } from '@/features/auth/SignUpPage';
 import { useAuth } from '@/features/auth/useAuth';
+import { LandingPage } from '@/features/landing/LandingPage';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
 import { BriefPage } from '@/features/projects/brief/BriefPage';
 import { ClarifyPage } from '@/features/projects/clarify/ClarifyPage';
@@ -30,7 +30,6 @@ import { NewProjectPage } from '@/features/projects/new/NewProjectPage';
 import { OverviewPage } from '@/features/projects/overview/OverviewPage';
 import { PrdPage } from '@/features/projects/prd/PrdPage';
 import { SettingsPage } from '@/features/settings/SettingsPage';
-import { HomePage } from '@/pages/HomePage';
 
 const devRoutesPageLoader = DEV_ROUTES_PAGE_LOADER;
 
@@ -60,7 +59,9 @@ function NotFoundRoute() {
     );
   }
 
-  return <NotFoundPage variant="signedOut" />;
+  // Chunk 30: unknown URLs for unauthenticated visitors fall through to the public landing page
+  // rather than a not-found card. Marketing surface beats a dead end.
+  return <Navigate replace to={ROUTES.HOME} />;
 }
 
 function AppRoutes() {
@@ -72,9 +73,14 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path={ROUTES.HOME} element={<HomePage />} />
+      <Route path={ROUTES.HOME} element={<LandingPage />} />
       <Route path={ROUTES.SIGN_IN} element={<SignInPage />} />
-      <Route path={ROUTES.SIGN_UP} element={<SignUpPage />} />
+      {/* Chunk 30: /sign-up is no longer a distinct route. Inbound links land on the unified
+          auth surface with the sign-up tab pre-selected. */}
+      <Route
+        path="/sign-up"
+        element={<Navigate replace to={`${ROUTES.SIGN_IN}?mode=signup`} />}
+      />
       <Route path={ROUTES.AUTH_CALLBACK} element={<OAuthCallbackPage />} />
       <Route path={ROUTES.AUTH_CONFIRM} element={<EmailConfirmPage />} />
       <Route

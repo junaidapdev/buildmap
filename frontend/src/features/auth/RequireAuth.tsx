@@ -21,7 +21,10 @@ export function RequireAuth({ children }: PropsWithChildren) {
   }
 
   if (!session) {
-    return <Navigate to={ROUTES.SIGN_IN} replace state={{ from: location.pathname }} />;
+    // Chunk 30: unauthenticated visitors hitting a protected route land on the public landing
+    // page, not the sign-in form. The `from` state is preserved so a subsequent sign-in still
+    // returns the user to the originally requested path.
+    return <Navigate to={ROUTES.HOME} replace state={{ from: location.pathname }} />;
   }
 
   return children;

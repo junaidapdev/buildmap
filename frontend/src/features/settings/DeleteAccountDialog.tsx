@@ -39,7 +39,9 @@ export function DeleteAccountDialog({ open, onOpenChange }: Props) {
   const handleConfirm = () => {
     void deleteAccount.mutateAsync('delete my account').then(() => {
       onOpenChange(false);
-      navigate(ROUTES.SIGN_IN, { replace: true });
+      // Chunk 30: post-deletion redirects land on the public landing page (`/`), not the sign-in
+      // form. The account no longer exists; the landing page is the right re-entry point.
+      navigate(ROUTES.HOME, { replace: true });
     });
   };
 

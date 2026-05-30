@@ -18,7 +18,6 @@ function reportNavItem(item: NavItem): RouteReportRow {
 const PUBLIC_ROUTES: readonly RouteReportRow[] = [
   { path: ROUTES.HOME, availability: 'Available now' },
   { path: ROUTES.SIGN_IN, availability: 'Available now' },
-  { path: ROUTES.SIGN_UP, availability: 'Available now' },
   { path: ROUTES.AUTH_CALLBACK, availability: 'Available now' },
   { path: ROUTES.AUTH_CONFIRM, availability: 'Available now' },
 ] as const;

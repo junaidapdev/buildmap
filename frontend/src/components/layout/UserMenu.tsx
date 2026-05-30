@@ -22,7 +22,9 @@ export function UserMenu() {
 
   async function handleSignOut(): Promise<void> {
     await signOut();
-    navigate(ROUTES.SIGN_IN, { replace: true });
+    // Chunk 30: post-sign-out redirects land on the public landing page (`/`), not the sign-in
+    // form. Consistent with DangerZoneSection and DeleteAccountDialog.
+    navigate(ROUTES.HOME, { replace: true });
   }
 
   return (

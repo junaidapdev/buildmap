@@ -1,7 +1,9 @@
 export const ROUTES = {
+  /** Public landing page (Chunk 30). Authenticated visitors are redirected to /dashboard. */
   HOME: '/',
+  /** Unified auth surface. `?mode=signup` opens the sign-up tab. The legacy /sign-up route was
+   *  removed in Chunk 30 and is now a Navigate-back-to-HOME fallback like any unknown path. */
   SIGN_IN: '/sign-in',
-  SIGN_UP: '/sign-up',
   AUTH_CALLBACK: '/auth/callback',
   AUTH_CONFIRM: '/auth/confirm',
   DASHBOARD: '/dashboard',

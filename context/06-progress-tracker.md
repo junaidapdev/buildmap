@@ -26,7 +26,11 @@ overview triggers a confirmed browser download. Phase 6 started with Chunk 27 �
 writes across AI Edge Functions — and Chunk 28 now enforces AI rate limits from that telemetry:
 200 AI calls per user per rolling 24 hours and 20 calls per AI function per user per rolling hour.
 Chunk 29 added the settings page at `/settings` (profile, default preferred agent, sign out,
-account deletion via `delete-account` Edge Function).
+account deletion via `delete-account` Edge Function). Chunk 30 added the public landing page at
+`/` (hero + features grid + final CTA), collapsed the legacy `/sign-up` route into a tabbed surface
+on `/sign-in` (the `?mode=signup` query param pre-selects the sign-up tab), and rerouted every
+sign-out / account-deletion / unauthenticated-redirect path to `/` so the marketing surface is the
+single re-entry point. Next is Chunk 31 — deployment.
 
 ## Completed Chunks
 
@@ -60,6 +64,7 @@ account deletion via `delete-account` Edge Function).
 - [x] Chunk 27 — Generation Logging
 - [x] Chunk 28 — Rate Limiting
 - [x] Chunk 29 — Settings
+- [x] Chunk 30 — Landing Page
 
 ## In Progress
 
@@ -67,7 +72,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 30 — Landing Page
+- [ ] Chunk 31 — Deployment
 
 ## Blocked
 
@@ -193,11 +198,41 @@ deterministic mappings.
 
 ## Notes for Next Agent
 
+- Landing page is live (Chunk 30). The whole feature lives in `frontend/src/features/landing/`:
+  `LandingPage`, `HeroSection`, `FeaturesSection`, `FinalCtaSection`, `messages.ts`. The page
+  mounts at `/` and renders a wordmark header, hero with twin CTAs, a five-card features grid
+  (1/2/3 column responsive), and a final CTA. Authenticated visitors are redirected to `/dashboard`
+  synchronously via `<Navigate>` (no `useEffect`), so there's no flash of marketing content; a
+  brief invisible `min-h-screen` placeholder covers the moment `useAuth.loading` is still true.
+  `useDocumentTitle` sets the page title from `LANDING_MESSAGES.PAGE_TITLE`.
+- Brand name on the landing page is `buildmap`, not `SpecForge`. The Chunk 30 spec proposed
+  `SpecForge`; that conflicts with the canonical product name used everywhere else in the SPA and
+  with the workflow rule in `context/04-ai-workflow-rules.md`. The hero headline itself is unchanged
+  from the spec: "Plan your project once. Ship it with any AI."
+- The `/sign-up` route was removed in Chunk 30. The auth surface is now a single page at `/sign-in`
+  with a `Tabs` UI containing "Sign in" and "Sign up" panes. The form bodies were extracted into
+  `SignInForm.tsx` and `SignUpForm.tsx` (siblings of `SignInPage.tsx`); the page is the tab shell.
+  `/sign-in?mode=signup` pre-selects the sign-up tab on mount; any other `?mode=…` value (including
+  garbage, missing, or `signin`) defaults to sign-in. Subsequent tab switches are local state and do
+  NOT update the URL. Inbound `/sign-up` links are caught by a `<Navigate>` route that redirects
+  to `/sign-in?mode=signup`, so any external bookmark or old email still works.
+- Every sign-out / account-deletion / unauthenticated-redirect path now lands on `/`, not
+  `/sign-in`. Updated paths: `RequireAuth` (preserves `from` state for the eventual sign-in
+  return), `DangerZoneSection.handleSignOut`, `DeleteAccountDialog.handleConfirm`, and
+  `UserMenu.handleSignOut`. The unknown-URL fallback for unauthenticated visitors was also changed
+  from a not-found card to a `Navigate` to `/`.
+- Legacy components removed: `frontend/src/features/auth/SignUpPage.tsx` and
+  `frontend/src/pages/HomePage.tsx`. The HomePage's "buildmap — coming soon" placeholder is gone;
+  the landing page replaces it.
+- Chunk 31 (Deployment) is next. It should verify the public `/` route renders correctly with the
+  production env vars in Vercel/Netlify, ensure SPA rewrites land all unknown paths on
+  `index.html`, and confirm the landing page is the index without an explicit redirect. No
+  analytics or third-party scripts are loaded today; if added, that's a separate chunk. No
+  footer/privacy/terms pages exist in MVP — adding them is a post-MVP decision.
 - Settings page lives at `/settings`. Service role is used in exactly one place — `delete-account`
-  Edge Function — with an inline comment block. Chunk 30 (landing page) should change the
-  post-sign-out and post-delete redirect from `/sign-in` to `/` in `DangerZoneSection` and
-  `DeleteAccountDialog`. `useDocumentTitle` in `frontend/src/lib/document-title.ts` is ready for
-  Chunk 30.
+  Edge Function — with an inline comment block. (Chunk 30 picked up the sign-out redirect change
+  that Chunk 29's notes flagged.) `useDocumentTitle` in `frontend/src/lib/document-title.ts` is now
+  used by both Chunk 29 (settings) and Chunk 30 (landing).
 - Phase 5 is complete. Full project ZIP export works end-to-end (Chunk 26). Filename helpers live in
   `backend/_shared/export/filenames.ts` and are shared between Chunk 25 per-doc downloads and Chunk 26
   ZIP assembly via `@shared/export/filenames`. The Edge Function is `export-project-zip` (`jszip` is
