@@ -1,6 +1,7 @@
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
+import { BrandMark } from '@/components/layout/BrandMark';
 import { GLOBAL_NAV, PROJECT_BACK_NAV, PROJECT_NAV } from '@/components/layout/nav-config';
 import { SidebarNavItem } from '@/components/layout/SidebarNavItem';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,12 @@ type AppSidebarProps = {
   onNavigate?: () => void;
 };
 
+/**
+ * Two-section sidebar. Top: workspace-wide nav (Dashboard, Settings) with a `WORKSPACE` heading.
+ * Bottom: per-project nav when a project id is in the route, with the project name heading. The
+ * brand mark + wordmark live in a 56px header that aligns with the topbar. A BETA pill sits next
+ * to the wordmark to match the design.
+ */
 export function AppSidebar({
   collapsed = false,
   mobile = false,
@@ -25,61 +32,102 @@ export function AppSidebar({
   const projectId = id && id !== 'new' ? id : undefined;
   const projectMode = Boolean(projectId);
   const isCollapsed = mobile ? false : collapsed;
-  const navItems = projectMode ? PROJECT_NAV : GLOBAL_NAV;
 
   return (
     <aside
       className={cn(
-        'flex h-full flex-col border-r bg-card transition-[width] duration-200',
+        'flex h-full flex-col border-r bg-background transition-[width] duration-200',
         mobile ? 'w-full' : 'hidden shrink-0 md:flex',
-        !mobile && (isCollapsed ? 'w-16' : 'w-64'),
+        !mobile && (isCollapsed ? 'w-16' : 'w-60'),
       )}
     >
-      <div className={cn('flex h-14 items-center gap-2 px-3', isCollapsed && 'justify-center')}>
+      {/* Brand row aligns with the 56px topbar. */}
+      <div
+        className={cn(
+          'flex h-14 items-center gap-2.5 border-b border-border-subtle px-4',
+          isCollapsed && 'justify-center px-0',
+        )}
+      >
         <Link
-          to={ROUTES.DASHBOARD}
-          onClick={onNavigate}
-          className="rounded-md font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label={isCollapsed ? 'buildmap dashboard' : undefined}
+          className="flex items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          onClick={onNavigate}
+          to={ROUTES.DASHBOARD}
         >
-          {isCollapsed ? 'b' : 'buildmap'}
+          <BrandMark size={isCollapsed ? 24 : 26} />
+          {!isCollapsed && (
+            <span className="text-[15px] font-semibold tracking-tight">buildmap</span>
+          )}
         </Link>
-        {!mobile && !isCollapsed && (
-          <span className="text-xs text-muted-foreground">workspace</span>
+        {!isCollapsed && (
+          <span className="ml-1 rounded-full border border-border bg-subtle px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            Beta
+          </span>
         )}
         {!mobile && (
           <Button
-            className={cn('ml-auto', isCollapsed && 'ml-0')}
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            className={cn('ml-auto h-7 w-7', isCollapsed && 'ml-0')}
+            onClick={() => onCollapsedChange?.(!isCollapsed)}
+            size="icon"
             type="button"
             variant="ghost"
-            size="icon"
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            onClick={() => onCollapsedChange?.(!isCollapsed)}
           >
             {isCollapsed ? (
-              <PanelLeftOpen aria-hidden="true" />
+              <PanelLeftOpen aria-hidden="true" className="size-4" />
             ) : (
-              <PanelLeftClose aria-hidden="true" />
+              <PanelLeftClose aria-hidden="true" className="size-4" />
             )}
           </Button>
         )}
       </div>
-      <Separator />
-      <nav className="flex-1 space-y-1 px-2 py-4" aria-label={projectMode ? 'Project' : 'Main'}>
-        {navItems.map((item) => (
+
+      <nav
+        aria-label="Main"
+        className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4"
+      >
+        {!isCollapsed && (
+          <p className="px-2 pb-1.5 text-[11px] font-medium uppercase tracking-wider text-faint">
+            Workspace
+          </p>
+        )}
+        {GLOBAL_NAV.map((item) => (
           <SidebarNavItem
-            key={item.id}
-            item={item}
             collapsed={isCollapsed}
-            projectId={projectId}
+            item={item}
+            key={item.id}
             onNavigate={onNavigate}
           />
         ))}
+
+        {projectMode && (
+          <>
+            {!isCollapsed && (
+              <p className="mt-5 px-2 pb-1.5 text-[11px] font-medium uppercase tracking-wider text-faint">
+                Project
+              </p>
+            )}
+            {PROJECT_NAV.map((item) => (
+              <SidebarNavItem
+                collapsed={isCollapsed}
+                item={item}
+                key={item.id}
+                onNavigate={onNavigate}
+                projectId={projectId}
+              />
+            ))}
+          </>
+        )}
       </nav>
+
       {projectMode && (
-        <div className="p-2">
-          <Separator className="mb-2" />
-          <SidebarNavItem item={PROJECT_BACK_NAV} collapsed={isCollapsed} onNavigate={onNavigate} />
+        <div className="p-3">
+          <Separator className="mb-3" />
+          <SidebarNavItem
+            collapsed={isCollapsed}
+            item={PROJECT_BACK_NAV}
+            onNavigate={onNavigate}
+          />
         </div>
       )}
     </aside>

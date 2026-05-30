@@ -82,7 +82,7 @@ export function ChunksPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <header className="mb-8">
-        <h1 className="text-2xl font-semibold">{CHUNKS_MESSAGES.PAGE_TITLE}</h1>
+        <h1 className="text-[28px] font-semibold leading-[1.1] tracking-tight">{CHUNKS_MESSAGES.PAGE_TITLE}</h1>
         <p className="mt-2 text-muted-foreground">{CHUNKS_MESSAGES.PAGE_SUBTITLE}</p>
       </header>
       {showStatusAdvanced && (
