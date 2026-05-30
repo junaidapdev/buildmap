@@ -20,4 +20,7 @@ export const FEATURE_SPEC_EDIT_MESSAGES = {
 
   SAVE_FAILED: 'We could not save your changes. Try again.',
   REGENERATE_FAILED: 'We could not regenerate this section. Try again.',
+  VALIDATION_TOO_SHORT: (min: number) => `must be at least ${min} characters.`,
+  VALIDATION_TOO_LONG: (max: number) => `must be at most ${max} characters.`,
+  VALIDATION_INVALID: 'has an invalid value.',
 } as const;

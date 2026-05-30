@@ -18,6 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { FeatureSpecSection } from '@/features/projects/feature-specs/FeatureSpecSection';
 import { FEATURE_SPEC_EDIT_MESSAGES } from '@/features/projects/feature-specs/edit/messages';
+import { getFeatureSpecSectionIssue } from '@/features/projects/feature-specs/edit/section-validation';
 import { useRegenerateFeatureSpecSection } from '@/features/projects/feature-specs/edit/useRegenerateFeatureSpecSection';
 import { useSaveFeatureSpecSection } from '@/features/projects/feature-specs/edit/useSaveFeatureSpecSection';
 
@@ -54,6 +55,10 @@ export function FeatureSpecSectionEditor({
 
   const isDirty = mode === 'edit' && draft !== value;
 
+  // Validate the section's draft before allowing Save, so a too-short/too-long field is caught inline
+  // with a field-level message instead of failing opaquely on save (feature_spec_save_invalid_local).
+  const sectionError = mode === 'edit' ? getFeatureSpecSectionIssue(draft, sectionKey, label) : null;
+
   useEffect(() => {
     onDirtyChange(sectionKey, isDirty);
   }, [isDirty, onDirtyChange, sectionKey]);
@@ -69,6 +74,9 @@ export function FeatureSpecSectionEditor({
   }
 
   async function handleSave(): Promise<void> {
+    if (sectionError) {
+      return;
+    }
     const nextContent: FeatureSpecContent = { ...specContent, [sectionKey]: draft };
     try {
       await save.mutateAsync(nextContent);
@@ -99,7 +107,7 @@ export function FeatureSpecSectionEditor({
   }
 
   const busy = regenerate.isPending || save.isPending;
-  const canSave = draft.trim().length > 0 && draft !== value && !save.isPending;
+  const canSave = draft !== value && sectionError === null && !save.isPending;
 
   return (
     <section className="space-y-3">
@@ -182,6 +190,7 @@ export function FeatureSpecSectionEditor({
             spellCheck={false}
             value={draft}
           />
+          {sectionError && <p className="text-sm text-destructive">{sectionError}</p>}
           {save.isError && (
             <p className="text-sm text-destructive">{FEATURE_SPEC_EDIT_MESSAGES.SAVE_FAILED}</p>
           )}
