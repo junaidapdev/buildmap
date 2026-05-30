@@ -1,5 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
+import { GENERATION_FUNCTION_NAMES } from '@shared/telemetry/function-names.ts';
+import { logGeneration } from '@shared/telemetry/log-generation.ts';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { AiInvalidOutputError, AiProviderError, generate } from '@shared/ai/index.ts';
 import { AuthError, requireAuth } from '@shared/auth/verify.ts';
@@ -91,8 +94,18 @@ export async function handler(req: Request): Promise<Response> {
     );
   }
 
+  let userId: string | undefined;
+
+  let projectId: string | undefined;
+
+  let supabase: SupabaseClient | undefined;
+
   try {
-    const { jwt, userId } = await requireAuth(req);
+    const auth = await requireAuth(req);
+
+    userId = auth.userId;
+
+    const jwt = auth.jwt;
     let body: unknown;
 
     try {
@@ -117,8 +130,9 @@ export async function handler(req: Request): Promise<Response> {
       );
     }
 
-    const { projectId, answers } = parsedRequest.data;
-    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
+    const { projectId: parsedProjectId, answers } = parsedRequest.data;
+    projectId = parsedProjectId;
+    supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
@@ -254,16 +268,20 @@ export async function handler(req: Request): Promise<Response> {
       );
     }
 
-    // TODO(chunk-27): persist result.meta to generation_logs once usage logging is implemented.
-    logger.info('project_brief_generated', {
-      userId,
-      projectId,
+    await logGeneration(supabase, {
+      userId: userId!,
+      projectId: projectId ?? null,
+      functionName: GENERATION_FUNCTION_NAMES.GENERATE_PROJECT_BRIEF,
       provider: result.meta.provider,
       model: result.meta.model,
-      inputTokens: result.meta.inputTokens,
-      outputTokens: result.meta.outputTokens,
-      latencyMs: result.meta.latencyMs,
-      version: parsedRow.data.version,
+      inputTokens: result.meta.inputTokens ?? null,
+      outputTokens: result.meta.outputTokens ?? null,
+      latencyMs: result.meta.latencyMs ?? null,
+      success: true,
+      errorCode: null,
+      metadata: {
+        version: parsedRow.data.version,
+      },
     });
 
     return ok(parsedRow.data, HTTP_STATUS.OK, req);
@@ -279,6 +297,21 @@ export async function handler(req: Request): Promise<Response> {
 
     if (error instanceof AiInvalidOutputError) {
       logger.error('project_brief_ai_invalid_output');
+      if (supabase && userId) {
+        await logGeneration(supabase, {
+          userId,
+          projectId: projectId ?? null,
+          functionName: GENERATION_FUNCTION_NAMES.GENERATE_PROJECT_BRIEF,
+          provider: error.provider ?? 'unknown',
+          model: error.model ?? 'unknown',
+          inputTokens: null,
+          outputTokens: null,
+          latencyMs: error.latencyMs ?? null,
+          success: false,
+          errorCode: ERROR_CODES.AI_INVALID_OUTPUT,
+          metadata: { reason: error.message },
+        });
+      }
       return fail(
         ERROR_CODES.AI_INVALID_OUTPUT,
         ERROR_MESSAGES.AI_INVALID_OUTPUT,
@@ -292,6 +325,21 @@ export async function handler(req: Request): Promise<Response> {
         provider: error.provider,
         status: error.status,
       });
+      if (supabase && userId) {
+        await logGeneration(supabase, {
+          userId,
+          projectId: projectId ?? null,
+          functionName: GENERATION_FUNCTION_NAMES.GENERATE_PROJECT_BRIEF,
+          provider: error.provider ?? 'unknown',
+          model: error.model ?? 'unknown',
+          inputTokens: null,
+          outputTokens: null,
+          latencyMs: error.latencyMs ?? null,
+          success: false,
+          errorCode: ERROR_CODES.AI_PROVIDER_ERROR,
+          metadata: { status: error.status, reason: error.message },
+        });
+      }
       return fail(
         ERROR_CODES.AI_PROVIDER_ERROR,
         ERROR_MESSAGES.AI_PROVIDER_ERROR,
@@ -301,6 +349,21 @@ export async function handler(req: Request): Promise<Response> {
     }
 
     logger.error('project_brief_unhandled_error');
+    if (supabase && userId) {
+      await logGeneration(supabase, {
+        userId,
+        projectId: projectId ?? null,
+        functionName: GENERATION_FUNCTION_NAMES.GENERATE_PROJECT_BRIEF,
+        provider: 'unknown',
+        model: 'unknown',
+        inputTokens: null,
+        outputTokens: null,
+        latencyMs: null,
+        success: false,
+        errorCode: ERROR_CODES.INTERNAL,
+        metadata: { reason: error instanceof Error ? error.message : 'unknown' },
+      });
+    }
     return fail(
       ERROR_CODES.INTERNAL,
       ERROR_MESSAGES.INTERNAL,

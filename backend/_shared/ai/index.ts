@@ -40,13 +40,23 @@ export async function generate<T>(
   try {
     rawOutput = JSON.parse(providerResult.content);
   } catch {
-    throw new AiInvalidOutputError();
+    throw new AiInvalidOutputError(
+      'The AI provider output did not match the expected JSON schema.',
+      config.provider,
+      config.model,
+      performance.now() - start,
+    );
   }
 
   const validatedOutput = outputSchema.safeParse(rawOutput);
 
   if (!validatedOutput.success) {
-    throw new AiInvalidOutputError();
+    throw new AiInvalidOutputError(
+      'The AI provider output did not match the expected JSON schema.',
+      config.provider,
+      config.model,
+      performance.now() - start,
+    );
   }
 
   return {

@@ -30,9 +30,10 @@ export async function callProvider(
   const apiKey = env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     throw new AiProviderError(
-      'anthropic',
-      HTTP_STATUS.SERVICE_UNAVAILABLE,
       'ANTHROPIC_API_KEY is not configured.',
+      'anthropic',
+      config.model,
+      HTTP_STATUS.SERVICE_UNAVAILABLE,
     );
   }
 
@@ -54,9 +55,10 @@ export async function callProvider(
 
   if (!response.ok) {
     throw new AiProviderError(
-      'anthropic',
-      response.status,
       `Anthropic request failed with HTTP status ${response.status}.`,
+      'anthropic',
+      config.model,
+      response.status,
     );
   }
 
@@ -64,9 +66,10 @@ export async function callProvider(
 
   if (!result.success) {
     throw new AiProviderError(
-      'anthropic',
-      HTTP_STATUS.SERVICE_UNAVAILABLE,
       'Anthropic returned an unexpected response shape.',
+      'anthropic',
+      config.model,
+      HTTP_STATUS.SERVICE_UNAVAILABLE,
     );
   }
 
@@ -74,9 +77,10 @@ export async function callProvider(
 
   if (!content) {
     throw new AiProviderError(
-      'anthropic',
-      HTTP_STATUS.SERVICE_UNAVAILABLE,
       'Anthropic returned no text content.',
+      'anthropic',
+      config.model,
+      HTTP_STATUS.SERVICE_UNAVAILABLE,
     );
   }
 

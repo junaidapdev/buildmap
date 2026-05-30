@@ -94,6 +94,12 @@ enforced, that gap is stated explicitly rather than presented as completed work.
   and `AiInvalidOutputError` distinctly, returning HTTP `502` with the corresponding shared error
   code. Frontend AI features surface these failures as a retryable error state and never silently
   fall back.
+- **Generation logging.** Every AI Edge Function must write a telemetry record to `generation_logs`
+  via the `logGeneration` helper. The write must cover both the success path and the AI error paths
+  (`AiProviderError` and `AiInvalidOutputError`), while validation and auth failures are deliberately
+  excluded. The `logGeneration` helper handles its own internal errors so telemetry issues never
+  fail the user-facing generation. Log payloads must never include user-provided prompts or
+  AI-generated body text.
 
 ## REST Conventions
 

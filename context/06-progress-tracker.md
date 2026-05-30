@@ -22,8 +22,7 @@ panel on the project overview. Chunk 25 added per-document markdown downloads ac
 architecture, context files, feature specs, agent prompts, and issue prompts. Chunk 26 added full
 project ZIP export via the `export-project-zip` Edge Function (`jszip` server-side) with a shared
 `backend/_shared/export/` module for filenames and README templating; the Export project card on the
-overview triggers a confirmed browser download. Phase 6 starts with Chunk 27 — `generation_logs`
-writes across AI Edge Functions.
+overview triggers a confirmed browser download. Phase 6 starts with Chunk 27 — `generation_logs` writes across AI Edge Functions (complete).
 
 ## Completed Chunks
 
@@ -54,6 +53,7 @@ writes across AI Edge Functions.
 - [x] Chunk 24 — Knowledge Ingestion
 - [x] Chunk 25 — Per-Document Markdown Export
 - [x] Chunk 26 — Full Project ZIP Export
+- [x] Chunk 27 — Generation Logging
 
 ## In Progress
 
@@ -61,7 +61,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 27 — Generation Logs
+- [ ] Chunk 28
 
 ## Blocked
 
@@ -193,6 +193,7 @@ deterministic mappings.
   the only new Edge Function dependency). The overview's `ExportProjectCard` confirms then downloads
   the ZIP. Phase 6 starts with Chunk 27 — replace every `// TODO(chunk-27)` in AI Edge Functions
   with real `generation_logs` inserts.
+- Chunk 27 (Generation Logging) is complete. The `generation_logs` table schema was updated to align with the telemetry helper. A shared helper `logGeneration` at `backend/_shared/telemetry/log-generation.ts` was implemented to wrap `supabase.from('generation_logs').insert()`. All 14 AI Edge functions were instrumented to write to the telemetry table upon success and error (AI-related). The `TODO(chunk-27)` markers were removed.
 - Knowledge ingestion is live (Chunk 24). The whole feature lives in
   `frontend/src/features/projects/knowledge/`. The page is at `/projects/{id}/knowledge` (sidebar
   Knowledge entry activated this chunk by removing its `pendingChunk: 24` marker); the new "Recent

@@ -50,9 +50,10 @@ export async function callProvider(
 
   if (!response.ok) {
     throw new AiProviderError(
-      'openai',
-      response.status,
       `OpenAI request failed with HTTP status ${response.status}.`,
+      'openai',
+      config.model,
+      response.status,
     );
   }
 
@@ -60,9 +61,10 @@ export async function callProvider(
 
   if (!result.success) {
     throw new AiProviderError(
-      'openai',
-      HTTP_STATUS.SERVICE_UNAVAILABLE,
       'OpenAI returned an unexpected response shape.',
+      'openai',
+      config.model,
+      HTTP_STATUS.SERVICE_UNAVAILABLE,
     );
   }
 
@@ -70,9 +72,10 @@ export async function callProvider(
 
   if (!content) {
     throw new AiProviderError(
-      'openai',
-      HTTP_STATUS.SERVICE_UNAVAILABLE,
       'OpenAI returned no text content.',
+      'openai',
+      config.model,
+      HTTP_STATUS.SERVICE_UNAVAILABLE,
     );
   }
 
