@@ -32,7 +32,7 @@ const ROUTE_REPORT = [
 export function DevRoutesPage() {
   return (
     <section>
-      <h1 className="text-2xl font-semibold tracking-tight">Route map</h1>
+      <h1 className="text-[28px] font-semibold leading-[1.1] tracking-tight">Route map</h1>
       <p className="mt-2 text-muted-foreground">Current navigation activation status.</p>
       <div className="mt-6 overflow-hidden rounded-lg border">
         <table className="w-full text-left text-sm">
