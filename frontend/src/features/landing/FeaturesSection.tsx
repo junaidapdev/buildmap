@@ -1,31 +1,42 @@
 import {
   Bug,
+  CircleCheck,
+  File,
   FileText,
   KanbanSquare,
   Layers,
-  Sparkles,
+  Package,
+  Sparkle,
   Terminal,
   type LucideIcon,
 } from 'lucide-react';
 
-import { LANDING_MESSAGES } from '@/features/landing/messages';
+import { LANDING_MESSAGES, type FeatureIconName } from '@/features/landing/messages';
 
-const FEATURE_ICONS: readonly LucideIcon[] = [
-  Sparkles,
-  Layers,
-  KanbanSquare,
-  Terminal,
-  FileText,
-  Bug,
-];
+/** Maps the icon name in `messages.ts` to the actual Lucide icon component. */
+const FEATURE_ICON: Record<FeatureIconName, LucideIcon> = {
+  spark: Sparkle,
+  doc: File,
+  layers: Layers,
+  fileText: FileText,
+  kanban: KanbanSquare,
+  package: Package,
+  terminal: Terminal,
+  checkCircle: CircleCheck,
+  bug: Bug,
+};
 
 /**
- * Concrete artifact tiles. Mobile = 1 column, tablet = 2 columns, desktop = 3 columns. Each tile
- * gets a small icon chip and a tight title + body. Border-top separator from the prior section.
+ * §6.4 "What you get" — 3×3 deliverables grid (1 col mobile, 2 col tablet, 3 col desktop). Each
+ * tile is a `card` (border + rounded-xl + bg-elevated) with a 30×30 rounded-md icon chip, a 14px
+ * tight title, and a 13px muted body. Icon resolved from the per-tile name in messages.ts.
  */
 export function FeaturesSection() {
   return (
-    <section className="mx-auto max-w-6xl border-t border-border-subtle px-6 py-16" id="deliverables">
+    <section
+      className="mx-auto max-w-6xl border-t border-border-subtle px-6 py-16"
+      id="deliverables"
+    >
       <div className="mb-9">
         <p className="page-eyebrow">{LANDING_MESSAGES.FEATURES_EYEBROW}</p>
         <h2 className="max-w-2xl text-balance text-[clamp(1.5rem,3.5vw,2rem)] font-semibold leading-tight tracking-tight">
@@ -33,8 +44,8 @@ export function FeaturesSection() {
         </h2>
       </div>
       <div className="grid gap-3.5 md:grid-cols-2 lg:grid-cols-3">
-        {LANDING_MESSAGES.FEATURES_LIST.map((feature, index) => {
-          const Icon = FEATURE_ICONS[index] ?? Sparkles;
+        {LANDING_MESSAGES.FEATURES_LIST.map((feature) => {
+          const Icon = FEATURE_ICON[feature.icon];
           return (
             <article
               className="rounded-xl border bg-card p-5 transition-colors hover:border-border-strong"

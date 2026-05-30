@@ -1,22 +1,26 @@
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Check, LayoutGrid } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/constants/routes';
 import { LANDING_MESSAGES } from '@/features/landing/messages';
+import { ProductPreview } from '@/features/landing/ProductPreview';
 
 /**
- * Hero — single h1 with a muted second line for typographic depth, a NEW pill linking out to the
- * latest feature, two CTAs (primary signup → tabbed auth surface; secondary signin → same surface
- * with the sign-in tab pre-selected), and three reassurance chips below. The subtle grid backdrop
- * is rendered behind the hero with a radial mask so it fades out toward the edges.
+ * Hero per design handoff §6.2. Single h1 with a muted second clause for typographic depth, a NEW
+ * pill linking to the latest feature, twin CTAs (primary "Start a project" → sign-up tab on the
+ * auth surface; secondary "Open a demo" → /dashboard, which redirects to /sign-in for visitors
+ * without a session), three reassurance ticks, and the `ProductPreview` faux-window below.
+ *
+ * The grid backdrop is rendered behind the hero copy with a radial fade-out mask so it tapers off
+ * before reaching the ProductPreview shadow.
  */
 export function HeroSection() {
   return (
-    <section className="relative mx-auto max-w-6xl px-6 pb-16 pt-20 sm:pb-24 sm:pt-28">
+    <section className="relative mx-auto max-w-6xl px-6 pb-16 pt-20 sm:pt-24">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-40"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[640px] opacity-40"
         style={{
           backgroundImage:
             'linear-gradient(hsl(var(--border)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px)',
@@ -56,7 +60,10 @@ export function HeroSection() {
             </Link>
           </Button>
           <Button asChild size="lg" variant="outline">
-            <Link to={ROUTES.SIGN_IN}>{LANDING_MESSAGES.HERO_SECONDARY_CTA}</Link>
+            <Link to={ROUTES.DASHBOARD}>
+              <LayoutGrid aria-hidden="true" className="size-4" />
+              {LANDING_MESSAGES.HERO_SECONDARY_CTA}
+            </Link>
           </Button>
         </div>
 
@@ -68,6 +75,10 @@ export function HeroSection() {
             </li>
           ))}
         </ul>
+      </div>
+
+      <div className="relative mt-14">
+        <ProductPreview />
       </div>
     </section>
   );
