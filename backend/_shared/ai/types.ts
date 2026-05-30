@@ -9,6 +9,7 @@ export type GenerationType =
   | 'context_doc_regenerate'
   | 'chunk_generation'
   | 'feature_spec_generation'
+  | 'feature_spec_section_regeneration'
   | 'agent_prompt_generation'
   | 'issue_to_spec'
   | 'knowledge_extraction';
