@@ -2,7 +2,8 @@
   "imports": {
     "@shared/": "./_shared/",
     "@supabase/supabase-js": "npm:@supabase/supabase-js@2.106.2",
-    "zod": "npm:zod@4.4.3"
+    "zod": "npm:zod@4.4.3",
+    "jszip": "npm:jszip@3.10.1"
   },
   "lint": {
     "rules": {

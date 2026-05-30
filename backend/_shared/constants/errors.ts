@@ -17,6 +17,7 @@ export const ERROR_CODES = {
   ARCHITECTURE_NOT_FOUND: 'ARCHITECTURE_NOT_FOUND',
   CONTEXT_FILES_MISSING: 'CONTEXT_FILES_MISSING',
   FEATURE_SPEC_NOT_FOUND: 'FEATURE_SPEC_NOT_FOUND',
+  EXPORT_TOO_LARGE: 'EXPORT_TOO_LARGE',
 } as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
@@ -40,4 +41,5 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   ARCHITECTURE_NOT_FOUND: 'An architecture is required before generating chunks.',
   CONTEXT_FILES_MISSING: 'You must generate context files before generating chunks.',
   FEATURE_SPEC_NOT_FOUND: 'A feature spec is required before generating an agent prompt.',
+  EXPORT_TOO_LARGE: 'This export exceeds the 50 MB limit. Reduce content size and try again.',
 };

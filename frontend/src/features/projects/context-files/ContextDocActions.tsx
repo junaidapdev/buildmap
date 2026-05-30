@@ -16,7 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { CONTEXT_FILES_MESSAGES } from '@/features/projects/context-files/messages';
 import { useDownloadMarkdown } from '@/hooks/useDownloadMarkdown';
-import { FILENAMES } from '@/lib/filenames';
+import { FILENAMES } from '@shared/export/filenames';
 
 type ContextDocActionsProps = {
   type: ContextFileType;

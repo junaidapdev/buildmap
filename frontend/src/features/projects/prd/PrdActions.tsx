@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/constants/routes';
 import { PRD_MESSAGES } from '@/features/projects/prd/messages';
 import { useDownloadMarkdown } from '@/hooks/useDownloadMarkdown';
-import { FILENAMES } from '@/lib/filenames';
+import { FILENAMES } from '@shared/export/filenames';
 
 type PrdActionsProps = {
   projectId: string;

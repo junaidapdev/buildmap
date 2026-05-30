@@ -1927,3 +1927,31 @@ rejected; full project ZIP packaging is Chunk 26.
 
 **Reversibility:** Easy. The feature is additive frontend code; removing it means deleting the
 button wiring plus the shared helper files.
+
+## 2026-05-30 - Full Project ZIP Export (Chunk 26)
+
+**Decision:** ZIP export is server-side via `jszip` (`npm:jszip@3.10.1` in the Edge Function). The
+SPA sends one authenticated POST and receives a binary ZIP; errors still use the standard JSON
+envelope.
+
+**ZIP layout:** Root holds `README.md` (templated, not AI-generated), `AGENTS.md`, and `CLAUDE.md`.
+`context/` holds the five numbered orientation docs; `docs/` holds brief, PRD, and architecture;
+`chunks/{NN}-{ref}/` holds `feature-spec.md` and zero or more `prompt-*.md` files (only targets that
+exist); `issues/` holds one markdown file per issue; `learnings/` groups rows by type into up to
+four files (`lessons.md`, `decisions.md`, `gotchas.md`, `open-questions.md`). Empty types are omitted.
+
+**Shared export module:** `frontend/src/lib/filenames.ts` moved to `backend/_shared/export/filenames.ts`.
+Chunk 25 per-doc downloads and Chunk 26 ZIP assembly share this module via the `@shared` alias
+(`schemas/*`, `markdown/*`, `export/*`).
+
+**Chunks folder naming:** Zero-padded 2-digit position prefix (`01-`, `02-`, …) plus kebab-case
+`ref` (fallback: slugged title). MVP assumes at most 99 chunks per project.
+
+**Limits:** No project-status gating on export. Hard cap 50 MB assembled ZIP → `413` /
+`EXPORT_TOO_LARGE`. Full in-memory buffer before response (no streaming in MVP).
+
+**Alternatives considered:** Client-side ZIP — rejected (many round trips, large frontend bundle).
+AI-generated README — rejected (template is sufficient). Export configuration UI — out of scope.
+
+**Reversibility:** Moderate. Removing the feature means deleting the Edge Function, shared export
+helpers, and overview card; Chunk 25 imports must keep pointing at `@shared/export/filenames`.

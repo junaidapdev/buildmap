@@ -19,7 +19,7 @@ import { AGENT_PROMPT_MESSAGES } from '@/features/projects/feature-specs/prompt/
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { useDownloadMarkdown } from '@/hooks/useDownloadMarkdown';
 import type { AgentPromptRow } from '@/features/projects/feature-specs/prompt/useAgentPromptsForChunk';
-import { FILENAMES } from '@/lib/filenames';
+import { FILENAMES } from '@shared/export/filenames';
 import { formatRelativeTime } from '@/lib/relative-time';
 
 type PromptDisplayProps = {

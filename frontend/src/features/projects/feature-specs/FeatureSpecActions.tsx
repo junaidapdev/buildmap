@@ -19,7 +19,7 @@ import { useApproveFeatureSpec } from '@/features/projects/feature-specs/useAppr
 import type { FeatureSpecRow } from '@/features/projects/feature-specs/useExistingFeatureSpec';
 import { useGenerateFeatureSpec } from '@/features/projects/feature-specs/useGenerateFeatureSpec';
 import { useDownloadMarkdown } from '@/hooks/useDownloadMarkdown';
-import { FILENAMES } from '@/lib/filenames';
+import { FILENAMES } from '@shared/export/filenames';
 
 type FeatureSpecActionsProps = {
   spec: FeatureSpecRow;

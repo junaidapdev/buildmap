@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase 5 — Export & Knowledge (underway). Phases 1–4 complete. The chunk generator (Chunk 18) slices the approved
+Phase 5 — Export & Knowledge (complete). Phases 1–4 complete. The chunk generator (Chunk 18) slices the approved
 PRD + architecture into shippable chunks and advances the project from `planning` to `ready_to_build`
 on first generation. The chunk board (Chunk 19) visualizes those chunks as a drag-and-drop Kanban
 with a column per status and persists moves via the `move_chunk` stored procedure. Feature specs
@@ -19,8 +19,11 @@ spec body), and Chunk 24 added knowledge ingestion — pasted transcripts and no
 `extract-learnings` into structured `project_learnings` rows grouped by `lesson | decision | gotcha
 | open_question`, with a new Knowledge page at `/projects/{id}/knowledge` and a "Recent learnings"
 panel on the project overview. Chunk 25 added per-document markdown downloads across brief, PRD,
-architecture, context files, feature specs, agent prompts, and issue prompts. Next is Chunk 26 —
-full project ZIP export.
+architecture, context files, feature specs, agent prompts, and issue prompts. Chunk 26 added full
+project ZIP export via the `export-project-zip` Edge Function (`jszip` server-side) with a shared
+`backend/_shared/export/` module for filenames and README templating; the Export project card on the
+overview triggers a confirmed browser download. Phase 6 starts with Chunk 27 — `generation_logs`
+writes across AI Edge Functions.
 
 ## Completed Chunks
 
@@ -50,6 +53,7 @@ full project ZIP export.
 - [x] Chunk 23 — Issue-to-Spec Converter
 - [x] Chunk 24 — Knowledge Ingestion
 - [x] Chunk 25 — Per-Document Markdown Export
+- [x] Chunk 26 — Full Project ZIP Export
 
 ## In Progress
 
@@ -57,7 +61,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 26 — Full Project ZIP Export
+- [ ] Chunk 27 — Generation Logs
 
 ## Blocked
 
@@ -183,12 +187,12 @@ deterministic mappings.
 
 ## Notes for Next Agent
 
-- Per-document markdown download is live (Chunk 25). The shared download path is
-  `frontend/src/hooks/useDownloadMarkdown.ts` -> `frontend/src/lib/download.ts`; deterministic names
-  live in `frontend/src/lib/filenames.ts`. Every current document action surface now has a secondary
-  "Download" button: brief, PRD, architecture, context files, feature specs, agent prompts, and issue
-  corrective prompts. Chunk 26 should reuse `FILENAMES` for ZIP entries instead of creating a second
-  naming map.
+- Phase 5 is complete. Full project ZIP export works end-to-end (Chunk 26). Filename helpers live in
+  `backend/_shared/export/filenames.ts` and are shared between Chunk 25 per-doc downloads and Chunk 26
+  ZIP assembly via `@shared/export/filenames`. The Edge Function is `export-project-zip` (`jszip` is
+  the only new Edge Function dependency). The overview's `ExportProjectCard` confirms then downloads
+  the ZIP. Phase 6 starts with Chunk 27 — replace every `// TODO(chunk-27)` in AI Edge Functions
+  with real `generation_logs` inserts.
 - Knowledge ingestion is live (Chunk 24). The whole feature lives in
   `frontend/src/features/projects/knowledge/`. The page is at `/projects/{id}/knowledge` (sidebar
   Knowledge entry activated this chunk by removing its `pendingChunk: 24` marker); the new "Recent

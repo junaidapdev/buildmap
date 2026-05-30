@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/constants/routes';
 import { ARCHITECTURE_MESSAGES } from '@/features/projects/architecture/messages';
 import { useDownloadMarkdown } from '@/hooks/useDownloadMarkdown';
-import { FILENAMES } from '@/lib/filenames';
+import { FILENAMES } from '@shared/export/filenames';
 
 type ArchitectureActionsProps = {
   projectId: string;

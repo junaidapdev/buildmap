@@ -18,7 +18,7 @@ import { ISSUE_MESSAGES } from '@/features/projects/issues/messages';
 import { formatRelativeTime } from '@/lib/relative-time';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { useDownloadMarkdown } from '@/hooks/useDownloadMarkdown';
-import { FILENAMES } from '@/lib/filenames';
+import { FILENAMES } from '@shared/export/filenames';
 
 type IssuePromptDisplayProps = {
   issueId: string;
