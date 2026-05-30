@@ -425,6 +425,40 @@ verify_jwt = false
 entrypoint = "../functions/save-prd-content/index.ts"
 import_map = "../functions/save-prd-content/deno.json"
 
+# verify_jwt is false for every function: each one verifies the user's JWT itself via requireAuth.
+# Leaving the platform default (true) makes Supabase's gateway reject the CORS preflight OPTIONS
+# request (which carries no Authorization header), breaking the browser call before the function's
+# own CORS handler runs.
+[functions.generate-architecture]
+verify_jwt = false
+entrypoint = "../functions/generate-architecture/index.ts"
+import_map = "../functions/generate-architecture/deno.json"
+
+[functions.regenerate-architecture-section]
+verify_jwt = false
+entrypoint = "../functions/regenerate-architecture-section/index.ts"
+import_map = "../functions/regenerate-architecture-section/deno.json"
+
+[functions.save-architecture-content]
+verify_jwt = false
+entrypoint = "../functions/save-architecture-content/index.ts"
+import_map = "../functions/save-architecture-content/deno.json"
+
+[functions.generate-context-files]
+verify_jwt = false
+entrypoint = "../functions/generate-context-files/index.ts"
+import_map = "../functions/generate-context-files/deno.json"
+
+[functions.regenerate-context-doc]
+verify_jwt = false
+entrypoint = "../functions/regenerate-context-doc/index.ts"
+import_map = "../functions/regenerate-context-doc/deno.json"
+
+[functions.generate-chunks]
+verify_jwt = false
+entrypoint = "../functions/generate-chunks/index.ts"
+import_map = "../functions/generate-chunks/deno.json"
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
