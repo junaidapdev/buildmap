@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -34,6 +34,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { ROUTES } from '@/constants/routes';
 import { NEW_PROJECT_MESSAGES } from '@/features/projects/new/messages';
 import { PROJECT_AGENT_LABELS, PROJECT_TYPE_LABELS } from '@/features/projects/new/select-options';
+import { mapPreferredAgentForNewProject } from '@/features/settings/mapPreferredAgentForNewProject';
+import { useUserProfile } from '@/features/settings/useUserProfile';
 import { useCreateProject } from '@/features/projects/new/useCreateProject';
 
 type ProjectFormValues = z.input<typeof ProjectCreateSchema>;
@@ -50,6 +52,8 @@ function RequiredIndicator() {
 export function NewProjectForm() {
   const navigate = useNavigate();
   const createProject = useCreateProject();
+  const profileQuery = useUserProfile();
+  const appliedDefaultRef = useRef(false);
   const [showError, setShowError] = useState(false);
   const form = useForm<ProjectFormValues, unknown, ProjectCreateInput>({
     resolver: zodResolver(ProjectCreateSchema),
@@ -61,6 +65,17 @@ export function NewProjectForm() {
       preferred_agent: undefined,
     },
   });
+
+  useEffect(() => {
+    if (appliedDefaultRef.current || !profileQuery.data) {
+      return;
+    }
+    const mapped = mapPreferredAgentForNewProject(profileQuery.data.default_preferred_agent);
+    if (mapped) {
+      form.setValue('preferred_agent', mapped);
+    }
+    appliedDefaultRef.current = true;
+  }, [profileQuery.data, form]);
 
   function onSubmit(values: ProjectCreateInput): void {
     setShowError(false);

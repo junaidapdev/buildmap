@@ -2002,3 +2002,30 @@ for rate-limit errors. Generic AI failures still show the normal retry action.
 
 **Deferred:** No usage dashboard, approaching-limit warning, per-project cap, token-budget cap, Redis
 cache, or admin bypass in MVP.
+
+## 2026-06-07 - Settings (Chunk 29)
+
+**Decision:** User settings live at `/settings` (AppShell, not ProjectLayout). Three sections on one
+page: Account, Preferences, Danger zone. No tabs in MVP.
+
+**Service role exception:** `delete-account` is the only Edge Function that uses
+`SUPABASE_SERVICE_ROLE_KEY`, solely to call `auth.admin.deleteUser(userId)` where `userId` comes
+from the verified JWT. A mandatory comment block documents the exception.
+
+**Account deletion:** Immediate, no grace period. Two-step UI: user must type `delete my account`
+exactly (case-sensitive). Server validates via Zod `z.literal('delete my account')`. Deletion
+cascades: `auth.users` → `public.users` → `projects` → owned data; `generation_logs.user_id` ON
+DELETE CASCADE.
+
+**Profile fields:** `display_name` already existed on `public.users` (Chunk 04). This chunk adds
+`default_preferred_agent` (`claude_code` | `cursor` | `generic`). Updates go through
+`update_user_profile` (security invoker). Email is read-only in MVP.
+
+**New project pre-fill:** `default_preferred_agent` pre-fills `preferred_agent` on the new project
+form once per mount; `generic` maps to project enum `other`. Existing projects are not backfilled
+when the default changes.
+
+**Sign-out redirect:** `/sign-in` for now. Chunk 30 should change post-sign-out and post-delete
+redirects to `/` in `DangerZoneSection` and `DeleteAccountDialog`.
+
+**`useDocumentTitle`:** `frontend/src/lib/document-title.ts` — reused by Chunk 30 for the landing page.

@@ -25,6 +25,8 @@ project ZIP export via the `export-project-zip` Edge Function (`jszip` server-si
 overview triggers a confirmed browser download. Phase 6 started with Chunk 27 — `generation_logs`
 writes across AI Edge Functions — and Chunk 28 now enforces AI rate limits from that telemetry:
 200 AI calls per user per rolling 24 hours and 20 calls per AI function per user per rolling hour.
+Chunk 29 added the settings page at `/settings` (profile, default preferred agent, sign out,
+account deletion via `delete-account` Edge Function).
 
 ## Completed Chunks
 
@@ -57,6 +59,7 @@ writes across AI Edge Functions — and Chunk 28 now enforces AI rate limits fro
 - [x] Chunk 26 — Full Project ZIP Export
 - [x] Chunk 27 — Generation Logging
 - [x] Chunk 28 — Rate Limiting
+- [x] Chunk 29 — Settings
 
 ## In Progress
 
@@ -64,7 +67,7 @@ None.
 
 ## Next Up
 
-- [ ] Chunk 29
+- [ ] Chunk 30 — Landing Page
 
 ## Blocked
 
@@ -190,6 +193,11 @@ deterministic mappings.
 
 ## Notes for Next Agent
 
+- Settings page lives at `/settings`. Service role is used in exactly one place — `delete-account`
+  Edge Function — with an inline comment block. Chunk 30 (landing page) should change the
+  post-sign-out and post-delete redirect from `/sign-in` to `/` in `DangerZoneSection` and
+  `DeleteAccountDialog`. `useDocumentTitle` in `frontend/src/lib/document-title.ts` is ready for
+  Chunk 30.
 - Phase 5 is complete. Full project ZIP export works end-to-end (Chunk 26). Filename helpers live in
   `backend/_shared/export/filenames.ts` and are shared between Chunk 25 per-doc downloads and Chunk 26
   ZIP assembly via `@shared/export/filenames`. The Edge Function is `export-project-zip` (`jszip` is

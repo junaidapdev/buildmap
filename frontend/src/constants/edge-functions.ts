@@ -17,4 +17,5 @@ export const EDGE_FUNCTIONS = {
   GENERATE_ISSUE_PROMPT: 'generate-issue-prompt',
   EXTRACT_LEARNINGS: 'extract-learnings',
   EXPORT_PROJECT_ZIP: 'export-project-zip',
+  DELETE_ACCOUNT: 'delete-account',
 } as const;

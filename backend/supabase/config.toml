@@ -494,6 +494,11 @@ verify_jwt = false
 entrypoint = "../functions/export-project-zip/index.ts"
 import_map = "../functions/export-project-zip/deno.json"
 
+[functions.delete-account]
+verify_jwt = false
+entrypoint = "../functions/delete-account/index.ts"
+import_map = "../functions/delete-account/deno.json"
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 

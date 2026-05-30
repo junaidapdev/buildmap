@@ -29,6 +29,7 @@ import { ProjectLayout } from '@/features/projects/layout/ProjectLayout';
 import { NewProjectPage } from '@/features/projects/new/NewProjectPage';
 import { OverviewPage } from '@/features/projects/overview/OverviewPage';
 import { PrdPage } from '@/features/projects/prd/PrdPage';
+import { SettingsPage } from '@/features/settings/SettingsPage';
 import { HomePage } from '@/pages/HomePage';
 
 const devRoutesPageLoader = DEV_ROUTES_PAGE_LOADER;
@@ -60,14 +61,6 @@ function NotFoundRoute() {
   }
 
   return <NotFoundPage variant="signedOut" />;
-}
-
-function ProtectedNotFoundRoute() {
-  return (
-    <ProtectedShell>
-      <NotFoundPage variant="signedIn" />
-    </ProtectedShell>
-  );
 }
 
 function AppRoutes() {
@@ -104,7 +97,14 @@ function AppRoutes() {
           }
         />
       )}
-      <Route path={ROUTES.USER_SETTINGS} element={<ProtectedNotFoundRoute />} />
+      <Route
+        path={ROUTES.USER_SETTINGS}
+        element={
+          <ProtectedShell>
+            <SettingsPage />
+          </ProtectedShell>
+        }
+      />
       <Route
         path={ROUTES.PROJECT_NEW}
         element={
