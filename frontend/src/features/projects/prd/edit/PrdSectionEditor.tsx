@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PrdSection } from '@/features/projects/prd/PrdSection';
 import { PRD_EDIT_MESSAGES } from '@/features/projects/prd/edit/messages';
+import { getPrdSectionIssues } from '@/features/projects/prd/edit/section-validation';
 import { useRegeneratePrdSection } from '@/features/projects/prd/edit/useRegeneratePrdSection';
 import { useSavePrdSection } from '@/features/projects/prd/edit/useSavePrdSection';
 
@@ -53,6 +54,11 @@ export function PrdSectionEditor<K extends PrdSectionKey>({
 
   const isDirty = mode === 'edit' && JSON.stringify(draft) !== JSON.stringify(value);
 
+  // Validate the edited section before allowing Save, so an empty/too-short field is caught inline
+  // with a field-level message instead of failing opaquely on save (prd_save_invalid_local).
+  const sectionIssues = mode === 'edit' ? getPrdSectionIssues(stitch(draft), sectionKey, label) : [];
+  const sectionInvalid = sectionIssues.length > 0;
+
   useEffect(() => {
     onDirtyChange(sectionKey, isDirty);
   }, [isDirty, onDirtyChange, sectionKey]);
@@ -68,6 +74,9 @@ export function PrdSectionEditor<K extends PrdSectionKey>({
   }
 
   async function handleSave(): Promise<void> {
+    if (sectionInvalid) {
+      return;
+    }
     const nextContent = stitch(draft);
     try {
       await save.mutateAsync(nextContent);
@@ -147,6 +156,16 @@ export function PrdSectionEditor<K extends PrdSectionKey>({
       ) : (
         <div className="space-y-3 rounded-md border bg-muted/20 p-4">
           {renderEditor(draft, setDraft)}
+          {sectionInvalid && (
+            <div className="space-y-1 text-sm text-destructive">
+              <p className="font-medium">{PRD_EDIT_MESSAGES.VALIDATION_HEADING}</p>
+              <ul className="list-disc space-y-0.5 pl-5">
+                {sectionIssues.map((message, index) => (
+                  <li key={index}>{message}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           {save.isError && (
             <p className="text-sm text-destructive">{PRD_EDIT_MESSAGES.SAVE_FAILED}</p>
           )}
@@ -156,7 +175,7 @@ export function PrdSectionEditor<K extends PrdSectionKey>({
             </Button>
             <Button
               aria-busy={save.isPending}
-              disabled={save.isPending}
+              disabled={save.isPending || sectionInvalid}
               onClick={handleSave}
               size="sm"
             >
