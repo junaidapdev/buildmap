@@ -8,6 +8,7 @@ import type { MoveChunkInput } from '@/features/projects/chunks/board/useMoveChu
 import { CHUNKS_MESSAGES } from '@/features/projects/chunks/messages';
 import type { ChunkRow } from '@/features/projects/chunks/useChunks';
 import { cn } from '@/lib/utils';
+import type { Project } from '@/types/project';
 import type { ChunkStatus } from '@shared/schemas/chunks';
 
 type ChunkColumnProps = {
@@ -15,42 +16,41 @@ type ChunkColumnProps = {
   /** Chunks already filtered to this status and ordered by position. */
   chunks: ChunkRow[];
   projectId: string;
+  project: Project;
   onMove: (input: MoveChunkInput) => void;
 };
 
 /**
- * One column on the chunk Kanban. Header shows a status-colored dot next to the label, a tight
- * subtitle, and a tabular-nums count. The drop zone tints lightly when hovered with a card so the
- * target column reads immediately during a drag.
+ * One column on the chunk Kanban. Lumen-mockup-aligned header: status-colored dot + uppercase mono
+ * label + tabular count. The subtitle that used to sit under the label has been folded out — the
+ * label itself reads as the column purpose. The drop zone tints lightly when hovered with a card
+ * so the target column reads immediately during a drag.
  */
-export function ChunkColumn({ status, chunks, projectId, onMove }: ChunkColumnProps) {
+export function ChunkColumn({ status, chunks, projectId, project, onMove }: ChunkColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: columnDroppableId(status), data: { status } });
 
   return (
     <section
       aria-label={CHUNKS_MESSAGES.STATUS_LABELS[status]}
-      className="flex w-72 shrink-0 flex-col rounded-xl border bg-subtle"
+      className="flex w-80 shrink-0 flex-col rounded-xl border border-border-subtle bg-subtle/40"
     >
-      <header className="flex items-baseline justify-between gap-2 border-b border-border-subtle px-3 py-2.5">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span
-              aria-hidden="true"
-              className={cn('size-1.5 rounded-full', STATUS_DOT_CLASS[status])}
-            />
-            <h2 className="text-[11px] font-semibold uppercase tracking-wider">
-              {CHUNKS_MESSAGES.STATUS_LABELS[status]}
-            </h2>
-            <span className="font-mono text-[11px] tabular-nums text-faint">{chunks.length}</span>
-          </div>
-          <p className="mt-0.5 text-[11px] text-muted-foreground">
-            {CHUNKS_MESSAGES.COLUMN_DESCRIPTIONS[status]}
-          </p>
+      <header className="flex items-center justify-between gap-2 border-b border-border-subtle px-3 py-2.5">
+        <div className="flex items-center gap-2">
+          <span
+            aria-hidden="true"
+            className={cn('size-1.5 rounded-full', STATUS_DOT_CLASS[status])}
+          />
+          <h2 className="font-mono text-[11px] font-semibold uppercase tracking-wider text-foreground">
+            {CHUNKS_MESSAGES.STATUS_LABELS[status]}
+          </h2>
+          <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+            {chunks.length}
+          </span>
         </div>
       </header>
 
       <div
-        className={cn('min-h-24 flex-1 p-2 transition-colors', isOver && 'bg-hover')}
+        className={cn('min-h-24 flex-1 p-2 transition-colors', isOver && 'bg-hover/40')}
         ref={setNodeRef}
       >
         <SortableContext
@@ -64,7 +64,13 @@ export function ChunkColumn({ status, chunks, projectId, onMove }: ChunkColumnPr
           ) : (
             <ul className="flex flex-col gap-2">
               {chunks.map((chunk) => (
-                <ChunkCard chunk={chunk} key={chunk.id} onMove={onMove} projectId={projectId} />
+                <ChunkCard
+                  chunk={chunk}
+                  key={chunk.id}
+                  onMove={onMove}
+                  project={project}
+                  projectId={projectId}
+                />
               ))}
             </ul>
           )}

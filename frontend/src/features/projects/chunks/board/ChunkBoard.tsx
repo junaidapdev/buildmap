@@ -11,7 +11,7 @@ import {
 } from '@dnd-kit/core';
 import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { CheckCircle2, GripVertical, X } from 'lucide-react';
+import { CheckCircle2, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -23,9 +23,9 @@ import {
   parseColumnDroppableId,
 } from '@/features/projects/chunks/board/columns';
 import { useMoveChunk } from '@/features/projects/chunks/board/useMoveChunk';
-import { ChunksPageActions } from '@/features/projects/chunks/ChunksPageActions';
 import { CHUNKS_MESSAGES } from '@/features/projects/chunks/messages';
 import type { ChunkRow } from '@/features/projects/chunks/useChunks';
+import { useProject } from '@/features/projects/layout/useProject';
 import type { ChunkStatus } from '@shared/schemas/chunks';
 
 type ChunkBoardProps = {
@@ -52,6 +52,7 @@ function groupByStatus(chunks: ChunkRow[]): ColumnMap {
 }
 
 export function ChunkBoard({ projectId, chunks }: ChunkBoardProps) {
+  const { project } = useProject();
   const move = useMoveChunk(projectId);
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -110,13 +111,11 @@ export function ChunkBoard({ projectId, chunks }: ChunkBoardProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="text-sm text-muted-foreground">
-          {CHUNKS_MESSAGES.COUNT_LABEL(chunks.length)}
-        </span>
-        <ChunksPageActions projectId={projectId} />
-      </div>
-
+      {/*
+        Page header now owns the title + actions toolbar + stats meta row. ChunkBoard renders
+        only the move alerts and the DnD area so the visual rhythm flows page → alerts → columns
+        instead of duplicating chrome.
+      */}
       {move.isError && (
         <Alert variant="destructive">
           <AlertDescription>{CHUNKS_MESSAGES.MOVE_FAILED}</AlertDescription>
@@ -164,6 +163,7 @@ export function ChunkBoard({ projectId, chunks }: ChunkBoardProps) {
               chunks={byColumn[status]}
               key={status}
               onMove={move.mutate}
+              project={project}
               projectId={projectId}
               status={status}
             />
@@ -171,15 +171,8 @@ export function ChunkBoard({ projectId, chunks }: ChunkBoardProps) {
         </div>
         <DragOverlay modifiers={[restrictToWindowEdges]}>
           {activeChunk ? (
-            <div className="w-72 rounded-lg border bg-card p-3 text-card-foreground shadow-lg">
-              <div className="flex items-start gap-2">
-                <span className="mt-0.5 text-muted-foreground">
-                  <GripVertical aria-hidden="true" className="h-4 w-4" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <ChunkCardCompact chunk={activeChunk} />
-                </div>
-              </div>
+            <div className="w-72 rotate-1 rounded-lg border border-border bg-card p-3 text-card-foreground shadow-lg">
+              <ChunkCardCompact chunk={activeChunk} project={project} />
             </div>
           ) : null}
         </DragOverlay>

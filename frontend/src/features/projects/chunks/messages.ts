@@ -1,6 +1,8 @@
 export const CHUNKS_MESSAGES = {
+  PAGE_EYEBROW: 'CHUNKS · SHIPPABLE UNITS OF WORK',
   PAGE_TITLE: 'Chunks',
-  PAGE_SUBTITLE: 'Shippable units of work, ready to hand to an AI coding agent.',
+  PAGE_SUBTITLE:
+    'The project, sliced. Drag a card to change its column. Click a card for the spec + agent prompt.',
 
   PENDING_TITLE: 'Slicing your project into chunks…',
   PENDING_BODY: 'This usually takes 45–90 seconds.',
@@ -15,6 +17,7 @@ export const CHUNKS_MESSAGES = {
   GATING_OPEN_CONTEXT: 'Open context files',
 
   REGENERATE_ALL_BUTTON: 'Regenerate all chunks',
+  RESLICE_BUTTON: 'Re-slice',
   REGENERATE_ALL_BUSY: 'Regenerating…',
   REGENERATE_ALL_CONFIRM_TITLE: 'Regenerate all chunks?',
   REGENERATE_ALL_CONFIRM_BODY:
@@ -50,8 +53,35 @@ export const CHUNKS_MESSAGES = {
   } as const,
 
   COUNT_LABEL: (n: number) => `${n} chunk${n === 1 ? '' : 's'}`,
+
+  // Stats meta row: "5 done · 2 in progress · 4 backlog · 1 blocked · 42% shipped"
+  STATS_DONE: (n: number) => `${n} done`,
+  STATS_IN_PROGRESS: (n: number) => `${n} in progress`,
+  STATS_BACKLOG: (n: number) => `${n} backlog`,
+  STATS_BLOCKED: (n: number) => `${n} blocked`,
+  STATS_SHIPPED_PERCENT: (n: number) => `${n}% shipped`,
+
+  // View toggle (Board / List)
+  VIEW_BOARD: 'Board',
+  VIEW_LIST: 'List',
+  VIEW_TOGGLE_LABEL: 'View',
+
   STATUS_ADVANCED_TITLE: 'Ready to build',
   STATUS_ADVANCED_BODY: 'This project moved from planning to "Ready to build".',
+
+  // Per-card extras (overflow menu, agent label, blocked chip).
+  CARD_NUMBER_PREFIX: '#',
+  CARD_FILES_LABEL: (n: number) => `${n} file${n === 1 ? '' : 's'}`,
+  CARD_AGENT_FALLBACK: 'No agent',
+  CARD_AGENT_LABELS: {
+    claude_code: 'Claude Code',
+    cursor: 'Cursor',
+    codex: 'Codex',
+    windsurf: 'Windsurf',
+    other: 'Custom',
+  } as const,
+  CARD_BLOCKED_HINT: 'Blocked — see chunk for details.',
+  CARD_OVERFLOW_LABEL: 'Card actions',
 
   INCLUDED_FEATURES_LABEL: 'Includes features',
   DEPENDENCIES_LABEL: 'Depends on',
