@@ -12,8 +12,6 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { GoogleSignInButton } from '@/features/auth/GoogleSignInButton';
 import { AUTH_MESSAGES, authErrorMessage } from '@/features/auth/messages';
 import { SignUpSchema, type SignUpInput } from '@/features/auth/schemas';
 import { useAuth } from '@/features/auth/useAuth';
@@ -110,12 +108,6 @@ export function SignUpForm({ onRequestSignIn }: SignUpFormProps) {
           <AlertDescription>{errorMessage}</AlertDescription>
         </Alert>
       )}
-      <GoogleSignInButton onError={setErrorMessage} />
-      <div className="flex items-center gap-3">
-        <Separator className="flex-1" />
-        <span className="text-xs uppercase text-muted-foreground">{AUTH_MESSAGES.OR_DIVIDER}</span>
-        <Separator className="flex-1" />
-      </div>
       <form className="space-y-4" noValidate onSubmit={(event) => void handleSubmit(event)}>
         <div className="space-y-2">
           <Label htmlFor="sign-up-name">{AUTH_MESSAGES.DISPLAY_NAME_LABEL}</Label>
