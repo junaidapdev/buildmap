@@ -25,6 +25,10 @@ import { useSavePrdSection } from '@/features/projects/prd/edit/useSavePrdSectio
 type PrdSectionEditorProps<K extends PrdSectionKey> = {
   sectionKey: K;
   label: string;
+  /** 1-indexed section number passed through to PrdSection for the "01", "02"… caption. */
+  number: number;
+  /** Reflects the PRD's global is_final; PrdView passes the same value to every section. */
+  isApproved?: boolean;
   value: PrdContent[K];
   prdContent: PrdContent;
   projectId: string;
@@ -39,6 +43,8 @@ type PrdSectionEditorProps<K extends PrdSectionKey> = {
 export function PrdSectionEditor<K extends PrdSectionKey>({
   sectionKey,
   label,
+  number,
+  isApproved,
   value,
   stitch,
   projectId,
@@ -140,7 +146,7 @@ export function PrdSectionEditor<K extends PrdSectionKey>({
     ) : null;
 
   return (
-    <PrdSection action={actions} title={label}>
+    <PrdSection action={actions} isApproved={isApproved} number={number} title={label}>
       {regenerate.isPending ? (
         <div className="space-y-2">
           <Skeleton className="h-4 w-full" />

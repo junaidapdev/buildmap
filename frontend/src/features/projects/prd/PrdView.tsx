@@ -68,6 +68,9 @@ export function PrdView({ prd, projectId }: PrdViewProps) {
   const generate = useGeneratePrd(projectId);
   const approve = useApprovePrd(projectId);
   const content = prd.content_json;
+  // Mirror the global is_final into every section's tint. The mockup shows per-section approval,
+  // but the backend approves the PRD as a whole; honest visual is all-or-nothing.
+  const isApproved = prd.is_final;
 
   const [dirtyMap, setDirtyMap] = useState<Partial<Record<PrdSectionKey, boolean>>>({});
   const anyDirty = Object.values(dirtyMap).some(Boolean);
@@ -83,7 +86,7 @@ export function PrdView({ prd, projectId }: PrdViewProps) {
   const handleSaved = useCallback(() => {}, []);
 
   return (
-    <article className="space-y-8">
+    <article className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <Badge variant="outline">{PRD_MESSAGES.VERSION_LABEL(prd.version)}</Badge>
         <span className="text-xs text-muted-foreground">
@@ -92,9 +95,11 @@ export function PrdView({ prd, projectId }: PrdViewProps) {
         </span>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-4">
         <PrdSectionEditor
+          isApproved={isApproved}
           label={PRD_MESSAGES.SECTION_GOAL}
+          number={1}
           onDirtyChange={handleDirtyChange}
           onSaved={handleSaved}
           prdContent={content}
@@ -106,7 +111,9 @@ export function PrdView({ prd, projectId }: PrdViewProps) {
           value={content.goal}
         />
         <PrdSectionEditor
+          isApproved={isApproved}
           label={PRD_MESSAGES.SECTION_TARGET_USERS}
+          number={2}
           onDirtyChange={handleDirtyChange}
           onSaved={handleSaved}
           prdContent={content}
@@ -118,7 +125,9 @@ export function PrdView({ prd, projectId }: PrdViewProps) {
           value={content.target_users}
         />
         <PrdSectionEditor
+          isApproved={isApproved}
           label={PRD_MESSAGES.SECTION_PROBLEM}
+          number={3}
           onDirtyChange={handleDirtyChange}
           onSaved={handleSaved}
           prdContent={content}
@@ -130,7 +139,9 @@ export function PrdView({ prd, projectId }: PrdViewProps) {
           value={content.problem_statement}
         />
         <PrdSectionEditor
+          isApproved={isApproved}
           label={PRD_MESSAGES.SECTION_SUCCESS_CRITERIA}
+          number={4}
           onDirtyChange={handleDirtyChange}
           onSaved={handleSaved}
           prdContent={content}
@@ -142,7 +153,9 @@ export function PrdView({ prd, projectId }: PrdViewProps) {
           value={content.success_criteria}
         />
         <PrdSectionEditor
+          isApproved={isApproved}
           label={PRD_MESSAGES.SECTION_FEATURES}
+          number={5}
           onDirtyChange={handleDirtyChange}
           onSaved={handleSaved}
           prdContent={content}
@@ -156,7 +169,9 @@ export function PrdView({ prd, projectId }: PrdViewProps) {
           value={content.features}
         />
         <PrdSectionEditor
+          isApproved={isApproved}
           label={PRD_MESSAGES.SECTION_USER_STORIES}
+          number={6}
           onDirtyChange={handleDirtyChange}
           onSaved={handleSaved}
           prdContent={content}
@@ -170,7 +185,9 @@ export function PrdView({ prd, projectId }: PrdViewProps) {
           value={content.user_stories}
         />
         <PrdSectionEditor
+          isApproved={isApproved}
           label={PRD_MESSAGES.SECTION_OUT_OF_SCOPE}
+          number={7}
           onDirtyChange={handleDirtyChange}
           onSaved={handleSaved}
           prdContent={content}
@@ -182,7 +199,9 @@ export function PrdView({ prd, projectId }: PrdViewProps) {
           value={content.out_of_scope}
         />
         <PrdSectionEditor
+          isApproved={isApproved}
           label={PRD_MESSAGES.SECTION_OPEN_QUESTIONS}
+          number={8}
           onDirtyChange={handleDirtyChange}
           onSaved={handleSaved}
           prdContent={content}

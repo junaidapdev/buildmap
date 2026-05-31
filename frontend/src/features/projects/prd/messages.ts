@@ -1,6 +1,7 @@
 export const PRD_MESSAGES = {
-  PAGE_TITLE: 'PRD',
-  PAGE_SUBTITLE: 'What you are building, for whom, and how you will know it works.',
+  PAGE_EYEBROW: 'PRD · LIVING DOCUMENT',
+  PAGE_TITLE: 'Product requirements',
+  PAGE_SUBTITLE: 'Edit, regenerate, or approve the whole PRD. Each section can be regenerated on its own.',
 
   PENDING_TITLE: 'Drafting your PRD…',
   PENDING_BODY: 'This usually takes 30–60 seconds.',
