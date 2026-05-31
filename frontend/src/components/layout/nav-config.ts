@@ -4,13 +4,11 @@ import {
   ArrowLeft,
   BookOpen,
   Compass,
-  Download,
   FileText,
   KanbanSquare,
   Layers,
   LayoutDashboard,
   Settings,
-  SlidersHorizontal,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -76,20 +74,14 @@ export const PROJECT_NAV: readonly NavItem[] = [
     icon: BookOpen,
     to: ROUTES.PROJECT_KNOWLEDGE,
   },
-  {
-    id: 'export',
-    label: 'Export',
-    icon: Download,
-    to: ROUTES.PROJECT_EXPORT,
-    pendingChunk: 25,
-  },
-  {
-    id: 'project-settings',
-    label: 'Settings',
-    icon: SlidersHorizontal,
-    to: ROUTES.PROJECT_SETTINGS,
-    pendingChunk: 29,
-  },
+  // Export functionality lives as a card on the project overview page (Chunk 26 — full project
+  // ZIP export). No dedicated /projects/:id/export route exists, so the sidebar entry was removed
+  // rather than left as a dead button. Reintroduce here if a standalone Export page is ever built.
+  //
+  // Project-level Settings is not implemented — workspace-wide settings live at /settings
+  // (Chunk 29) and are reachable from the top-level WORKSPACE nav. The previous project-Settings
+  // entry has been removed for the same reason; bring it back here when a per-project settings
+  // page lands.
 ] as const;
 
 export const PROJECT_BACK_NAV: NavItem = {
