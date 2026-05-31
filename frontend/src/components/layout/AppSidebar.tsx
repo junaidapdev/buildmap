@@ -41,7 +41,9 @@ export function AppSidebar({
         !mobile && (isCollapsed ? 'w-16' : 'w-60'),
       )}
     >
-      {/* Brand row aligns with the 56px topbar. */}
+      {/* Brand row aligns with the 56px topbar. When the sidebar is collapsed to 64px there is
+          not enough room for both the BrandMark (24px) and the toggle button (28px) plus a gap,
+          so the toggle moves into its own centered row below — see the next block. */}
       <div
         className={cn(
           'flex h-14 items-center gap-2.5 border-b border-border-subtle px-4',
@@ -64,23 +66,37 @@ export function AppSidebar({
             Beta
           </span>
         )}
-        {!mobile && (
+        {!mobile && !isCollapsed && (
           <Button
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            className={cn('ml-auto h-7 w-7', isCollapsed && 'ml-0')}
+            aria-label="Collapse sidebar"
+            className="ml-auto h-7 w-7"
             onClick={() => onCollapsedChange?.(!isCollapsed)}
             size="icon"
             type="button"
             variant="ghost"
           >
-            {isCollapsed ? (
-              <PanelLeftOpen aria-hidden="true" className="size-4" />
-            ) : (
-              <PanelLeftClose aria-hidden="true" className="size-4" />
-            )}
+            <PanelLeftClose aria-hidden="true" className="size-4" />
           </Button>
         )}
       </div>
+
+      {/* Dedicated expand toggle when collapsed — its own row gives the 28px button room to
+          breathe and centers it cleanly under the BrandMark, replacing the cramped two-icon
+          brand row. */}
+      {!mobile && isCollapsed && (
+        <div className="flex justify-center border-b border-border-subtle py-2">
+          <Button
+            aria-label="Expand sidebar"
+            className="h-7 w-7"
+            onClick={() => onCollapsedChange?.(!isCollapsed)}
+            size="icon"
+            type="button"
+            variant="ghost"
+          >
+            <PanelLeftOpen aria-hidden="true" className="size-4" />
+          </Button>
+        </div>
+      )}
 
       <nav
         aria-label="Main"
