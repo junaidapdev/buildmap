@@ -1,5 +1,7 @@
-import { RefreshCw } from 'lucide-react';
+import { Pencil, RefreshCw } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
+
+import { cn } from '@/lib/utils';
 
 import type { PrdContent, PrdSectionKey } from '@shared/schemas/prd';
 import {
@@ -114,17 +116,35 @@ export function PrdSectionEditor<K extends PrdSectionKey>({
 
   const actions =
     mode === 'view' ? (
-      <div className="flex shrink-0 gap-1">
-        <Button disabled={busy} onClick={startEdit} size="sm" variant="ghost">
-          {PRD_EDIT_MESSAGES.EDIT_BUTTON}
+      <div className="flex shrink-0 items-center gap-0.5">
+        <Button
+          aria-label={PRD_EDIT_MESSAGES.EDIT_BUTTON}
+          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+          disabled={busy}
+          onClick={startEdit}
+          size="icon"
+          variant="ghost"
+        >
+          <Pencil aria-hidden="true" className="h-4 w-4" />
         </Button>
         <AlertDialog onOpenChange={setConfirmOpen} open={confirmOpen}>
           <AlertDialogTrigger asChild>
-            <Button aria-busy={regenerate.isPending} disabled={busy} size="sm" variant="ghost">
-              <RefreshCw aria-hidden="true" className="h-4 w-4" />
-              {regenerate.isPending
-                ? PRD_EDIT_MESSAGES.REGENERATE_SECTION_BUSY
-                : PRD_EDIT_MESSAGES.REGENERATE_SECTION_BUTTON}
+            <Button
+              aria-busy={regenerate.isPending}
+              aria-label={
+                regenerate.isPending
+                  ? PRD_EDIT_MESSAGES.REGENERATE_SECTION_BUSY
+                  : PRD_EDIT_MESSAGES.REGENERATE_SECTION_BUTTON
+              }
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              disabled={busy}
+              size="icon"
+              variant="ghost"
+            >
+              <RefreshCw
+                aria-hidden="true"
+                className={cn('h-4 w-4', regenerate.isPending && 'animate-spin')}
+              />
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>

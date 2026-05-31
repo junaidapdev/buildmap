@@ -1,7 +1,20 @@
+import { CheckCircle2, Download, RefreshCw } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
 import type { PrdContent, PrdSectionKey } from '@shared/schemas/prd';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { PrdActions } from '@/features/projects/prd/PrdActions';
 import { PrdFeatureCard } from '@/features/projects/prd/PrdFeatureCard';
 import { PrdUserStoryCard } from '@/features/projects/prd/PrdUserStoryCard';
@@ -15,7 +28,9 @@ import { PRD_MESSAGES } from '@/features/projects/prd/messages';
 import { useApprovePrd } from '@/features/projects/prd/useApprovePrd';
 import type { PrdRow } from '@/features/projects/prd/useExistingPrd';
 import { useGeneratePrd } from '@/features/projects/prd/useGeneratePrd';
+import { useDownloadMarkdown } from '@/hooks/useDownloadMarkdown';
 import { formatRelativeTime } from '@/lib/relative-time';
+import { FILENAMES } from '@shared/export/filenames';
 
 type PrdViewProps = {
   prd: PrdRow;
@@ -67,10 +82,13 @@ function renderStories(stories: PrdContent['user_stories']) {
 export function PrdView({ prd, projectId }: PrdViewProps) {
   const generate = useGeneratePrd(projectId);
   const approve = useApprovePrd(projectId);
+  const downloadMarkdown = useDownloadMarkdown();
   const content = prd.content_json;
   // Mirror the global is_final into every section's tint. The mockup shows per-section approval,
   // but the backend approves the PRD as a whole; honest visual is all-or-nothing.
   const isApproved = prd.is_final;
+  const canDownload = prd.content.trim().length > 0;
+  const busy = generate.isPending || approve.isPending;
 
   const [dirtyMap, setDirtyMap] = useState<Partial<Record<PrdSectionKey, boolean>>>({});
   const anyDirty = Object.values(dirtyMap).some(Boolean);
@@ -87,12 +105,79 @@ export function PrdView({ prd, projectId }: PrdViewProps) {
 
   return (
     <article className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
-        <Badge variant="outline">{PRD_MESSAGES.VERSION_LABEL(prd.version)}</Badge>
-        <span className="text-xs text-muted-foreground">
-          {PRD_MESSAGES.LAST_UPDATED_PREFIX}{' '}
-          {formatRelativeTime(prd.updated_at, PRD_MESSAGES.UPDATED_JUST_NOW)}
-        </span>
+      {/*
+        Doc toolbar. Left side carries the version + last-updated meta and (when applicable) the
+        Approved status pill so the doc-level state is visible at a glance. Right side pulls the
+        page's primary actions (Approve / Regenerate all / Export) out of the bottom and into the
+        header rhythm matching the mockup. Page-level controls only — per-section Edit/Regenerate
+        live inside each PrdSection.
+      */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <Badge variant="outline">{PRD_MESSAGES.VERSION_LABEL(prd.version)}</Badge>
+          {isApproved && (
+            <span className="inline-flex items-center gap-1.5 rounded-md border border-brand-soft-border bg-brand-soft px-2 py-0.5 text-[11px] font-medium text-brand-text">
+              <CheckCircle2 aria-hidden="true" className="h-3 w-3" />
+              {PRD_MESSAGES.APPROVED_BADGE}
+            </span>
+          )}
+          <span className="text-xs text-muted-foreground">
+            {PRD_MESSAGES.LAST_UPDATED_PREFIX}{' '}
+            {formatRelativeTime(prd.updated_at, PRD_MESSAGES.UPDATED_JUST_NOW)}
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {!isApproved && (
+            <Button
+              aria-busy={approve.isPending}
+              disabled={busy}
+              onClick={() => approve.mutate()}
+              size="sm"
+            >
+              {approve.isPending
+                ? PRD_MESSAGES.APPROVE_BUTTON_BUSY
+                : PRD_MESSAGES.APPROVE_BUTTON}
+            </Button>
+          )}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                aria-busy={generate.isPending}
+                disabled={busy}
+                size="sm"
+                variant="outline"
+              >
+                <RefreshCw aria-hidden="true" className="h-3.5 w-3.5" />
+                {generate.isPending
+                  ? PRD_MESSAGES.REGENERATE_BUSY
+                  : PRD_MESSAGES.REGENERATE_HEADER_BUTTON}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{PRD_MESSAGES.REGENERATE_CONFIRM_TITLE}</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {PRD_MESSAGES.REGENERATE_CONFIRM_BODY}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{PRD_MESSAGES.REGENERATE_CONFIRM_CANCEL}</AlertDialogCancel>
+                <AlertDialogAction onClick={() => generate.mutate()}>
+                  {PRD_MESSAGES.REGENERATE_CONFIRM_CONFIRM}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <Button
+            disabled={!canDownload}
+            onClick={() => downloadMarkdown({ filename: FILENAMES.prd(), content: prd.content })}
+            size="sm"
+            variant="outline"
+          >
+            <Download aria-hidden="true" className="h-3.5 w-3.5" />
+            {PRD_MESSAGES.EXPORT_HEADER_BUTTON}
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-4">
@@ -214,15 +299,12 @@ export function PrdView({ prd, projectId }: PrdViewProps) {
         />
       </div>
 
-      <PrdActions
-        content={prd.content}
-        isApproving={approve.isPending}
-        isFinal={prd.is_final}
-        isRegenerating={generate.isPending}
-        onApprove={() => approve.mutate()}
-        onRegenerate={() => generate.mutate()}
-        projectId={projectId}
-      />
+      {/*
+        Footer ribbon. After moving Approve / Regenerate-all / Download into the header toolbar
+        above, PrdActions is reduced to the "approved → next step" guidance banner, which is still
+        useful as an end-of-document call to action pointing at architecture.
+      */}
+      <PrdActions isFinal={prd.is_final} projectId={projectId} />
     </article>
   );
 }

@@ -16,6 +16,7 @@ export const PRD_MESSAGES = {
   GATING_OPEN_BRIEF: 'Open brief',
 
   REGENERATE_BUTTON: 'Regenerate full PRD',
+  REGENERATE_HEADER_BUTTON: 'Regenerate all',
   REGENERATE_BUSY: 'Regenerating…',
   REGENERATE_CONFIRM_TITLE: 'Regenerate the whole PRD?',
   REGENERATE_CONFIRM_BODY:
@@ -25,6 +26,8 @@ export const PRD_MESSAGES = {
   REGENERATE_HINT:
     'Edit or regenerate any section above, or regenerate the whole PRD. Either resets approval.',
   DOWNLOAD_BUTTON: 'Download',
+  EXPORT_HEADER_BUTTON: 'Export',
+  APPROVED_BADGE: 'Approved',
 
   APPROVE_BUTTON: 'Approve PRD',
   APPROVE_BUTTON_BUSY: 'Approving…',
