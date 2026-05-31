@@ -16,12 +16,16 @@ import { ISSUE_MESSAGES } from '@/features/projects/issues/messages';
 import { useGenerateIssuePrompt } from '@/features/projects/issues/useGenerateIssuePrompt';
 import { useIssue } from '@/features/projects/issues/useIssue';
 import { useResolveIssue } from '@/features/projects/issues/useResolveIssue';
+import { useProject } from '@/features/projects/layout/useProject';
+import { useDocumentTitle } from '@/lib/document-title';
 
 type DetailRouteState = { autoGenerate?: boolean } | null;
 
 export function IssueDetailPage() {
   const { id, issueId } = useParams<{ id: string; issueId: string }>();
   const location = useLocation();
+  // ProjectLayout has loaded the project before this nested route mounts.
+  const { project } = useProject();
   const issueQuery = useIssue(issueId ?? '');
   const chunksQuery = useChunks(id ?? '');
   // Hooks are called unconditionally with a safe fallback so the hook order stays stable when the
@@ -30,6 +34,11 @@ export function IssueDetailPage() {
   const resolve = useResolveIssue(id ?? '', issueId ?? '');
   const generatePrompt = generate.mutate;
   const autoFiredRef = useRef<string | null>(null);
+
+  // Title hook stays above the Navigate early return so hook order is stable across renders.
+  // Falls back to a generic "Issue" while the issue row is loading.
+  const issueTitle = issueQuery.data?.title ?? 'Issue';
+  useDocumentTitle(`${issueTitle} — ${project.name || 'Project'} — buildmap`);
 
   // Auto-fire generation when the user just created this issue from the dialog. Run-once per id so
   // returning to the page later doesn't regenerate.

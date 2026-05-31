@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { useProject } from '@/features/projects/layout/useProject';
+import { useDocumentTitle } from '@/lib/document-title';
 import { IssueListItem } from '@/features/projects/issues/IssueListItem';
 import { IssuesEmpty } from '@/features/projects/issues/IssuesEmpty';
 import { IssuesError } from '@/features/projects/issues/IssuesError';
@@ -14,6 +15,7 @@ export function IssuesListPage() {
   // ProjectLayout guarantees a loaded project before this page renders.
   const { project } = useProject();
   const projectId = project.id;
+  useDocumentTitle(`Issues — ${project.name || 'Project'} — buildmap`);
   const issuesQuery = useIssues(projectId);
   const [dialogOpen, setDialogOpen] = useState(false);
 

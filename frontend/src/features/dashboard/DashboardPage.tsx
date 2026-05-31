@@ -8,6 +8,7 @@ import { EmptyDashboard } from '@/features/dashboard/EmptyDashboard';
 import { DASHBOARD_MESSAGES } from '@/features/dashboard/messages';
 import { ProjectCard } from '@/features/dashboard/ProjectCard';
 import { useProjects } from '@/features/dashboard/useProjects';
+import { useDocumentTitle } from '@/lib/document-title';
 import type { Project } from '@/types/project';
 
 /**
@@ -69,6 +70,7 @@ function ProjectGrid({ projects }: { projects: readonly Project[] }) {
 }
 
 export function DashboardPage() {
+  useDocumentTitle('Dashboard — buildmap');
   const { data, isPending, isError, refetch } = useProjects();
 
   return (

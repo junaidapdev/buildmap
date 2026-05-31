@@ -1,5 +1,35 @@
 # buildmap Decision Log
 
+## 2026-05-31 - Pre-launch Polish: Meta Tags, OG Plumbing, SVG Favicon, Per-Route Titles
+
+**Decision:** Chunk 33 replaced the trivial `frontend/index.html` `<head>` with the full meta-tag
+suite (description, viewport, theme-color, lang=en, Open Graph, Twitter Card) plus favicon `<link>`
+references; shipped an SVG favicon (`frontend/public/favicon.svg`) matching the landing-page
+BrandMark; and wired `useDocumentTitle` into every top-level page component (sign-in tab-aware,
+auth-flow placeholders for email confirm / OAuth callback, project-scoped pages include the project
+name, chunk/issue detail pages include the chunk/issue title with a generic fallback while loading).
+Binary PNG image assets (`favicon-16/32`, `apple-touch-icon`, `og-image`) are intentionally deferred
+to manual production by the project owner — `frontend/public/PLACEHOLDER-favicon-and-og-image.md`
+documents the exact filenames, sizes, and a verification recipe, and the root-level
+`SUBMISSION-CHECKLIST.md` enumerates every manual step remaining before the hackathon ship. The
+`<meta property="og:url">` tag is committed but commented out until the production domain is known —
+guessing it would point at a 404 in social previews and is worse than absent.
+
+**Reason:** The product surface itself was launch-ready, but the boring "metadata layer" — favicon,
+description, OG card, per-tab titles — was missing. Pre-launch polish is its own chunk so it does
+not contaminate any feature PR. SVG-only on the favicon side is a deliberate accept: PNGs require
+binary tooling the chunk can't produce, and shipping a broken placeholder PNG would be worse than
+relying on the SVG and the placeholder doc. The per-page title hook calls are placed above any
+conditional early returns (per the React Rules of Hooks) so the title is set even during the brief
+loading state.
+
+**Alternatives considered:** Generating PNGs at build time via canvas/Node (rejected — adds a build
+dependency for a one-shot asset); hardcoding a guessed production URL in `og:url` (rejected —
+incorrect URL is worse than absent in share previews); leaving titles untouched (rejected — the
+browser tab is one of the first signals of a polished product).
+
+**Reversibility:** Easy.
+
 ## 2026-05-30 - Telemetry Logging Best-Effort
 
 **Decision:** Generation telemetry writes via `logGeneration` swallow internal Supabase insertion errors and log them via `logger.error` rather than throwing.

@@ -10,11 +10,13 @@ import { ARCHITECTURE_MESSAGES } from '@/features/projects/architecture/messages
 import { useExistingArchitecture } from '@/features/projects/architecture/useExistingArchitecture';
 import { useGenerateArchitecture } from '@/features/projects/architecture/useGenerateArchitecture';
 import { useExistingPrd } from '@/features/projects/prd/useExistingPrd';
+import { useDocumentTitle } from '@/lib/document-title';
 
 export function ArchitecturePage() {
   // The layout guarantees a loaded project before this page renders.
   const { project } = useProject();
   const projectId = project.id;
+  useDocumentTitle(`Architecture — ${project.name || 'Project'} — buildmap`);
   const location = useLocation();
   const prd = useExistingPrd(projectId);
   const architecture = useExistingArchitecture(projectId);

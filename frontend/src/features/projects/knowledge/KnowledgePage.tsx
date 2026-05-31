@@ -4,6 +4,7 @@ import type { LearningType } from '@shared/schemas/learning';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { useProject } from '@/features/projects/layout/useProject';
+import { useDocumentTitle } from '@/lib/document-title';
 import { AddNotesDialog } from '@/features/projects/knowledge/AddNotesDialog';
 import { KnowledgeEmpty } from '@/features/projects/knowledge/KnowledgeEmpty';
 import { KnowledgeError } from '@/features/projects/knowledge/KnowledgeError';
@@ -27,6 +28,7 @@ export function KnowledgePage() {
   // ProjectLayout guarantees a loaded project before this page renders.
   const { project } = useProject();
   const projectId = project.id;
+  useDocumentTitle(`Knowledge — ${project.name || 'Project'} — buildmap`);
   const learningsQuery = useLearnings(projectId);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [lastResult, setLastResult] = useState<ExtractionResult>(null);

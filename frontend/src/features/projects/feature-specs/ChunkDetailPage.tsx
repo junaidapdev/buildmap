@@ -12,15 +12,24 @@ import { NotesTab } from '@/features/projects/feature-specs/NotesTab';
 import { PromptTab } from '@/features/projects/feature-specs/PromptTab';
 import { FEATURE_SPEC_MESSAGES } from '@/features/projects/feature-specs/messages';
 import { useChunk } from '@/features/projects/feature-specs/useChunk';
+import { useProject } from '@/features/projects/layout/useProject';
+import { useDocumentTitle } from '@/lib/document-title';
 
 type TabValue = 'spec' | 'prompt' | 'notes';
 
 export function ChunkDetailPage() {
   const { id, chunkId } = useParams<{ id: string; chunkId: string }>();
+  // ProjectLayout has loaded the project before this nested route mounts.
+  const { project } = useProject();
   // Hook called unconditionally (disabled when chunkId is absent) to keep hook order stable.
   const chunkQuery = useChunk(chunkId ?? '');
   // Controlled tabs so the Prompt tab's SpecRequired state can deep-link back to the Spec tab.
   const [tab, setTab] = useState<TabValue>('spec');
+
+  // Title hook stays above the Navigate early return so hook order is stable across renders.
+  // Falls back to a generic "Chunk" while the chunk row is loading.
+  const chunkTitle = chunkQuery.data?.title ?? 'Chunk';
+  useDocumentTitle(`${chunkTitle} — ${project.name || 'Project'} — buildmap`);
 
   if (!id || !chunkId) {
     return <Navigate replace to={ROUTES.DASHBOARD} />;

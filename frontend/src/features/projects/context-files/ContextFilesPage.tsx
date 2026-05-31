@@ -9,11 +9,13 @@ import { useAllContextFiles } from '@/features/projects/context-files/useAllCont
 import { useGenerateContextFiles } from '@/features/projects/context-files/useGenerateContextFiles';
 import { useExistingArchitecture } from '@/features/projects/architecture/useExistingArchitecture';
 import { useProject } from '@/features/projects/layout/useProject';
+import { useDocumentTitle } from '@/lib/document-title';
 
 export function ContextFilesPage() {
   // The layout guarantees a loaded project before this page renders.
   const { project } = useProject();
   const projectId = project.id;
+  useDocumentTitle(`Context files — ${project.name || 'Project'} — buildmap`);
   const architecture = useExistingArchitecture(projectId);
   const contextFiles = useAllContextFiles(projectId);
   const generate = useGenerateContextFiles(projectId);

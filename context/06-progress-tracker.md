@@ -65,6 +65,7 @@ single re-entry point. Next is Chunk 31 — deployment.
 - [x] Chunk 28 — Rate Limiting
 - [x] Chunk 29 — Settings
 - [x] Chunk 30 — Landing Page
+- [x] Chunk 33 — Pre-launch Polish (favicon, meta tags, OG image plumbing, per-route page titles)
 
 ## In Progress
 

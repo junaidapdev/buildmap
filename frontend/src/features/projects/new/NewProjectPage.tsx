@@ -1,7 +1,9 @@
 import { NEW_PROJECT_MESSAGES } from '@/features/projects/new/messages';
 import { NewProjectForm } from '@/features/projects/new/NewProjectForm';
+import { useDocumentTitle } from '@/lib/document-title';
 
 export function NewProjectPage() {
+  useDocumentTitle('New project — buildmap');
   return (
     <div className="mx-auto max-w-2xl">
       <header className="mb-8">

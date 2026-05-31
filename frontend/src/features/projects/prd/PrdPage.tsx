@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 
 import { useExistingBrief } from '@/features/projects/brief/useExistingBrief';
 import { useProject } from '@/features/projects/layout/useProject';
+import { useDocumentTitle } from '@/lib/document-title';
 import { PRD_MESSAGES } from '@/features/projects/prd/messages';
 import { PrdError } from '@/features/projects/prd/PrdError';
 import { PrdGatingState } from '@/features/projects/prd/PrdGatingState';
@@ -14,6 +15,7 @@ export function PrdPage() {
   // The layout guarantees a loaded project before this page renders.
   const { project } = useProject();
   const projectId = project.id;
+  useDocumentTitle(`PRD — ${project.name || 'Project'} — buildmap`);
   const brief = useExistingBrief(projectId);
   const prd = useExistingPrd(projectId);
   const generate = useGeneratePrd(projectId);

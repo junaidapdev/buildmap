@@ -7,8 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTES } from '@/constants/routes';
 import { AUTH_MESSAGES } from '@/features/auth/messages';
 import { useAuth } from '@/features/auth/useAuth';
+import { useDocumentTitle } from '@/lib/document-title';
 
 export function EmailConfirmPage() {
+  useDocumentTitle('Confirming email — buildmap');
   const { loading, session } = useAuth();
   const navigate = useNavigate();
   const [timedOut, setTimedOut] = useState(false);
