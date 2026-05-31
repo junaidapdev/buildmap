@@ -1,6 +1,7 @@
 export const BRIEF_MESSAGES = {
+  PAGE_EYEBROW: 'BRIEF · LIVING DOCUMENT',
   PAGE_TITLE: 'Project brief',
-  PAGE_SUBTITLE: 'A structured summary of what you are building.',
+  PAGE_SUBTITLE: 'A structured summary of what you are building. Approve or regenerate the whole brief.',
   PENDING_TITLE: 'Drafting your brief…',
   PENDING_BODY: 'This usually takes 10–25 seconds.',
   ERROR_TITLE: 'We could not generate your brief',
