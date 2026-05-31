@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { BrandMark } from '@/components/layout/BrandMark';
 import { GLOBAL_NAV, PROJECT_BACK_NAV, PROJECT_NAV } from '@/components/layout/nav-config';
 import { SidebarNavItem } from '@/components/layout/SidebarNavItem';
+import { SidebarRecentProjects } from '@/components/layout/SidebarRecentProjects';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ROUTES } from '@/constants/routes';
@@ -115,6 +116,10 @@ export function AppSidebar({
             onNavigate={onNavigate}
           />
         ))}
+
+        {/* RECENT section fills the otherwise-empty sidebar space below WORKSPACE on the
+            dashboard. Hidden when the sidebar is collapsed to icons-only. */}
+        {!isCollapsed && <SidebarRecentProjects onNavigate={onNavigate} />}
 
         {projectMode && (
           <>

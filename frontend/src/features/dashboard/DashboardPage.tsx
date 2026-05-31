@@ -1,7 +1,6 @@
 import { Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/constants/routes';
 import { DashboardError } from '@/features/dashboard/DashboardError';
 import { DashboardSkeleton } from '@/features/dashboard/DashboardSkeleton';
@@ -12,27 +11,20 @@ import { useProjects } from '@/features/dashboard/useProjects';
 import type { Project } from '@/types/project';
 
 /**
- * Page-header pattern: mono eyebrow over a 28px title with a tight subtitle. The CTA aligns to
- * the right on tablet+, stacks on mobile.
+ * Page-header pattern: mono eyebrow over a 28px title with a tight subtitle. The "+ New project"
+ * CTA used to live on the right of this header, but it moved to the AppHeader topbar so the
+ * primary action is reachable from every page in the workspace.
  */
 function DashboardHeader() {
   return (
-    <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-      <div>
-        <p className="page-eyebrow">{DASHBOARD_MESSAGES.PAGE_EYEBROW}</p>
-        <h1 className="text-[28px] font-semibold leading-[1.1] tracking-tight">
-          {DASHBOARD_MESSAGES.PAGE_TITLE}
-        </h1>
-        <p className="mt-2 max-w-2xl text-[14px] text-muted-foreground">
-          {DASHBOARD_MESSAGES.PAGE_SUBTITLE}
-        </p>
-      </div>
-      <Button asChild className="shrink-0" size="sm">
-        <Link to={ROUTES.PROJECT_NEW}>
-          <Plus aria-hidden="true" className="size-3.5" />
-          {DASHBOARD_MESSAGES.NEW_PROJECT_BUTTON}
-        </Link>
-      </Button>
+    <header className="mb-8">
+      <p className="page-eyebrow">{DASHBOARD_MESSAGES.PAGE_EYEBROW}</p>
+      <h1 className="text-[28px] font-semibold leading-[1.1] tracking-tight">
+        {DASHBOARD_MESSAGES.PAGE_TITLE}
+      </h1>
+      <p className="mt-2 max-w-2xl text-[14px] text-muted-foreground">
+        {DASHBOARD_MESSAGES.PAGE_SUBTITLE}
+      </p>
     </header>
   );
 }
@@ -61,8 +53,13 @@ function NewProjectTile() {
 }
 
 function ProjectGrid({ projects }: { projects: readonly Project[] }) {
+  // The 3-column layout previously kicked in at `lg` (1024px viewport), which left only ~760px
+  // of content width after the 240px sidebar and the AppShell padding. Three cards in that space
+  // ran tight and (at slightly narrower viewports) appeared to overflow horizontally. Bumping the
+  // 3-column breakpoint to `xl` (1280px) gives each card ~340px of room, matching the design's
+  // intended density and removing the clipping the user reported.
   return (
-    <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       <NewProjectTile />
       {projects.map((project) => (
         <ProjectCard key={project.id} project={project} />

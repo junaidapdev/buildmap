@@ -1,18 +1,22 @@
-import { Menu } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { Menu, Plus } from 'lucide-react';
+import { Link, useParams } from 'react-router-dom';
 
 import { UserMenu } from '@/components/layout/UserMenu';
 import { Button } from '@/components/ui/button';
+import { ROUTES } from '@/constants/routes';
 
 type AppHeaderProps = {
   onOpenNavigation: () => void;
 };
 
 /**
- * 56px topbar. The wordmark lives in the sidebar; the topbar gets a mobile menu trigger, a thin
- * breadcrumb-ish placeholder (rendered as a faint divider hint when no breadcrumb is set), and the
- * UserMenu on the right. Keeping this minimal so individual pages can own their own page header
- * (title + subtitle + actions) inside the main content area.
+ * 56px topbar. The wordmark lives in the sidebar; the topbar carries the workspace-level primary
+ * action (`+ New project`) on the right next to the UserMenu so the most important action is
+ * available from anywhere in the app — not just from the dashboard. Mobile collapses the button
+ * label to keep the bar compact.
+ *
+ * The mobile menu trigger sits on the left and is hidden from `md+` viewports where the
+ * persistent sidebar takes over.
  */
 export function AppHeader({ onOpenNavigation }: AppHeaderProps) {
   // Reserved for future per-route breadcrumb rendering (currently a no-op on every route).
@@ -31,6 +35,13 @@ export function AppHeader({ onOpenNavigation }: AppHeaderProps) {
         <Menu aria-hidden="true" className="size-4" />
       </Button>
       <div className="flex-1" />
+      <Button asChild className="h-8" size="sm">
+        <Link to={ROUTES.PROJECT_NEW}>
+          <Plus aria-hidden="true" className="size-3.5" />
+          <span className="hidden sm:inline">New project</span>
+          <span className="sr-only sm:hidden">New project</span>
+        </Link>
+      </Button>
       <UserMenu />
     </header>
   );
