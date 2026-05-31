@@ -3,8 +3,9 @@ import type { ChunkStatus } from '@shared/schemas/chunks';
 import type { ProjectStatus } from '@/types/project';
 
 export const PROGRESS_MESSAGES = {
+  PAGE_EYEBROW: 'PROGRESS · LIVE STATE OF THE BUILD',
   PAGE_TITLE: 'Progress',
-  PAGE_SUBTITLE: 'Live state of the build.',
+  PAGE_SUBTITLE: 'Where every chunk stands right now, and what just shifted.',
 
   PENDING_TITLE: 'Loading progress…',
 
