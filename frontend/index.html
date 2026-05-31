@@ -3,7 +3,49 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>buildmap</title>
+    <!-- theme-color mirrors --foreground (#0c0a09) so the BrandMark and the mobile Chrome
+         address bar share the same near-black background. -->
+    <meta name="theme-color" content="#0c0a09" />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- Page title (overridden per-route by useDocumentTitle) -->
+    <title>buildmap — Spec-driven project planning for AI builders</title>
+
+    <!-- Standard meta -->
+    <meta
+      name="description"
+      content="buildmap turns a raw idea into a brief, a PRD, an architecture doc, and a queue of small, ship-on-their-own chunks — each one wrapped in a prompt your coding agent can actually execute."
+    />
+
+    <!-- Open Graph (Facebook, LinkedIn, Slack, Discord) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="buildmap" />
+    <meta property="og:title" content="buildmap — Spec-driven project planning for AI builders" />
+    <meta
+      property="og:description"
+      content="Turn raw ideas into PRDs, architecture docs, shippable chunks, and ready-to-paste prompts for Claude Code, Cursor, or any other coding agent."
+    />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="buildmap — plan the project so the agent can ship it" />
+    <!-- IMPORTANT: og:url should be absolute. Set the production domain here once known. -->
+    <!-- <meta property="og:url" content="https://buildmap.yourdomain.com" /> -->
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="buildmap" />
+    <meta
+      name="twitter:description"
+      content="Turn raw ideas into PRDs, architecture docs, shippable chunks, and ready-to-paste prompts for any coding agent."
+    />
+    <meta name="twitter:image" content="/og-image.png" />
+    <meta name="twitter:image:alt" content="buildmap — plan the project so the agent can ship it" />
   </head>
   <body>
     <div id="root"></div>

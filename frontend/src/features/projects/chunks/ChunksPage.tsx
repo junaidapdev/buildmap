@@ -11,11 +11,13 @@ import { useChunks } from '@/features/projects/chunks/useChunks';
 import { useGenerateChunks } from '@/features/projects/chunks/useGenerateChunks';
 import { useProject } from '@/features/projects/layout/useProject';
 import { useContextFilesState } from '@/features/projects/overview/stubs/useContextFilesState';
+import { useDocumentTitle } from '@/lib/document-title';
 
 export function ChunksPage() {
   // The layout guarantees a loaded project before this page renders.
   const { project } = useProject();
   const projectId = project.id;
+  useDocumentTitle(`Chunks — ${project.name || 'Project'} — buildmap`);
   const contextFiles = useContextFilesState(projectId);
   const chunksQuery = useChunks(projectId);
   const generate = useGenerateChunks(projectId);

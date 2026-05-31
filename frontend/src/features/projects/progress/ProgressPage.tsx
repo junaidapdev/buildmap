@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { ChunkStatus } from '@shared/schemas/chunks';
 import { useChunks } from '@/features/projects/chunks/useChunks';
 import { useProject } from '@/features/projects/layout/useProject';
+import { useDocumentTitle } from '@/lib/document-title';
 import { PROGRESS_MESSAGES } from '@/features/projects/progress/messages';
 import { ProgressByStatusSection } from '@/features/projects/progress/ProgressByStatusSection';
 import { ProgressEmpty } from '@/features/projects/progress/ProgressEmpty';
@@ -26,6 +27,7 @@ export function ProgressPage() {
   // ProjectLayout guarantees a loaded project before this page renders.
   const { project } = useProject();
   const projectId = project.id;
+  useDocumentTitle(`Progress — ${project.name || 'Project'} — buildmap`);
   const chunksQuery = useChunks(projectId);
 
   let body: ReactNode;

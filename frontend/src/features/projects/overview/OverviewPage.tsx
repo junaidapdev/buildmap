@@ -7,9 +7,13 @@ import { OpenIssuesPanel } from '@/features/projects/overview/OpenIssuesPanel';
 import { ProjectSummaryPanel } from '@/features/projects/overview/ProjectSummaryPanel';
 import { RecentDecisionsPanel } from '@/features/projects/overview/RecentDecisionsPanel';
 import { RecentLearningsPanel } from '@/features/projects/overview/RecentLearningsPanel';
+import { useDocumentTitle } from '@/lib/document-title';
 
 export function OverviewPage() {
   const { project } = useProject();
+  // ProjectLayout has already loaded the project, so project.name is defined; the empty-string
+  // fallback only fires if a project somehow has no name yet.
+  useDocumentTitle(`${project.name || 'Project'} — buildmap`);
 
   return (
     <div className="space-y-6">

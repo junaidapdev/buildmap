@@ -12,6 +12,7 @@ import {
   useGenerateBrief,
 } from '@/features/projects/brief/useGenerateBrief';
 import { useProject } from '@/features/projects/layout/useProject';
+import { useDocumentTitle } from '@/lib/document-title';
 
 // The clarify step hands answers over as { clarificationAnswers: [{ id, text, answer }] } in route
 // state. It is untrusted navigation data, so it is parsed before being mapped to the brief input.
@@ -47,6 +48,7 @@ export function BriefPage() {
   // The layout guarantees a loaded project before this page renders.
   const { project } = useProject();
   const projectId = project.id;
+  useDocumentTitle(`Brief — ${project.name || 'Project'} — buildmap`);
   const location = useLocation();
   const existing = useExistingBrief(projectId);
   const generate = useGenerateBrief(projectId);

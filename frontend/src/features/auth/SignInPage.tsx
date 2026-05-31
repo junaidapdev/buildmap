@@ -9,6 +9,7 @@ import { AUTH_MESSAGES } from '@/features/auth/messages';
 import { SignInForm } from '@/features/auth/SignInForm';
 import { SignUpForm } from '@/features/auth/SignUpForm';
 import { useAuth } from '@/features/auth/useAuth';
+import { useDocumentTitle } from '@/lib/document-title';
 
 type AuthMode = 'signin' | 'signup';
 
@@ -40,6 +41,8 @@ export function SignInPage() {
   const [mode, setMode] = useState<AuthMode>(() =>
     initialModeFromSearch(searchParams.get('mode')),
   );
+  // Title reflects the active tab so the browser tab matches what's on screen.
+  useDocumentTitle(mode === 'signup' ? 'Sign up — buildmap' : 'Sign in — buildmap');
 
   if (!loading && session) {
     return <Navigate replace to={ROUTES.DASHBOARD} />;

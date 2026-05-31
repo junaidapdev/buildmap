@@ -6,11 +6,13 @@ import { CLARIFY_MESSAGES } from '@/features/projects/clarify/messages';
 import { ClarifyPending } from '@/features/projects/clarify/ClarifyPending';
 import { useClarifyingQuestions } from '@/features/projects/clarify/useClarifyingQuestions';
 import { useProject } from '@/features/projects/layout/useProject';
+import { useDocumentTitle } from '@/lib/document-title';
 
 export function ClarifyPage() {
   // The layout guarantees a loaded project before this page renders.
   const { project } = useProject();
   const projectId = project.id;
+  useDocumentTitle(`Clarify — ${project.name || 'Project'} — buildmap`);
   const generation = useClarifyingQuestions(projectId);
   const [retryUsed, setRetryUsed] = useState(false);
 
