@@ -1,6 +1,7 @@
 import type { LearningType } from '@shared/schemas/learning';
 
 export const KNOWLEDGE_MESSAGES = {
+  PAGE_EYEBROW: 'KNOWLEDGE · INSTITUTIONAL MEMORY',
   PAGE_TITLE: 'Knowledge',
   PAGE_SUBTITLE: 'Lessons, decisions, gotchas, and open questions from your build.',
 

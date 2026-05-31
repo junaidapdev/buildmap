@@ -39,13 +39,25 @@ export function IssuesListPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-[28px] font-semibold leading-[1.1] tracking-tight">{ISSUE_MESSAGES.PAGE_TITLE}</h1>
-          <p className="mt-2 text-muted-foreground">{ISSUE_MESSAGES.PAGE_SUBTITLE}</p>
+    // max-w-7xl + editorial header (eyebrow + border-b) matches Overview / Brief / PRD /
+    // Architecture / Context Files / Chunks / Progress so all eight project surfaces share one
+    // viewport rhythm.
+    <div className="mx-auto max-w-7xl">
+      <header className="mb-8 border-b border-border-subtle pb-7">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="page-eyebrow">{ISSUE_MESSAGES.PAGE_EYEBROW}</p>
+            <h1 className="mt-2 text-[28px] font-semibold leading-[1.1] tracking-tight">
+              {ISSUE_MESSAGES.PAGE_TITLE}
+            </h1>
+            <p className="mt-2 max-w-2xl text-[14px] text-muted-foreground">
+              {ISSUE_MESSAGES.PAGE_SUBTITLE}
+            </p>
+          </div>
+          <Button onClick={() => setDialogOpen(true)} size="sm">
+            {ISSUE_MESSAGES.NEW_ISSUE_BUTTON}
+          </Button>
         </div>
-        <Button onClick={() => setDialogOpen(true)}>{ISSUE_MESSAGES.NEW_ISSUE_BUTTON}</Button>
       </header>
 
       {body}

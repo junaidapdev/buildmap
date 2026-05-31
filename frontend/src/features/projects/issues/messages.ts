@@ -1,8 +1,9 @@
 import type { IssueSeverity, IssueStatus } from '@shared/schemas/issue';
 
 export const ISSUE_MESSAGES = {
+  PAGE_EYEBROW: 'ISSUES · BUGS TO CORRECTIVE PROMPTS',
   PAGE_TITLE: 'Issues',
-  PAGE_SUBTITLE: 'Convert bugs into corrective AI prompts.',
+  PAGE_SUBTITLE: 'Log a bug; we draft a corrective prompt your AI tool can act on.',
 
   PENDING_TITLE: 'Loading issues…',
 
