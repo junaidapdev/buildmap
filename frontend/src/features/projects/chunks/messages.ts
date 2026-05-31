@@ -108,6 +108,9 @@ export const CHUNKS_MESSAGES = {
     blocked: 'Nothing blocked.',
   } as const,
 
+  // Mid-drag drop affordance shown inside any column the dragged card is currently over.
+  COLUMN_DROP_HINT: 'Drop to move here',
+
   CARD_OPEN_BUTTON: 'Open',
   CARD_STATUS_LABEL: 'Status',
   CARD_DRAG_HANDLE_LABEL: 'Drag to reorder',
