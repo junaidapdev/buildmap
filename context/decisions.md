@@ -1,5 +1,33 @@
 # buildmap Decision Log
 
+## 2026-05-31 - Microsoft Clarity for Session Replay + Heatmaps
+
+**Decision:** Ship Microsoft Clarity as the first (and currently only) analytics layer, injected as
+an inline `<script>` in the `<head>` of `frontend/index.html` rather than via a React effect.
+Project ID (`wzn4e3xbud`) is hardcoded in the snippet. A hostname guard
+(`location.hostname === 'localhost' || '127.0.0.1'`) skips local dev (`npm run dev` at :5173 and
+`npm run preview` at :4173) so local sessions never reach the dashboard. Vercel preview deployments
+on `*.vercel.app` ARE tracked — acceptable for hackathon-stage feedback; revisit if those need
+exclusion. No element masking is added in this change — Clarity will capture session replay of
+workspace content (briefs, PRDs, architecture docs) by default. Adding `data-clarity-mask` to
+sensitive surfaces is a one-line follow-up if/when the privacy posture demands it.
+
+**Reason:** Inline-in-head loads before React mounts, so Clarity captures first-paint perception
+and the full load timeline; a React-effect loader would miss those. Hardcoding the project ID is
+fine because the ID is client-visible by design (DevTools shows it to every visitor) — there's no
+secret to externalize, and a `VITE_*` env var would add Vercel-configuration friction without
+buying privacy. The hostname guard is a heuristic rather than an `import.meta.env.PROD` check
+because inline `<script>` in `index.html` can't read Vite's build-time env without a custom plugin;
+the hostname check is functionally equivalent for our two local entry points.
+
+**Alternatives considered:** React effect with `import.meta.env.PROD` gating (rejected — loses
+first-paint capture); env var via Vite `transformIndexHtml` plugin (rejected — overkill for a
+non-secret ID and one analytics provider); element masking added preemptively (deferred — the
+right call depends on what the team wants to observe).
+
+**Reversibility:** Easy — delete the `<script>` block in `index.html` and the Clarity dashboard
+stops receiving sessions immediately.
+
 ## 2026-05-31 - Pre-launch Polish: Meta Tags, OG Plumbing, SVG Favicon, Per-Route Titles
 
 **Decision:** Chunk 33 replaced the trivial `frontend/index.html` `<head>` with the full meta-tag

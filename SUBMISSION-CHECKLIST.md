@@ -36,6 +36,19 @@ verification before submitting.
       `frontend/index.html` with the production URL.
 - [ ] Re-deploy after the `og:url` change.
 
+### Analytics — Microsoft Clarity
+
+- [ ] After deploy, open https://clarity.microsoft.com/projects/view/wzn4e3xbud
+      and confirm sessions are recording (allow ~5 min for the first session to
+      appear after a real visit).
+- [ ] DevTools → Network on a production page load: confirm a request to
+      `https://www.clarity.ms/tag/wzn4e3xbud` (or `/collect`) fires.
+- [ ] Local sanity: `npm run dev` and `npm run preview` should NOT make
+      requests to `clarity.ms` — the hostname guard in `index.html` skips
+      localhost / 127.0.0.1.
+- [ ] If workspace content (briefs, PRDs, etc.) should be masked from session
+      replay, add `data-clarity-mask` to the relevant surfaces. Not done yet.
+
 ### Verification
 
 - [ ] Visit the production URL in an incognito window — favicon appears in the
