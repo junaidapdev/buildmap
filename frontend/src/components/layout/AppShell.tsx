@@ -14,6 +14,14 @@ type AppShellProps = PropsWithChildren<{
 /**
  * Provides authenticated application chrome. Pages may pass `containerClassName`
  * to narrow or adjust the standard `max-w-6xl` content container.
+ *
+ * The outer container uses `h-screen overflow-hidden` so the sidebar always reaches the bottom of
+ * the viewport regardless of how tall the page contents are. `<main>` carries `overflow-auto`,
+ * so scrolling happens inside the main column instead of the whole page — which keeps the
+ * sidebar's right-border line continuous even when the dashboard or chunk board is taller than
+ * 100vh. Previously this used `min-h-screen` and let the page itself scroll; the sidebar's
+ * `h-full` then resolved to the parent's min-height (100vh) rather than the actual page height,
+ * which made the border end partway down the page.
  */
 export function AppShell({ children, containerClassName }: AppShellProps) {
   const [collapsed, setCollapsed] = useSidebarState();
@@ -21,7 +29,7 @@ export function AppShell({ children, containerClassName }: AppShellProps) {
 
   return (
     <TooltipProvider delayDuration={150}>
-      <div className="flex min-h-screen bg-background text-foreground">
+      <div className="flex h-screen overflow-hidden bg-background text-foreground">
         <a
           href="#main-content"
           className="sr-only z-50 rounded-md bg-background px-4 py-2 focus:not-sr-only focus:absolute focus:left-4 focus:top-4"
