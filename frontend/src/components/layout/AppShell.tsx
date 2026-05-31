@@ -2,7 +2,6 @@ import { useState, type PropsWithChildren } from 'react';
 
 import { AppHeader } from '@/components/layout/AppHeader';
 import { AppSidebar } from '@/components/layout/AppSidebar';
-import { useSidebarState } from '@/components/layout/useSidebarState';
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -17,14 +16,15 @@ type AppShellProps = PropsWithChildren<{
  *
  * The outer container uses `h-screen overflow-hidden` so the sidebar always reaches the bottom of
  * the viewport regardless of how tall the page contents are. `<main>` carries `overflow-auto`,
- * so scrolling happens inside the main column instead of the whole page — which keeps the
- * sidebar's right-border line continuous even when the dashboard or chunk board is taller than
- * 100vh. Previously this used `min-h-screen` and let the page itself scroll; the sidebar's
- * `h-full` then resolved to the parent's min-height (100vh) rather than the actual page height,
- * which made the border end partway down the page.
+ * so scrolling happens inside the main column instead of the whole page.
+ *
+ * The collapsible-sidebar feature was removed: the toggle is no longer rendered, and the sidebar
+ * is permanently in its expanded 240px form. The previous icons-only mode had alignment issues
+ * that proved hard to debug under time pressure; rather than ship a broken state we just keep the
+ * sidebar open. The `useSidebarState` hook stays in the codebase if a future iteration wants to
+ * reintroduce the feature.
  */
 export function AppShell({ children, containerClassName }: AppShellProps) {
-  const [collapsed, setCollapsed] = useSidebarState();
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
 
   return (
@@ -36,7 +36,7 @@ export function AppShell({ children, containerClassName }: AppShellProps) {
         >
           Skip to main content
         </a>
-        <AppSidebar collapsed={collapsed} onCollapsedChange={setCollapsed} />
+        <AppSidebar />
         <Sheet open={mobileNavigationOpen} onOpenChange={setMobileNavigationOpen}>
           <SheetContent side="left" className="w-64 p-0 sm:max-w-64">
             <SheetTitle className="sr-only">Navigation</SheetTitle>
