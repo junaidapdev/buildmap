@@ -16,8 +16,9 @@ export function OverviewPage() {
   useDocumentTitle(`${project.name || 'Project'} — buildmap`);
 
   return (
-    // AppShell no longer caps width globally — Overview opts into the legacy ~6xl reading width.
-    <div className="mx-auto max-w-6xl space-y-6">
+    // max-w-7xl matches the Brief / PRD / Architecture pages so the four planning docs share
+    // one viewport rhythm on wide displays.
+    <div className="mx-auto max-w-7xl space-y-6">
       <ProjectSummaryPanel />
       <NextActionPanel projectId={project.id} />
       <ChunksProgressPanel projectId={project.id} />

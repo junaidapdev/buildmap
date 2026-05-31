@@ -47,11 +47,8 @@ export function BriefStatusPanel({ projectId }: { projectId: string }) {
           <div className="flex items-center gap-2 text-sm">
             {brief.data.is_final ? (
               <>
-                <CheckCircle2
-                  aria-hidden="true"
-                  className="h-4 w-4 text-green-600 dark:text-green-500"
-                />
-                <span className="font-medium text-green-700 dark:text-green-500">
+                <CheckCircle2 aria-hidden="true" className="h-4 w-4 text-brand-text" />
+                <span className="font-medium text-brand-text">
                   {OVERVIEW_MESSAGES.BRIEF_APPROVED_BANNER}
                 </span>
               </>
