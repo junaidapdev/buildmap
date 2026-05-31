@@ -86,7 +86,10 @@ export function ContextFilesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl">
+    // max-w-7xl matches Overview / Brief / PRD / Architecture so all five project surfaces
+    // share one viewport rhythm on wide displays. The 2-column doc-card-plus-sidebar grid
+    // inside ContextFilesView gets more horizontal breathing room at this width.
+    <div className="mx-auto max-w-7xl">
       <header className="mb-8 border-b border-border-subtle pb-7">
         <p className="page-eyebrow">{CONTEXT_FILES_MESSAGES.PAGE_EYEBROW}</p>
         <h1 className="mt-2 text-[28px] font-semibold leading-[1.1] tracking-tight">
