@@ -29,9 +29,6 @@ verification before submitting.
 - [ ] Produce `frontend/public/favicon-32.png` (32×32 PNG).
 - [ ] Produce `frontend/public/favicon-16.png` (16×16 PNG).
 - [ ] Produce `frontend/public/apple-touch-icon.png` (180×180 PNG).
-- [ ] Produce `frontend/public/og-image.png` (1200×630 PNG, under 200 KB).
-- [ ] Delete `frontend/public/PLACEHOLDER-favicon-and-og-image.md` once images
-      are in place.
 
 ### Production URL and meta
 
