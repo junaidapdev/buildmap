@@ -1,7 +1,8 @@
-import { RefreshCw } from 'lucide-react';
+import { Pencil, RefreshCw } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 
 import type { ArchitectureContent, ArchitectureSectionKey } from '@shared/schemas/architecture';
+import { cn } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +26,10 @@ import { useSaveArchitectureSection } from '@/features/projects/architecture/edi
 type ArchitectureSectionEditorProps<K extends ArchitectureSectionKey> = {
   sectionKey: K;
   label: string;
+  /** 1-indexed section number passed through to ArchitectureSection for the "01", "02"… caption. */
+  number: number;
+  /** Reflects the architecture's global is_final; ArchitectureView passes the same value to every section. */
+  isApproved?: boolean;
   value: ArchitectureContent[K];
   projectId: string;
   /** Merge an edited section value back into the full content for saving. */
@@ -41,6 +46,8 @@ type ArchitectureSectionEditorProps<K extends ArchitectureSectionKey> = {
 export function ArchitectureSectionEditor<K extends ArchitectureSectionKey>({
   sectionKey,
   label,
+  number,
+  isApproved,
   value,
   stitch,
   projectId,
@@ -111,17 +118,35 @@ export function ArchitectureSectionEditor<K extends ArchitectureSectionKey>({
 
   const actions =
     mode === 'view' ? (
-      <div className="flex shrink-0 gap-1">
-        <Button disabled={busy} onClick={startEdit} size="sm" variant="ghost">
-          {ARCHITECTURE_EDIT_MESSAGES.EDIT_BUTTON}
+      <div className="flex shrink-0 items-center gap-0.5">
+        <Button
+          aria-label={ARCHITECTURE_EDIT_MESSAGES.EDIT_BUTTON}
+          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+          disabled={busy}
+          onClick={startEdit}
+          size="icon"
+          variant="ghost"
+        >
+          <Pencil aria-hidden="true" className="h-4 w-4" />
         </Button>
         <AlertDialog onOpenChange={setConfirmOpen} open={confirmOpen}>
           <AlertDialogTrigger asChild>
-            <Button aria-busy={regenerate.isPending} disabled={busy} size="sm" variant="ghost">
-              <RefreshCw aria-hidden="true" className="h-4 w-4" />
-              {regenerate.isPending
-                ? ARCHITECTURE_EDIT_MESSAGES.REGENERATE_SECTION_BUSY
-                : ARCHITECTURE_EDIT_MESSAGES.REGENERATE_SECTION_BUTTON}
+            <Button
+              aria-busy={regenerate.isPending}
+              aria-label={
+                regenerate.isPending
+                  ? ARCHITECTURE_EDIT_MESSAGES.REGENERATE_SECTION_BUSY
+                  : ARCHITECTURE_EDIT_MESSAGES.REGENERATE_SECTION_BUTTON
+              }
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              disabled={busy}
+              size="icon"
+              variant="ghost"
+            >
+              <RefreshCw
+                aria-hidden="true"
+                className={cn('h-4 w-4', regenerate.isPending && 'animate-spin')}
+              />
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
@@ -147,7 +172,7 @@ export function ArchitectureSectionEditor<K extends ArchitectureSectionKey>({
     ) : null;
 
   return (
-    <ArchitectureSection action={actions} title={label}>
+    <ArchitectureSection action={actions} isApproved={isApproved} number={number} title={label}>
       {regenerate.isPending ? (
         <div className="space-y-2">
           <Skeleton className="h-4 w-full" />

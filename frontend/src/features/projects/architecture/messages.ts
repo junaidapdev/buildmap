@@ -1,6 +1,7 @@
 export const ARCHITECTURE_MESSAGES = {
+  PAGE_EYEBROW: 'ARCHITECTURE · LIVING DOCUMENT',
   PAGE_TITLE: 'Architecture',
-  PAGE_SUBTITLE: 'How the system fits together.',
+  PAGE_SUBTITLE: 'How the system fits together. Edit, regenerate, or approve the whole document; sections can be regenerated on their own.',
 
   PENDING_TITLE: 'Designing your architecture…',
   PENDING_BODY: 'This usually takes 45–75 seconds.',
@@ -14,6 +15,7 @@ export const ARCHITECTURE_MESSAGES = {
   GATING_OPEN_PRD: 'Open PRD',
 
   REGENERATE_BUTTON: 'Regenerate',
+  REGENERATE_HEADER_BUTTON: 'Regenerate all',
   REGENERATE_BUSY: 'Regenerating…',
   REGENERATE_CONFIRM_TITLE: 'Regenerate architecture?',
   REGENERATE_CONFIRM_BODY:
@@ -21,10 +23,12 @@ export const ARCHITECTURE_MESSAGES = {
   REGENERATE_CONFIRM_CONFIRM: 'Yes, regenerate',
   REGENERATE_CONFIRM_CANCEL: 'Cancel',
   DOWNLOAD_BUTTON: 'Download',
+  EXPORT_HEADER_BUTTON: 'Export',
 
   APPROVE_BUTTON: 'Approve architecture',
   APPROVE_BUTTON_BUSY: 'Approving…',
   APPROVED_BANNER: 'Architecture approved.',
+  APPROVED_BADGE: 'Approved',
 
   NEXT_CTA: 'Next: generate context files',
 
