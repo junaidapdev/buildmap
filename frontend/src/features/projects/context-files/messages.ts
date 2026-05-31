@@ -1,6 +1,8 @@
 export const CONTEXT_FILES_MESSAGES = {
+  PAGE_EYEBROW: 'CONTEXT FILES · PASTE INTO YOUR REPO',
   PAGE_TITLE: 'Context files',
-  PAGE_SUBTITLE: 'Seven docs that brief your AI tools on this project.',
+  PAGE_SUBTITLE:
+    'Seven markdown files that live in your repo and tell every agent what it is working on. Edit, regenerate per file, or refresh all at once.',
 
   PENDING_TITLE: 'Generating your context files…',
   PENDING_BODY: 'All seven docs are written in one pass. This usually takes 60–120 seconds.',
@@ -16,6 +18,8 @@ export const CONTEXT_FILES_MESSAGES = {
 
   // Page-level actions (regenerate the whole set)
   APPROVAL_PROGRESS: (approved: number, total: number) => `${approved} of ${total} approved`,
+  DOWNLOAD_ALL_BUTTON: 'Download all',
+  DOWNLOAD_ALL_BUSY: 'Preparing…',
   REGENERATE_ALL_BUTTON: 'Regenerate all',
   REGENERATE_ALL_BUSY: 'Regenerating…',
   REGENERATE_ALL_CONFIRM_TITLE: 'Regenerate all context files?',
@@ -26,6 +30,10 @@ export const CONTEXT_FILES_MESSAGES = {
 
   // Per-doc actions
   TAB_APPROVED_LABEL: 'Approved',
+  COPY_BUTTON: 'Copy',
+  COPY_BUSY: 'Copying…',
+  COPY_DONE: 'Copied',
+  COPY_ERROR: 'Copy failed',
   EDIT_BUTTON: 'Edit',
   REGENERATE_BUTTON: 'Regenerate',
   REGENERATE_BUSY: 'Regenerating…',
@@ -55,6 +63,11 @@ export const CONTEXT_FILES_MESSAGES = {
   SWITCH_CONFIRM_BODY: 'You have unsaved edits to this doc. Switching tabs will discard them.',
   SWITCH_CONFIRM_CONFIRM: 'Discard and switch',
   SWITCH_CONFIRM_CANCEL: 'Keep editing',
+
+  // Doc info sidebar
+  SIDEBAR_ABOUT_LABEL: 'About this file',
+  SIDEBAR_PATH_LABEL: 'Where it goes',
+  SIDEBAR_PATH_CAPTION: 'Drop in the root of your repository.',
 
   VERSION_LABEL: (version: number) => `v${version}`,
   LAST_UPDATED_PREFIX: 'Updated',

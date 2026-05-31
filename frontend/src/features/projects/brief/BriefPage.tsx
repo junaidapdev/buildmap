@@ -108,10 +108,19 @@ export function BriefPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <header className="mb-8">
-        <h1 className="text-[28px] font-semibold leading-[1.1] tracking-tight">{BRIEF_MESSAGES.PAGE_TITLE}</h1>
-        <p className="mt-2 text-muted-foreground">{BRIEF_MESSAGES.PAGE_SUBTITLE}</p>
+    // max-w-7xl matches the PRD page width so the three planning docs (Brief / PRD /
+    // Architecture) share one visual rhythm. The subtitle keeps its own max-w-2xl so the helper
+    // prose stays comfortable to read; the section cards inherit the wider page width and
+    // stretch naturally.
+    <div className="mx-auto max-w-7xl">
+      <header className="mb-8 border-b border-border-subtle pb-7">
+        <p className="page-eyebrow">{BRIEF_MESSAGES.PAGE_EYEBROW}</p>
+        <h1 className="mt-2 text-[28px] font-semibold leading-[1.1] tracking-tight">
+          {BRIEF_MESSAGES.PAGE_TITLE}
+        </h1>
+        <p className="mt-2 max-w-2xl text-[14px] text-muted-foreground">
+          {BRIEF_MESSAGES.PAGE_SUBTITLE}
+        </p>
       </header>
       {body}
     </div>

@@ -11,15 +11,22 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { EXPORT_MESSAGES } from '@/features/projects/export/messages';
 import { useExportProjectZip } from '@/features/projects/export/useExportProjectZip';
+import { Download } from '@/features/projects/overview/icons';
+import { PanelCard } from '@/features/projects/overview/PanelCard';
 
 type Props = {
   projectId: string;
   projectName: string;
 };
 
+/**
+ * Project ZIP export — re-skinned to use PanelCard chrome so it sits in the overview grid with the
+ * same uppercase mono eyebrow + subtle border + content rhythm as Brief / Open issues / Decisions /
+ * Learnings. Previously used shadcn's default Card / CardHeader / CardTitle which gave it a
+ * noticeably different visual weight (larger sentence-case title, different padding).
+ */
 export function ExportProjectCard({ projectId, projectName }: Props) {
   const exportMutation = useExportProjectZip();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -31,23 +38,27 @@ export function ExportProjectCard({ projectId, projectName }: Props) {
     : null;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{EXPORT_MESSAGES.CARD_TITLE}</CardTitle>
-        <CardDescription>{EXPORT_MESSAGES.CARD_BODY}</CardDescription>
-      </CardHeader>
-      <CardContent>
+    <PanelCard
+      icon={<Download aria-hidden="true" className="h-4 w-4 text-muted-foreground" />}
+      title={EXPORT_MESSAGES.CARD_TITLE}
+    >
+      <div className="space-y-3">
+        <p className="text-[13px] leading-relaxed text-muted-foreground">
+          {EXPORT_MESSAGES.CARD_BODY}
+        </p>
         <Button
           className="w-full sm:w-auto"
           disabled={exportMutation.isPending}
           onClick={() => setConfirmOpen(true)}
+          size="sm"
         >
+          <Download aria-hidden="true" className="h-3.5 w-3.5" />
           {exportMutation.isPending
             ? EXPORT_MESSAGES.CARD_BUTTON_BUSY
             : EXPORT_MESSAGES.CARD_BUTTON}
         </Button>
-        {errorMessage ? <p className="mt-3 text-sm text-destructive">{errorMessage}</p> : null}
-      </CardContent>
+        {errorMessage ? <p className="text-sm text-destructive">{errorMessage}</p> : null}
+      </div>
 
       <AlertDialog onOpenChange={setConfirmOpen} open={confirmOpen}>
         <AlertDialogContent>
@@ -68,6 +79,6 @@ export function ExportProjectCard({ projectId, projectName }: Props) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Card>
+    </PanelCard>
   );
 }

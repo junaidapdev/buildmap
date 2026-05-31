@@ -1,17 +1,20 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ExternalLink, GripVertical } from 'lucide-react';
+import { MoreVertical } from 'lucide-react';
 import { type CSSProperties } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ROUTES } from '@/constants/routes';
 import { ChunkCardCompact } from '@/features/projects/chunks/board/ChunkCardCompact';
 import { CHUNK_STATUS_ORDER } from '@/features/projects/chunks/board/columns';
@@ -19,54 +22,97 @@ import type { MoveChunkInput } from '@/features/projects/chunks/board/useMoveChu
 import { CHUNKS_MESSAGES } from '@/features/projects/chunks/messages';
 import type { ChunkRow } from '@/features/projects/chunks/useChunks';
 import { cn } from '@/lib/utils';
+import type { Project } from '@/types/project';
 import type { ChunkStatus } from '@shared/schemas/chunks';
 
 type ChunkCardProps = {
   chunk: ChunkRow;
   projectId: string;
+  project: Project;
   onMove: (input: MoveChunkInput) => void;
 };
 
 /**
- * A live, sortable chunk card. Only the dedicated grip is a drag activator, so the status select and
- * Open link stay fully clickable and keyboard-operable without fighting the drag sensors.
+ * Live, sortable chunk card. Lumen-mockup-aligned:
+ *  - No visible grip icon — the whole card is the drag activator (dnd-kit's 5px activation
+ *    distance keeps clicks from accidentally starting a drag).
+ *  - Overflow menu (⋮) in the top-right opens a dropdown with "Open chunk" and a status radio
+ *    group (replaces the inline Select + Open link from the previous design).
+ *  - The card body is pure ChunkCardCompact — number, size pill, title, description, in-progress
+ *    dot, blocked hint, file count + agent label footer.
+ *
+ * The overflow menu trigger swallows pointer events so clicking it doesn't start a drag, and
+ * stopPropagation on the trigger keeps Radix's portal happy.
  */
-export function ChunkCard({ chunk, projectId, onMove }: ChunkCardProps) {
-  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
-    useSortable({ id: chunk.id, data: { status: chunk.status } });
+export function ChunkCard({ chunk, projectId, project, onMove }: ChunkCardProps) {
+  const navigate = useNavigate();
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: chunk.id,
+    data: { status: chunk.status },
+  });
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
 
+  // Whole card is the drag activator. We explicitly assign both setNodeRef AND setActivatorNodeRef
+  // to the <li> via a combined callback ref — relying on dnd-kit's implicit "node is activator
+  // when activator ref isn't set" default proved unreliable here (drags wouldn't start at all on
+  // the card body). Spreading listeners/attributes on the same element with the activator ref
+  // explicitly bound makes drag activation deterministic.
+  function setRefs(node: HTMLElement | null) {
+    setNodeRef(node);
+    setActivatorNodeRef(node);
+  }
+
   return (
     <li
-      ref={setNodeRef}
+      ref={setRefs}
       style={style}
       className={cn(
-        'rounded-lg border bg-card p-3 text-card-foreground shadow-sm',
+        'group relative cursor-grab touch-none select-none rounded-lg border border-border bg-card p-3 text-card-foreground shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing',
         isDragging && 'opacity-50',
       )}
+      {...attributes}
+      {...listeners}
     >
-      <div className="flex items-start gap-2">
-        <button
-          ref={setActivatorNodeRef}
-          type="button"
-          aria-label={CHUNKS_MESSAGES.CARD_DRAG_HANDLE_LABEL}
-          className="mt-0.5 cursor-grab touch-none rounded text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          {...attributes}
-          {...listeners}
-        >
-          <GripVertical aria-hidden="true" className="h-4 w-4" />
-        </button>
+      <ChunkCardCompact chunk={chunk} project={project} />
 
-        <div className="min-w-0 flex-1">
-          <ChunkCardCompact chunk={chunk} />
-
-          <div className="mt-3 flex items-center justify-between gap-2">
-            <Select
-              value={chunk.status}
+      {/* Overflow menu pinned to the top-right corner of the card. Stops pointer events from
+          propagating into the dnd-kit listeners so opening the menu never triggers a drag. */}
+      <div
+        className="absolute right-2 top-2"
+        onPointerDown={(event) => event.stopPropagation()}
+      >
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              aria-label={CHUNKS_MESSAGES.CARD_OVERFLOW_LABEL}
+              className="h-7 w-7 text-muted-foreground opacity-0 transition-opacity hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100"
+              size="icon"
+              variant="ghost"
+            >
+              <MoreVertical aria-hidden="true" className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onSelect={() => navigate(ROUTES.PROJECT_CHUNK(projectId, chunk.id))}>
+              {CHUNKS_MESSAGES.CARD_OPEN_BUTTON} chunk
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-[11px] uppercase tracking-wider text-muted-foreground">
+              {CHUNKS_MESSAGES.CARD_STATUS_LABEL}
+            </DropdownMenuLabel>
+            <DropdownMenuRadioGroup
               onValueChange={(value) =>
                 onMove({
                   chunkId: chunk.id,
@@ -74,27 +120,16 @@ export function ChunkCard({ chunk, projectId, onMove }: ChunkCardProps) {
                   newPosition: chunk.position,
                 })
               }
+              value={chunk.status}
             >
-              <SelectTrigger aria-label={CHUNKS_MESSAGES.CARD_STATUS_LABEL} className="h-8 w-36">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CHUNK_STATUS_ORDER.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {CHUNKS_MESSAGES.STATUS_LABELS[status]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Button asChild size="sm" variant="ghost">
-              <Link to={ROUTES.PROJECT_CHUNK(projectId, chunk.id)}>
-                {CHUNKS_MESSAGES.CARD_OPEN_BUTTON}
-                <ExternalLink aria-hidden="true" />
-              </Link>
-            </Button>
-          </div>
-        </div>
+              {CHUNK_STATUS_ORDER.map((status) => (
+                <DropdownMenuRadioItem key={status} value={status}>
+                  {CHUNKS_MESSAGES.STATUS_LABELS[status]}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </li>
   );

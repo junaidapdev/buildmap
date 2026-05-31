@@ -32,6 +32,8 @@ export const OVERVIEW_MESSAGES = {
   CHUNKS_DONE_LABEL: 'Completed',
   CHUNKS_IN_PROGRESS_LABEL: 'In progress',
   CHUNKS_OPEN_LABEL: 'Open',
+  CHUNKS_PROGRESS_LABEL: 'Progress',
+  CHUNKS_OPEN_BOARD_LINK: 'Open board',
 
   // Brief panel
   BRIEF_TITLE: 'Project brief',

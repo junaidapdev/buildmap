@@ -91,9 +91,11 @@ export function BriefView({ brief, projectId }: BriefViewProps) {
   const generate = useGenerateBrief(projectId);
   const approve = useApproveBrief(projectId);
   const content = brief.content_json;
+  // Mirror the global is_final into every section's tint — the brief approves as a whole document.
+  const isApproved = brief.is_final;
 
   return (
-    <article className="space-y-8">
+    <article className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <Badge variant="outline">{BRIEF_MESSAGES.VERSION_LABEL(brief.version)}</Badge>
         <span className="text-xs text-muted-foreground">
@@ -102,30 +104,70 @@ export function BriefView({ brief, projectId }: BriefViewProps) {
         </span>
       </div>
 
-      <div className="space-y-8">
-        <BriefSection icon={Target} title={BRIEF_MESSAGES.SECTION_PROBLEM}>
+      <div className="space-y-4">
+        <BriefSection
+          icon={Target}
+          isApproved={isApproved}
+          number={1}
+          title={BRIEF_MESSAGES.SECTION_PROBLEM}
+        >
           <p>{content.problemStatement}</p>
         </BriefSection>
-        <BriefSection icon={Users} title={BRIEF_MESSAGES.SECTION_USER}>
+        <BriefSection
+          icon={Users}
+          isApproved={isApproved}
+          number={2}
+          title={BRIEF_MESSAGES.SECTION_USER}
+        >
           <p>{content.targetUser}</p>
         </BriefSection>
-        <BriefSection icon={PlayCircle} title={BRIEF_MESSAGES.SECTION_USE_CASE}>
+        <BriefSection
+          icon={PlayCircle}
+          isApproved={isApproved}
+          number={3}
+          title={BRIEF_MESSAGES.SECTION_USE_CASE}
+        >
           <p>{content.coreUseCase}</p>
         </BriefSection>
-        <BriefSection icon={Rocket} title={BRIEF_MESSAGES.SECTION_MVP}>
+        <BriefSection
+          icon={Rocket}
+          isApproved={isApproved}
+          number={4}
+          title={BRIEF_MESSAGES.SECTION_MVP}
+        >
           <p>{content.mvpGoal}</p>
         </BriefSection>
-        <BriefSection icon={Ban} title={BRIEF_MESSAGES.SECTION_OUT_OF_SCOPE}>
+        <BriefSection
+          icon={Ban}
+          isApproved={isApproved}
+          number={5}
+          title={BRIEF_MESSAGES.SECTION_OUT_OF_SCOPE}
+        >
           {renderList(content.outOfScope)}
         </BriefSection>
-        <BriefSection icon={ShieldAlert} title={BRIEF_MESSAGES.SECTION_RISKS}>
+        <BriefSection
+          icon={ShieldAlert}
+          isApproved={isApproved}
+          number={6}
+          title={BRIEF_MESSAGES.SECTION_RISKS}
+        >
           {renderList(content.keyRisks)}
         </BriefSection>
-        <BriefSection icon={Layers} title={BRIEF_MESSAGES.SECTION_TECH}>
+        <BriefSection
+          icon={Layers}
+          isApproved={isApproved}
+          number={7}
+          title={BRIEF_MESSAGES.SECTION_TECH}
+        >
           {renderTechStack(content.initialTechStack)}
         </BriefSection>
         {content.assumptions && content.assumptions.length > 0 && (
-          <BriefSection icon={Lightbulb} title={BRIEF_MESSAGES.SECTION_ASSUMPTIONS}>
+          <BriefSection
+            icon={Lightbulb}
+            isApproved={isApproved}
+            number={8}
+            title={BRIEF_MESSAGES.SECTION_ASSUMPTIONS}
+          >
             {renderList(content.assumptions)}
           </BriefSection>
         )}

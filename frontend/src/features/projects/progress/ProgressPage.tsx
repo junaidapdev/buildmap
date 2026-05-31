@@ -69,19 +69,28 @@ export function ProgressPage() {
   const hasChunks = (chunksQuery.data ?? []).length > 0;
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-[28px] font-semibold leading-[1.1] tracking-tight">{PROGRESS_MESSAGES.PAGE_TITLE}</h1>
-          <p className="mt-2 text-muted-foreground">{PROGRESS_MESSAGES.PAGE_SUBTITLE}</p>
+    // max-w-7xl matches Overview / Brief / PRD / Architecture / Context Files so all six
+    // project surfaces share one viewport rhythm.
+    <div className="mx-auto max-w-7xl">
+      <header className="mb-8 border-b border-border-subtle pb-7">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="page-eyebrow">{PROGRESS_MESSAGES.PAGE_EYEBROW}</p>
+            <h1 className="mt-2 text-[28px] font-semibold leading-[1.1] tracking-tight">
+              {PROGRESS_MESSAGES.PAGE_TITLE}
+            </h1>
+            <p className="mt-2 max-w-2xl text-[14px] text-muted-foreground">
+              {PROGRESS_MESSAGES.PAGE_SUBTITLE}
+            </p>
+          </div>
+          {hasChunks && (
+            <SyncToMarkdownButton
+              chunks={chunksQuery.data ?? []}
+              project={{ name: project.name, status: project.status }}
+              projectId={projectId}
+            />
+          )}
         </div>
-        {hasChunks && (
-          <SyncToMarkdownButton
-            chunks={chunksQuery.data ?? []}
-            project={{ name: project.name, status: project.status }}
-            projectId={projectId}
-          />
-        )}
       </header>
       {body}
     </div>
