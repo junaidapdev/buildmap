@@ -137,7 +137,9 @@ export function ChunksPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl">
+    // Full width on purpose — the Kanban board needs every pixel between the sidebar and the
+    // right edge. AppShell provides horizontal screen-edge padding; no extra max-width here.
+    <div className="w-full">
       <header className="mb-6 border-b border-border-subtle pb-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">

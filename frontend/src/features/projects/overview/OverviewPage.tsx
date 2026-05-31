@@ -16,7 +16,8 @@ export function OverviewPage() {
   useDocumentTitle(`${project.name || 'Project'} — buildmap`);
 
   return (
-    <div className="space-y-6">
+    // AppShell no longer caps width globally — Overview opts into the legacy ~6xl reading width.
+    <div className="mx-auto max-w-6xl space-y-6">
       <ProjectSummaryPanel />
       <NextActionPanel projectId={project.id} />
       <ChunksProgressPanel projectId={project.id} />

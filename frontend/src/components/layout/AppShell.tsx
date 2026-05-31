@@ -12,7 +12,13 @@ type AppShellProps = PropsWithChildren<{
 
 /**
  * Provides authenticated application chrome. Pages may pass `containerClassName`
- * to narrow or adjust the standard `max-w-6xl` content container.
+ * to adjust the standard content container; by default the container provides
+ * horizontal screen-edge padding and top/bottom vertical rhythm, but NO max-width.
+ *
+ * The max-width opinion moved into each page so that wide surfaces (Chunks board) can fill the
+ * available viewport while narrow surfaces (Brief / PRD / Architecture prose docs) keep their
+ * comfortable reading column. Pages that want the legacy ~6xl behaviour can wrap their root in
+ * `mx-auto max-w-6xl`.
  *
  * The outer container uses `h-screen overflow-hidden` so the sidebar always reaches the bottom of
  * the viewport regardless of how tall the page contents are. `<main>` carries `overflow-auto`,
@@ -49,7 +55,7 @@ export function AppShell({ children, containerClassName }: AppShellProps) {
         <div className="flex min-w-0 flex-1 flex-col">
           <AppHeader onOpenNavigation={() => setMobileNavigationOpen(true)} />
           <main id="main-content" tabIndex={-1} className="flex-1 overflow-auto">
-            <div className={cn('mx-auto w-full max-w-6xl px-4 py-8 sm:px-6', containerClassName)}>
+            <div className={cn('w-full px-4 py-8 sm:px-6', containerClassName)}>
               {children}
             </div>
           </main>

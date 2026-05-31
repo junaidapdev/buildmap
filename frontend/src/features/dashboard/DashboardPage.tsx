@@ -73,8 +73,9 @@ export function DashboardPage() {
   useDocumentTitle('Dashboard — buildmap');
   const { data, isPending, isError, refetch } = useProjects();
 
+  // AppShell no longer caps width globally — Dashboard opts into the legacy ~6xl reading width.
   return (
-    <div>
+    <div className="mx-auto max-w-6xl">
       <DashboardHeader />
       {isPending && <DashboardSkeleton />}
       {isError && <DashboardError onRetry={() => void refetch()} />}
