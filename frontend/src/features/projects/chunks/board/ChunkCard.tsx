@@ -74,6 +74,24 @@ export function ChunkCard({ chunk, projectId, project, onMove }: ChunkCardProps)
     setActivatorNodeRef(node);
   }
 
+  // Click-to-open. dnd-kit's PointerSensor has `distance: 5` activation, so a real click (no
+  // pointer movement) doesn't start a drag — the click event fires after pointerup and we
+  // navigate. A real drag (>5px movement) starts a drag operation and dnd-kit cancels the
+  // pending click. The overflow menu wrapper stops both pointer- and click-propagation so
+  // opening/closing the ⋮ menu never navigates and never starts a drag.
+  function handleCardClick() {
+    navigate(ROUTES.PROJECT_CHUNK(projectId, chunk.id));
+  }
+
+  function handleCardKeyDown(event: React.KeyboardEvent<HTMLLIElement>) {
+    // Enter triggers the same navigation as click; Space is reserved for dnd-kit's keyboard
+    // drag activation, so we deliberately don't handle it here.
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      navigate(ROUTES.PROJECT_CHUNK(projectId, chunk.id));
+    }
+  }
+
   return (
     <li
       ref={setRefs}
@@ -82,15 +100,19 @@ export function ChunkCard({ chunk, projectId, project, onMove }: ChunkCardProps)
         'group relative cursor-grab touch-none select-none rounded-lg border border-border bg-card p-3 text-card-foreground shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing',
         isDragging && 'opacity-50',
       )}
+      onClick={handleCardClick}
+      onKeyDown={handleCardKeyDown}
       {...attributes}
       {...listeners}
     >
       <ChunkCardCompact chunk={chunk} project={project} />
 
-      {/* Overflow menu pinned to the top-right corner of the card. Stops pointer events from
-          propagating into the dnd-kit listeners so opening the menu never triggers a drag. */}
+      {/* Overflow menu pinned to the top-right corner of the card. Stops both pointer- and
+          click-propagation so opening the menu never starts a drag AND never triggers the
+          card-level navigation. */}
       <div
         className="absolute right-2 top-2"
+        onClick={(event) => event.stopPropagation()}
         onPointerDown={(event) => event.stopPropagation()}
       >
         <DropdownMenu>
