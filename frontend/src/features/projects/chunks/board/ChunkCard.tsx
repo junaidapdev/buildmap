@@ -46,7 +46,15 @@ type ChunkCardProps = {
  */
 export function ChunkCard({ chunk, projectId, project, onMove }: ChunkCardProps) {
   const navigate = useNavigate();
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: chunk.id,
     data: { status: chunk.status },
   });
@@ -56,12 +64,22 @@ export function ChunkCard({ chunk, projectId, project, onMove }: ChunkCardProps)
     transition,
   };
 
+  // Whole card is the drag activator. We explicitly assign both setNodeRef AND setActivatorNodeRef
+  // to the <li> via a combined callback ref — relying on dnd-kit's implicit "node is activator
+  // when activator ref isn't set" default proved unreliable here (drags wouldn't start at all on
+  // the card body). Spreading listeners/attributes on the same element with the activator ref
+  // explicitly bound makes drag activation deterministic.
+  function setRefs(node: HTMLElement | null) {
+    setNodeRef(node);
+    setActivatorNodeRef(node);
+  }
+
   return (
     <li
-      ref={setNodeRef}
+      ref={setRefs}
       style={style}
       className={cn(
-        'group relative rounded-lg border border-border bg-card p-3 text-card-foreground shadow-sm transition-shadow hover:shadow-md',
+        'group relative cursor-grab touch-none select-none rounded-lg border border-border bg-card p-3 text-card-foreground shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing',
         isDragging && 'opacity-50',
       )}
       {...attributes}
