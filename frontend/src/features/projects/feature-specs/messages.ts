@@ -3,7 +3,19 @@ export const FEATURE_SPEC_MESSAGES = {
   TAB_PROMPT: 'Prompt',
   TAB_NOTES: 'Notes',
 
-  BACK_TO_BOARD: 'Back to chunks',
+  BACK_TO_BOARD: 'All chunks',
+  VIEW_PROMPT_BUTTON: 'View prompt',
+  STATUS_SELECT_LABEL: 'Status',
+  CARD_FILES_LABEL: (n: number) => `${n} file${n === 1 ? '' : 's'}`,
+  CARD_EFFORT_LABEL: (effort: string) => `Effort ${effort}`,
+  CARD_AGENT_FALLBACK: 'No agent',
+  CARD_AGENT_LABELS: {
+    claude_code: 'Claude Code',
+    cursor: 'Cursor',
+    codex: 'Codex',
+    windsurf: 'Windsurf',
+    other: 'Custom',
+  } as const,
 
   PENDING_TITLE: 'Drafting your feature spec…',
   PENDING_BODY: 'This usually takes 30–60 seconds.',
@@ -16,6 +28,7 @@ export const FEATURE_SPEC_MESSAGES = {
   PAGE_LOAD_ERROR_BODY: 'It may not exist, or you may not have access. Try again.',
 
   REGENERATE_BUTTON: 'Regenerate spec',
+  REGENERATE_HEADER_BUTTON: 'Regenerate all',
   REGENERATE_BUSY: 'Regenerating…',
   REGENERATE_CONFIRM_TITLE: 'Regenerate this feature spec?',
   REGENERATE_CONFIRM_BODY:
@@ -24,10 +37,12 @@ export const FEATURE_SPEC_MESSAGES = {
   REGENERATE_CONFIRM_CANCEL: 'Cancel',
   REGENERATE_HINT: 'Edit or regenerate any section above, or regenerate the whole spec.',
   DOWNLOAD_BUTTON: 'Download',
+  EXPORT_HEADER_BUTTON: 'Export',
 
   APPROVE_BUTTON: 'Approve spec',
   APPROVE_BUTTON_BUSY: 'Approving…',
   APPROVED_BANNER: 'Spec approved.',
+  APPROVED_BADGE: 'Approved',
   APPROVE_FAILED: 'We could not approve this spec. Try again.',
 
   SECTION_GOAL: 'Goal',
