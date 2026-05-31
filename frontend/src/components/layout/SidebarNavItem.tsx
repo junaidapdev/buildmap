@@ -28,15 +28,16 @@ function itemDestination(item: NavItem, projectId?: string): string {
 }
 
 /**
- * One sidebar row. Tighter (30px) than the previous 40px-tall rows to match the design's denser
- * navigation rhythm. Renders the icon at 70% opacity until active/hover, then full strength. The
- * optional `count` / `shortcut` slot sits on the right and matches `tabular-nums` so columns of
- * counts align cleanly between rows.
+ * One sidebar row.
  *
- * When the sidebar is collapsed, the label span and the count/shortcut slot are NOT rendered at
- * all (rather than visually hidden with `sr-only`) so the flex `gap` between icon and label can't
- * leave a phantom 9px space that would push the icon off-center. Accessibility comes from
- * `aria-label` on the link/button and the existing hover Tooltip.
+ * Two layouts share most styling:
+ *   - Expanded: flex row with icon + label + optional count/shortcut. 30px tall, gap 9px.
+ *   - Collapsed: a `grid place-items-center` 30×40 cell. Grid centering is unambiguous — no
+ *     `w-full` math, no `justify-center` interaction with `gap`, no `sr-only` phantom slot.
+ *     Whatever the parent nav's padding is, the icon ends up exactly at the center of the row.
+ *
+ * Accessibility when collapsed: the link/button carries `aria-label={item.label}` and the
+ * surrounding Tooltip surfaces the label on hover.
  */
 export function SidebarNavItem({
   item,
@@ -47,11 +48,15 @@ export function SidebarNavItem({
   shortcut,
 }: SidebarNavItemProps) {
   const Icon = item.icon;
-  // Drop the flex `gap` when collapsed so the icon sits cleanly in the centered row.
-  const baseClassName = cn(
-    'group flex h-[30px] w-full items-center rounded-md px-2 text-[13px] text-secondaryText transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-    collapsed ? 'gap-0' : 'gap-[9px]',
-  );
+
+  // Shared visual treatment (no layout primitive here — each branch picks its own).
+  const baseClassName =
+    'group h-[30px] rounded-md text-[13px] text-secondaryText transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2';
+
+  // Layout: collapsed uses grid place-items-center for ironclad centering; expanded uses flex.
+  const layoutClassName = collapsed
+    ? 'grid w-10 place-items-center'
+    : 'flex w-full items-center gap-[9px] px-2';
 
   const rowContents = (
     <>
@@ -75,8 +80,8 @@ export function SidebarNavItem({
             aria-label={collapsed ? item.label : undefined}
             className={cn(
               baseClassName,
+              layoutClassName,
               'cursor-not-allowed opacity-60 hover:bg-hover',
-              collapsed && 'justify-center px-0',
             )}
             type="button"
           >
@@ -96,11 +101,9 @@ export function SidebarNavItem({
       className={({ isActive }) =>
         cn(
           baseClassName,
-          'hover:bg-hover hover:text-foreground',
-          '[&_svg]:group-hover:opacity-100',
-          collapsed && 'justify-center px-0',
-          isActive &&
-            'bg-inset font-medium text-foreground [&_svg]:opacity-100',
+          layoutClassName,
+          'hover:bg-hover hover:text-foreground [&_svg]:group-hover:opacity-100',
+          isActive && 'bg-inset font-medium text-foreground [&_svg]:opacity-100',
         )
       }
       end
