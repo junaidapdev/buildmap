@@ -82,7 +82,10 @@ export function PrdPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
+    // max-w-7xl matches the Lumen mockup width — wide enough that the section cards stretch
+    // across most of the available content area instead of getting boxed in the middle on wide
+    // viewports. The subtitle keeps its own max-w-2xl so the prose stays comfortable to read.
+    <div className="mx-auto max-w-7xl">
       <header className="mb-8 border-b border-border-subtle pb-7">
         <p className="page-eyebrow">{PRD_MESSAGES.PAGE_EYEBROW}</p>
         <h1 className="mt-2 text-[28px] font-semibold leading-[1.1] tracking-tight">
