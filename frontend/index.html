@@ -46,6 +46,23 @@
     />
     <meta name="twitter:image" content="/og-image.png" />
     <meta name="twitter:image:alt" content="buildmap — plan the project so the agent can ship it" />
+
+    <!-- Microsoft Clarity (session replay + heatmaps). Project ID is not secret — it ships in the
+         client bundle and is visible in DevTools to every visitor. The hostname guard skips
+         `npm run dev` (Vite at localhost:5173) and `npm run preview` (Vite at localhost:4173) so
+         local sessions don't pollute the dashboard. Vercel preview deployments use *.vercel.app
+         subdomains and ARE tracked — fine for hackathon judging; revisit if you want them excluded. -->
+    <script>
+      (function () {
+        var h = location.hostname;
+        if (h === 'localhost' || h === '127.0.0.1') return;
+        (function (c, l, a, r, i, t, y) {
+          c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+          t = l.createElement(r); t.async = 1; t.src = 'https://www.clarity.ms/tag/' + i;
+          y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+        })(window, document, 'clarity', 'script', 'wzn4e3xbud');
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
