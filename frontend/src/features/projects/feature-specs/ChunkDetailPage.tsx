@@ -23,7 +23,8 @@ export function ChunkDetailPage() {
   const { project } = useProject();
   // Hook called unconditionally (disabled when chunkId is absent) to keep hook order stable.
   const chunkQuery = useChunk(chunkId ?? '');
-  // Controlled tabs so the Prompt tab's SpecRequired state can deep-link back to the Spec tab.
+  // Controlled tabs so the Prompt tab's SpecRequired state can deep-link back to the Spec tab,
+  // and so the header's "View prompt" button can snap to the Prompt panel.
   const [tab, setTab] = useState<TabValue>('spec');
 
   // Title hook stays above the Navigate early return so hook order is stable across renders.
@@ -37,7 +38,7 @@ export function ChunkDetailPage() {
 
   if (chunkQuery.isPending) {
     return (
-      <div className="mx-auto max-w-4xl space-y-4">
+      <div className="mx-auto max-w-7xl space-y-4">
         <Skeleton className="h-8 w-2/3" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-64 w-full" />
@@ -47,7 +48,7 @@ export function ChunkDetailPage() {
 
   if (chunkQuery.isError || !chunkQuery.data) {
     return (
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-7xl">
         <section className="flex flex-col items-center py-16 text-center" role="alert">
           <div className="mb-4 rounded-full bg-destructive/10 p-3 text-destructive">
             <AlertCircle aria-hidden="true" className="h-6 w-6" />
@@ -72,7 +73,9 @@ export function ChunkDetailPage() {
   const chunk = chunkQuery.data;
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    // max-w-7xl matches the rest of the project surfaces so the chunk detail page shares the
+    // same viewport rhythm as Overview / Brief / PRD / Architecture / Context Files / Progress.
+    <div className="mx-auto max-w-7xl space-y-6">
       <Button asChild className="-ml-2 text-muted-foreground" size="sm" variant="ghost">
         <Link to={ROUTES.PROJECT_CHUNKS(id)}>
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
@@ -80,13 +83,32 @@ export function ChunkDetailPage() {
         </Link>
       </Button>
 
-      <ChunkHeader chunk={chunk} projectId={id} />
+      <ChunkHeader chunk={chunk} onViewPrompt={() => setTab('prompt')} projectId={id} />
 
       <Tabs onValueChange={(value) => setTab(value as TabValue)} value={tab}>
-        <TabsList className="max-w-full overflow-x-auto">
-          <TabsTrigger value="spec">{FEATURE_SPEC_MESSAGES.TAB_SPEC}</TabsTrigger>
-          <TabsTrigger value="prompt">{FEATURE_SPEC_MESSAGES.TAB_PROMPT}</TabsTrigger>
-          <TabsTrigger value="notes">{FEATURE_SPEC_MESSAGES.TAB_NOTES}</TabsTrigger>
+        {/*
+          Underlined-tab variant of shadcn TabsList — flat row with a single bottom rule, per-trigger
+          underline on the active tab. Matches the Context Files page tabs.
+        */}
+        <TabsList className="flex h-auto items-center justify-start gap-0 overflow-x-auto rounded-none border-b border-border-subtle bg-transparent p-0">
+          <TabsTrigger
+            className="rounded-none border-b-2 border-transparent px-4 py-2.5 text-[13px] font-medium data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
+            value="spec"
+          >
+            {FEATURE_SPEC_MESSAGES.TAB_SPEC}
+          </TabsTrigger>
+          <TabsTrigger
+            className="rounded-none border-b-2 border-transparent px-4 py-2.5 text-[13px] font-medium data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
+            value="prompt"
+          >
+            {FEATURE_SPEC_MESSAGES.TAB_PROMPT}
+          </TabsTrigger>
+          <TabsTrigger
+            className="rounded-none border-b-2 border-transparent px-4 py-2.5 text-[13px] font-medium data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
+            value="notes"
+          >
+            {FEATURE_SPEC_MESSAGES.TAB_NOTES}
+          </TabsTrigger>
         </TabsList>
         <TabsContent className="mt-6" value="spec">
           <FeatureSpecTab chunk={chunk} chunkId={chunkId} />
