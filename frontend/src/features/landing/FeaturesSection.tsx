@@ -34,12 +34,12 @@ const FEATURE_ICON: Record<FeatureIconName, LucideIcon> = {
 export function FeaturesSection() {
   return (
     <section
-      className="mx-auto max-w-6xl border-t border-border-subtle px-6 py-16"
+      className="mx-auto max-w-6xl border-t border-border-subtle px-4 py-12 sm:px-6 sm:py-16"
       id="deliverables"
     >
-      <div className="mb-9">
+      <div className="mb-7 sm:mb-9">
         <p className="page-eyebrow">{LANDING_MESSAGES.FEATURES_EYEBROW}</p>
-        <h2 className="max-w-2xl text-balance text-[clamp(1.5rem,3.5vw,2rem)] font-semibold leading-tight tracking-tight">
+        <h2 className="max-w-2xl text-balance text-[clamp(1.25rem,4vw,2rem)] font-semibold leading-tight tracking-tight">
           {LANDING_MESSAGES.FEATURES_TITLE}
         </h2>
       </div>

@@ -11,13 +11,13 @@ import { LANDING_MESSAGES } from '@/features/landing/messages';
 export function ForWhoSection() {
   return (
     <section
-      className="mx-auto max-w-6xl border-t border-border-subtle px-6 py-16"
+      className="mx-auto max-w-6xl border-t border-border-subtle px-4 py-12 sm:px-6 sm:py-16"
       id="for"
     >
-      <div className="grid gap-12 lg:grid-cols-2">
+      <div className="grid gap-10 lg:grid-cols-2 lg:gap-12">
         <div>
           <p className="page-eyebrow">{LANDING_MESSAGES.FOR_EYEBROW}</p>
-          <h2 className="max-w-xl text-balance text-[clamp(1.625rem,3.6vw,2.25rem)] font-semibold leading-tight tracking-tight">
+          <h2 className="max-w-xl text-balance text-[clamp(1.375rem,4vw,2.25rem)] font-semibold leading-tight tracking-tight">
             {LANDING_MESSAGES.FOR_TITLE}
           </h2>
           <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-secondaryText">

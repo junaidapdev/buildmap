@@ -17,7 +17,7 @@ import { ProductPreview } from '@/features/landing/ProductPreview';
  */
 export function HeroSection() {
   return (
-    <section className="relative mx-auto max-w-6xl px-6 pb-16 pt-20 sm:pt-24">
+    <section className="relative mx-auto max-w-6xl px-4 pb-12 pt-14 sm:px-6 sm:pb-16 sm:pt-24">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 h-[640px] opacity-40"
@@ -41,18 +41,18 @@ export function HeroSection() {
           <ArrowRight aria-hidden="true" className="size-3 opacity-50" />
         </Link>
 
-        <h1 className="text-balance text-[clamp(2.5rem,6vw,4.25rem)] font-semibold leading-[1.02] tracking-tight">
+        <h1 className="text-balance text-[clamp(2rem,7vw,4.25rem)] font-semibold leading-[1.05] tracking-tight sm:leading-[1.02]">
           {LANDING_MESSAGES.HERO_HEADLINE_PRIMARY}
           <br />
           <span className="text-muted-foreground">
             {LANDING_MESSAGES.HERO_HEADLINE_SECONDARY}
           </span>
         </h1>
-        <p className="mx-auto mt-5 max-w-2xl text-balance text-[17px] leading-relaxed text-secondaryText">
+        <p className="mx-auto mt-5 max-w-2xl text-balance text-[15px] leading-relaxed text-secondaryText sm:text-[17px]">
           {LANDING_MESSAGES.HERO_SUBHEAD}
         </p>
 
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
           <Button asChild size="lg">
             <Link to={`${ROUTES.SIGN_IN}?mode=signup`}>
               {LANDING_MESSAGES.HERO_PRIMARY_CTA}
@@ -77,7 +77,7 @@ export function HeroSection() {
         </ul>
       </div>
 
-      <div className="relative mt-14">
+      <div className="relative mt-10 sm:mt-14">
         <ProductPreview />
       </div>
     </section>
