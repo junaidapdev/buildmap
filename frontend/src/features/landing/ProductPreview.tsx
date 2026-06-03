@@ -117,10 +117,15 @@ export function ProductPreview() {
         </span>
       </div>
 
-      {/* Body: 200px sidebar + board */}
-      <div className="grid grid-cols-[200px_1fr]" style={{ height: 460 }}>
-        {/* Sidebar */}
-        <div className="border-r border-border-subtle bg-background p-3">
+      {/*
+        Body. Desktop (sm+): 200px sidebar + 4-column board, locked-height window.
+        Mobile (<sm): sidebar hidden (no horizontal real estate for a 200px column on a 320px
+        viewport), board grows to fill the window and scrolls horizontally — each column keeps
+        its visual identity instead of being squashed unreadable.
+      */}
+      <div className="grid grid-cols-1 sm:grid-cols-[200px_1fr] sm:[height:460px]">
+        {/* Sidebar — hidden on mobile. */}
+        <div className="hidden border-r border-border-subtle bg-background p-3 sm:block">
           <div className="flex items-center gap-2 px-1.5 pb-3 pt-1">
             <BrandMark size={20} />
             <span className="text-[13px] font-semibold tracking-tight">buildmap</span>
@@ -143,32 +148,34 @@ export function ProductPreview() {
           })}
         </div>
 
-        {/* Board */}
-        <div className="grid grid-cols-4 gap-2.5 p-4">
-          {COLUMNS.map((column) => (
-            <div key={column.title}>
-              <div className="flex items-center gap-1.5 px-1 pb-2 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
-                <span>{column.title}</span>
-                <span className="tabular-nums text-faint">{column.count}</span>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                {column.cards.map((card) => (
-                  <div
-                    className="rounded-lg border bg-elevated px-2.5 py-2 text-[11px]"
-                    key={card.id}
-                  >
-                    <div className="mb-1 flex items-center justify-between">
-                      <span className="font-mono text-faint">#{card.id}</span>
-                      <span className="inline-flex h-4 items-center rounded-full border bg-subtle px-1.5 text-[9px] font-medium text-secondaryText">
-                        {card.effort}
-                      </span>
+        {/* Board — horizontal scroll on mobile, fixed 4-col grid on sm+. */}
+        <div className="overflow-x-auto p-3 sm:p-4">
+          <div className="grid w-max grid-cols-4 gap-2.5 sm:w-auto">
+            {COLUMNS.map((column) => (
+              <div className="w-[160px] sm:w-auto" key={column.title}>
+                <div className="flex items-center gap-1.5 px-1 pb-2 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                  <span>{column.title}</span>
+                  <span className="tabular-nums text-faint">{column.count}</span>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  {column.cards.map((card) => (
+                    <div
+                      className="rounded-lg border bg-elevated px-2.5 py-2 text-[11px]"
+                      key={card.id}
+                    >
+                      <div className="mb-1 flex items-center justify-between">
+                        <span className="font-mono text-faint">#{card.id}</span>
+                        <span className="inline-flex h-4 items-center rounded-full border bg-subtle px-1.5 text-[9px] font-medium text-secondaryText">
+                          {card.effort}
+                        </span>
+                      </div>
+                      <div className="leading-[1.35]">{card.title}</div>
                     </div>
-                    <div className="leading-[1.35]">{card.title}</div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>

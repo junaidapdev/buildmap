@@ -12,8 +12,8 @@ import { LANDING_MESSAGES } from '@/features/landing/messages';
  */
 export function FinalCtaSection() {
   return (
-    <section className="mx-auto max-w-6xl px-6 pb-24 pt-16">
-      <div className="relative overflow-hidden rounded-2xl border border-foreground bg-foreground px-8 py-16 text-background sm:px-14 sm:py-20">
+    <section className="mx-auto max-w-6xl px-4 pb-16 pt-12 sm:px-6 sm:pb-24 sm:pt-16">
+      <div className="relative overflow-hidden rounded-2xl border border-foreground bg-foreground px-6 py-12 text-background sm:px-14 sm:py-20">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 opacity-[0.06]"
@@ -24,7 +24,7 @@ export function FinalCtaSection() {
           }}
         />
         <div className="relative mx-auto max-w-2xl text-center">
-          <h2 className="text-balance text-[clamp(1.875rem,4vw,2.5rem)] font-semibold leading-tight tracking-tight">
+          <h2 className="text-balance text-[clamp(1.5rem,5vw,2.5rem)] font-semibold leading-tight tracking-tight">
             {LANDING_MESSAGES.FINAL_CTA_TITLE}
           </h2>
           <p className="mx-auto mt-3 max-w-md text-balance text-[15px] text-background/70">

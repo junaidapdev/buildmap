@@ -46,17 +46,17 @@ export function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-20 border-b border-border-subtle bg-background/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center gap-6 px-6 py-3.5">
+        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:gap-6 sm:px-6 sm:py-3.5">
           <Link
             aria-label={LANDING_MESSAGES.WORDMARK}
-            className="flex items-center gap-2.5"
+            className="flex items-center gap-2 sm:gap-2.5"
             to={ROUTES.HOME}
           >
-            <BrandMark size={28} />
-            <span className="text-[16px] font-semibold tracking-tight">
+            <BrandMark size={26} />
+            <span className="text-[15px] font-semibold tracking-tight sm:text-[16px]">
               {LANDING_MESSAGES.WORDMARK}
             </span>
-            <span className="rounded-full border bg-subtle px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            <span className="hidden rounded-full border bg-subtle px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:inline">
               {LANDING_MESSAGES.BETA_PILL}
             </span>
           </Link>
@@ -71,13 +71,14 @@ export function LandingPage() {
               </a>
             ))}
           </nav>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
             <Button asChild size="sm" variant="ghost">
               <Link to={ROUTES.SIGN_IN}>{LANDING_MESSAGES.HEADER_SIGN_IN_LINK}</Link>
             </Button>
             <Button asChild size="sm">
               <Link to={`${ROUTES.SIGN_IN}?mode=signup`}>
-                {LANDING_MESSAGES.HEADER_PRIMARY_CTA}
+                <span className="hidden sm:inline">{LANDING_MESSAGES.HEADER_PRIMARY_CTA}</span>
+                <span className="sm:hidden">Start</span>
                 <ArrowRight aria-hidden="true" className="size-3.5" />
               </Link>
             </Button>
@@ -95,12 +96,12 @@ export function LandingPage() {
       </main>
 
       <footer className="border-t border-border-subtle">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-6 py-7 text-[12px] text-muted-foreground">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-6 text-[12px] text-muted-foreground sm:gap-x-4 sm:gap-y-1 sm:px-6 sm:py-7">
           <BrandMark size={20} />
           <span>{LANDING_MESSAGES.WORDMARK}</span>
-          <span className="text-faint">·</span>
-          <span>{LANDING_MESSAGES.FOOTER_TAGLINE}</span>
-          <span className="ml-auto text-faint">{LANDING_MESSAGES.FOOTER_VERSION}</span>
+          <span className="hidden text-faint sm:inline">·</span>
+          <span className="w-full sm:w-auto">{LANDING_MESSAGES.FOOTER_TAGLINE}</span>
+          <span className="text-faint sm:ml-auto">{LANDING_MESSAGES.FOOTER_VERSION}</span>
         </div>
       </footer>
     </div>

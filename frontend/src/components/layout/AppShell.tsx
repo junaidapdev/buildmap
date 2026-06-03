@@ -55,7 +55,7 @@ export function AppShell({ children, containerClassName }: AppShellProps) {
         <div className="flex min-w-0 flex-1 flex-col">
           <AppHeader onOpenNavigation={() => setMobileNavigationOpen(true)} />
           <main id="main-content" tabIndex={-1} className="flex-1 overflow-auto">
-            <div className={cn('w-full px-4 py-8 sm:px-6', containerClassName)}>
+            <div className={cn('w-full px-4 py-6 sm:px-6 sm:py-8', containerClassName)}>
               {children}
             </div>
           </main>

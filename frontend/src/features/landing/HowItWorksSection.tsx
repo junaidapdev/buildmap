@@ -11,10 +11,10 @@ const STEP_ICONS = [Lightbulb, FileText, Layers, Rocket] as const;
  */
 export function HowItWorksSection() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-16" id="how">
-      <div className="mb-9">
+    <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16" id="how">
+      <div className="mb-7 sm:mb-9">
         <p className="page-eyebrow">{LANDING_MESSAGES.HOW_TITLE}</p>
-        <h2 className="max-w-2xl text-balance text-[clamp(1.5rem,3.5vw,2rem)] font-semibold leading-tight tracking-tight">
+        <h2 className="max-w-2xl text-balance text-[clamp(1.25rem,4vw,2rem)] font-semibold leading-tight tracking-tight">
           {LANDING_MESSAGES.HOW_SUBTITLE}
         </h2>
       </div>
@@ -24,7 +24,7 @@ export function HowItWorksSection() {
             const Icon = STEP_ICONS[index] ?? Lightbulb;
             return (
               <div
-                className="border-b border-border-subtle p-7 last:border-b-0 sm:[&:nth-child(2n+1)]:border-r lg:[&:not(:last-child)]:border-r lg:[&:not(:last-child)]:border-b-0 lg:[&:nth-child(2n+1)]:border-b-0"
+                className="border-b border-border-subtle p-5 last:border-b-0 sm:p-7 sm:[&:nth-child(2n+1)]:border-r lg:[&:not(:last-child)]:border-r lg:[&:not(:last-child)]:border-b-0 lg:[&:nth-child(2n+1)]:border-b-0"
                 key={step.number}
               >
                 <p className="mb-4 font-mono text-[11px] text-faint">{step.number}</p>
